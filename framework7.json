@@ -1,0 +1,18 @@
+{
+  "cwd": "/Users/jf/www/projects/money-manager-svelte",
+  "type": [
+    "pwa"
+  ],
+  "name": "MoneyManager",
+  "framework": "svelte",
+  "template": "tabs",
+  "bundler": "vite",
+  "cssPreProcessor": false,
+  "theming": {
+    "customColor": true,
+    "color": "#ffd600",
+    "darkMode": true,
+    "iconFonts": true
+  },
+  "customBuild": false
+}

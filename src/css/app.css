@@ -1,0 +1,26 @@
+/* Your app custom styles here */
+
+.numpad-button {
+    height: 70px;
+  }
+
+.text-center {
+  text-align: center;
+}
+
+.text-white {
+  color: whitesmoke
+}
+
+.p-0 {
+  padding: 0 !important;
+}
+
+.my-0 {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.m-0 {
+  margin: 0;
+}
