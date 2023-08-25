@@ -9,8 +9,6 @@ export const loadFirstTransactions = async ({ state }) => {
         sort: "-date",
         expand: "contact,owner",
       });
-    console.log(res);
-
     state.transactions = res;
   } catch (error) {
     console.log(error);

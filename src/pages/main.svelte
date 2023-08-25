@@ -36,6 +36,7 @@
   console.log(user);
 
   const loadMore = () => {
+    if ($activeTab !== 1) return;
     if (!allowInfinite) return;
     allowInfinite = false;
     store.dispatch("loadMoreTransactions", {}).finally(() => {

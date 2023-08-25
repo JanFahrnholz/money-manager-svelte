@@ -7,3 +7,5 @@ export type Contact = Record & {
   user: string;
   owner: string;
 };
+
+export interface ContactInterface {}

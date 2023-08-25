@@ -1,9 +1,17 @@
 <script lang="ts">
-  import { Button, Link, List, ListInput, useStore } from "framework7-svelte";
+  import {
+    Button,
+    Link,
+    List,
+    ListInput,
+    Preloader,
+    useStore,
+  } from "framework7-svelte";
   import { client } from "../../pocketbase";
   import store from "../../store";
 
   let open = true;
+  let loading = false;
   let username = "";
   let password = "";
   let error = "";
@@ -15,12 +23,15 @@
   });
 
   const login = async () => {
+    loading = true;
     try {
       await store.dispatch("login", { username, password });
       error = "";
       window.location.reload();
     } catch (error) {
       error = error.message;
+    } finally {
+      loading = false;
     }
   };
 
@@ -47,6 +58,12 @@
 </List>
 {error}
 <p class="grid grid-cols-1 grid-gap" style="padding: 4rem">
-  <Button large fill on:click={login}>Login</Button>
+  <Button large fill on:click={login}>
+    {#if loading}
+      <Preloader />
+    {:else}
+      Login
+    {/if}
+  </Button>
   <Link href="/create-id/">no account? create one</Link>
 </p>

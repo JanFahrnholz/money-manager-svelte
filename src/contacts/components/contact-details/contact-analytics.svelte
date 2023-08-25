@@ -4,6 +4,9 @@
   import Statistics from "../../../analytics/statistics";
   import { onMount } from "svelte";
   import { formatMonthlyExact } from "../../../utils/formatter";
+  import { isInvoice } from "../../../utils/transactions";
+  import { format } from "timeago.js";
+  import Date from "../../../components/date.svelte";
 
   let totalIncome;
   let averageIncome;
@@ -13,11 +16,9 @@
 
   const statistics = new TransactionStatistics(transactions);
 
-  let lastInvoice = transactions.find(
-    (transaction) => transaction.type === "Invoice"
-  );
+  let lastInvoice = transactions.find((transaction) => isInvoice(transaction));
 
-  lastInvoice = !lastInvoice ? "none" : formatMonthlyExact(lastInvoice.date);
+  lastInvoice = !lastInvoice ? "none" : format(lastInvoice.date);
 
   const onDateRangeChange = (event) => {
     if (event.target.value === "last 30 days") Statistics.setLastNDays(30);

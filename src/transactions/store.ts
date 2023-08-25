@@ -12,7 +12,7 @@ const transactionStoreConfig = {
     transactions: {
       items: [],
       page: 1,
-      perPage: 12,
+      perPage: 20,
     },
   },
   getters: {
