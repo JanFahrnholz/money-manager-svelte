@@ -1,10 +1,21 @@
 import type { Transaction } from "../transactions/transaction";
 import type { TransactionType } from "../transactions/transaction-type";
+import {
+  isExpense,
+  isIncome,
+  isInvoice,
+  isRefund,
+} from "../utils/transactions";
 import Statistics from "./statistics";
 
 export default class TransactionStatistics extends Statistics<Transaction> {
   getByType = (type: TransactionType) =>
-    this.getData().filter((transaction) => transaction.type === type);
+    this.getData().filter((transaction) => {
+      if (isIncome({ type })) return isIncome(transaction);
+      if (isExpense({ type })) return isExpense(transaction);
+      if (isInvoice({ type })) return isInvoice(transaction);
+      if (isRefund({ type })) return isRefund(transaction);
+    });
 
   getTotalAmountByType = (type: TransactionType): number => {
     return this.getByType(type).reduce(

@@ -1,4 +1,10 @@
 import { client, clientId } from "../../pocketbase";
+import {
+  isExpense,
+  isIncome,
+  isInvoice,
+  isRefund,
+} from "../../utils/transactions";
 
 export async function createTransaction({ state, dispatch }, data) {
   data = {
@@ -23,18 +29,17 @@ export async function createTransaction({ state, dispatch }, data) {
       transaction
     );
 
-    if (transaction.type === "Income")
+    if (isIncome(transaction))
       dispatch("modifyUserBalance", transaction.amount);
-    if (transaction.type === "Expense")
+    if (isExpense(transaction))
       dispatch("modifyUserBalance", -transaction.amount);
-    if (transaction.type === "Refund")
+    if (isRefund(transaction))
       dispatch("modifyUserBalance", transaction.amount);
 
-    // state.transactions = {
-    //   ...state.transactions,
-    // };
-    // state.transactions.items = [transaction, ...state.transactions.items];
-    console.log("loadFirstTransactions");
+    state.transactions = {
+      ...state.transactions,
+    };
+    state.transactions.items = [transaction, ...state.transactions.items];
 
     dispatch("loadFirstTransactions");
   } catch (error) {
@@ -43,12 +48,12 @@ export async function createTransaction({ state, dispatch }, data) {
 }
 
 const updateContactByTransaction = (dispatch, contact, transaction) => {
-  if (transaction.type === "Invoice")
+  if (isInvoice(transaction))
     dispatch("updateContact", {
       ...contact,
       balance: contact.balance - transaction.amount,
     });
-  if (transaction.type === "Refund")
+  if (isRefund(transaction))
     dispatch("updateContact", {
       ...contact,
       balance: contact.balance + transaction.amount,
