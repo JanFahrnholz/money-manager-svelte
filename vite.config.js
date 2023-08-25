@@ -1,3 +1,4 @@
+import { SvelteKitPWA } from "@vite-pwa/sveltekit";
 import path from "path";
 
 const SRC_DIR = path.resolve(__dirname, "./src");
@@ -6,7 +7,7 @@ const BUILD_DIR = path.resolve(__dirname, "./www");
 export default async () => {
   const { svelte } = await import("@sveltejs/vite-plugin-svelte");
   return {
-    plugins: [svelte()],
+    plugins: [svelte(), SvelteKitPWA()],
     root: SRC_DIR,
     base: "",
     publicDir: PUBLIC_DIR,

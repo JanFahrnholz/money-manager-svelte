@@ -24,11 +24,13 @@
     "svelte-avatar": "^1.2.0",
     "svelte-i18n": "^3.7.0",
     "svelte-pick-a-place": "^1.1.0",
-    "swiper": "^10.0.4"
+    "swiper": "^10.0.4",
+    "timeago.js": "^4.0.2"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^2.4.2",
     "@tsconfig/svelte": "^5.0.0",
+    "@vite-pwa/sveltekit": "^0.2.5",
     "cpy-cli": "^5.0.0",
     "cross-env": "^7.0.3",
     "postcss-preset-env": "^9.0.0",
