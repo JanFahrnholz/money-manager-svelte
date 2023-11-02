@@ -1,5 +1,5 @@
 import { client, clientId } from "../pocketbase";
-
+import { alerts } from "../store";
 const authStoreConfig = {
   state: {
     user: client.authStore.model,
@@ -17,10 +17,9 @@ const authStoreConfig = {
           .authWithPassword(username, password);
         state.user = res.record;
         dispatch("loadFirstTransactions");
-        dispatch("loadContacts");
+        dispatch("getContacts");
       } catch (error) {
-        state.user = null;
-        throw new Error(error.message);
+        alerts.update((alerts) => [...alerts, error.message]);
       }
     },
     logout({ state }) {

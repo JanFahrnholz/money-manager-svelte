@@ -53,6 +53,7 @@
           footer={transaction.type}
           after={`${transaction.info}`}
           swipeout
+
           on:swipeoutDelete={() => remove(transaction.id)}
           on:swipeoutClose={() => confirm(transaction)}
         >
@@ -60,7 +61,13 @@
             <TransactionListIcon {transaction} />
           </i>
           <SwipeoutActions left>
-            <SwipeoutButton color="green" close>confirm</SwipeoutButton>
+            <SwipeoutButton 
+              color="green" 
+              confirmText={`Are you sure you want to confirm ${transaction?.amount.toFixed(2)}€ from ${contact?.name}`} 
+              close
+              >
+              confirm
+            </SwipeoutButton>
           </SwipeoutActions>
           <SwipeoutActions right>
             <SwipeoutButton

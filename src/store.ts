@@ -3,6 +3,7 @@ import contactStoreConfig from "./contacts/store";
 import authStoreConfig from "./auth/store";
 import transactionStoreConfig from "./transactions/store";
 import plannedTransactionStoreConfig from "./planned-transactions/store";
+import { writable } from "svelte/store";
 
 const store = createStore({
   state: {
@@ -27,5 +28,7 @@ const store = createStore({
     ...authStoreConfig.actions,
   },
 });
+
+export const alerts = writable([]);
 
 export default store;

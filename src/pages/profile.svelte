@@ -34,7 +34,6 @@
 </List>
 
 <List inset strong>
-  <ListButton title="Login" color="blue" link="/login/" />
   <ListButton title="Logout" color="red" onClick={logout} />
 </List>
 

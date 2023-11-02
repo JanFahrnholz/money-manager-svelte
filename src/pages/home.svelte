@@ -15,7 +15,8 @@
 
 <BlockTitle>Your account</BlockTitle>
 <List strong inset dividers class="margin-bottom-half">
-  <ListItem title="Balance" after={`${user.balance}€`} />
+  <ListItem title="Balance" after={`${user?.balance}€`} />
+  <ListItem title="Your ID" after={`${user?.id}`} />
 </List>
 
 <PlannedTransactionList />

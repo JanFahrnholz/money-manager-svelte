@@ -13,7 +13,7 @@
   const contact = transaction.expand.contact;
 
   const deleteTransaction = (done) => {
-    store.dispatch("deleteTransaction", transaction.id);
+    store.dispatch("deleteTransaction", transaction);
   };
 </script>
 
@@ -32,7 +32,7 @@
     <SwipeoutButton
       delete
       overswipe
-      confirmText="Are you sure you want to delete this transaction"
+      confirmText={`Are you sure you want to delete this transaction? Contact balance will be reverted from`}
       >Delete</SwipeoutButton
     >
   </SwipeoutActions>

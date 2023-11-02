@@ -20,20 +20,17 @@
   import Profile from "./profile.svelte";
   import store from "../store";
   import { onMount } from "svelte";
-  import { client } from "../pocketbase";
   import { storable } from "../utils/storable";
   import Login from "../auth/components/login.svelte";
 
   export let f7router;
-  let activeTab = storable(1);
+  let activeTab = storable("active-tab", 1);
   let showPreloader = true;
   let allowInfinite = true;
 
   let user = useStore(store, "user", (value) => {
-    console.log(value);
     user = value;
   });
-  console.log(user);
 
   const loadMore = () => {
     if ($activeTab !== 1) return;
@@ -70,9 +67,7 @@
 >
   {#if !user}
     <Login />
-  {/if}
-
-  {#if user !== null}
+  {:else}
     <Navbar>
       {#if $activeTab === 1}
         <NavTitle sliding>MoneyManager</NavTitle>

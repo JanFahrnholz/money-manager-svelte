@@ -18,7 +18,7 @@
 
   onMount(() => {
     f7ready(() => {
-      store.dispatch("loadContacts", {});
+      store.dispatch("getContacts", {});
     });
   });
 </script>

@@ -1,12 +1,9 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-
-  import { App, View, Views, f7ready } from "framework7-svelte";
-
+  import { App, View, Views } from "framework7-svelte";
   import routes from "./routes";
   import store from "./store";
+  import { client } from "./pocketbase";
 
-  // Framework7 Parameters
   let f7params = {
     name: "MoneyManager", // App name
     theme: "auto", // Automatic theme detection
@@ -24,16 +21,10 @@
           }
         : {},
   };
-  onMount(() => {
-    f7ready(() => {
-      // Call F7 APIs here
-    });
-  });
+  
 </script>
 
 <App {...f7params}>
   <!-- Views/Tabs container -->
-
-  <View main tabActive url="/" />
-  <View main url="/login/" />
+  <View main url="/" />
 </App>

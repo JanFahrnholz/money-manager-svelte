@@ -25,4 +25,7 @@
     {/if}
     <TransactionListItem {transaction} />
   {/each}
+  {#if transactions.items?.length === 0}
+    <ListItem title="no items yet" />
+  {/if}
 </List>

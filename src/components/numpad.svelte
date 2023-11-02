@@ -2,7 +2,8 @@
   import { Block, Button } from "framework7-svelte";
   import { createEventDispatcher } from "svelte";
 
-  export let value = "";
+  export let initial = 0;
+  export let value = initial !== 0 ? initial.toString() : "";
   export let maxDecimalPoints = 2;
   let decimalCount = 0;
   let isDecimal = false;

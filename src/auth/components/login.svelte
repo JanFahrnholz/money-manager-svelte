@@ -6,15 +6,18 @@
     ListInput,
     Preloader,
     useStore,
+    f7
   } from "framework7-svelte";
   import { client } from "../../pocketbase";
-  import store from "../../store";
+  import store, { alerts } from "../../store";
+  import Alerts from "../../components/alerts.svelte";
+
 
   let open = true;
   let loading = false;
   let username = "";
   let password = "";
-  let error = "";
+  let toastTop;
 
   let user = useStore("user", (value) => {
     console.log("🚀 ~ user changed", value);
@@ -26,37 +29,52 @@
     loading = true;
     try {
       await store.dispatch("login", { username, password });
-      error = "";
-      window.location.reload();
     } catch (error) {
-      error = error.message;
+      showToastTop(error.message)
     } finally {
       loading = false;
     }
   };
 
-  client.authStore.onChange((user) => {
-    console.log(user, "onc");
-  });
+  const handleKeydown =(e)=> {
+    if(e.key === "Enter") login();
+  }
+
+  function showToastTop(text) {
+    // Create toast
+    if (!toastTop) {
+      toastTop = f7.toast.create({
+        text,
+        position: 'top',
+        closeTimeout: 2000,
+      });
+    }
+    // Open it
+    toastTop.open();
+  }
+
 </script>
 
-<div style="height: 16rem;" />
+<div style="height: 14rem;" />
 <div class="block-title-large text-white text-center">Login</div>
-<List strong inset dividers>
-  <ListInput
+<!-- svelte-ignore a11y-no-static-element-interactions -->
+<div on:keydown={handleKeydown}>
+  <List strong inset dividers>
+    <ListInput
     type="text"
     name="username"
     placeholder="Your ID"
     bind:value={username}
-  />
-  <ListInput
+    />
+    <ListInput
     type="password"
     name="password"
     placeholder="Your password"
     bind:value={password}
-  />
-</List>
-{error}
+    />
+  </List>
+</div>
+<Alerts/>
 <p class="grid grid-cols-1 grid-gap" style="padding: 4rem">
   <Button large fill on:click={login}>
     {#if loading}

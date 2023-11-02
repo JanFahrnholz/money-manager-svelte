@@ -9,38 +9,43 @@
     Page,
     Toggle,
     f7,
+    f7ready,
   } from "framework7-svelte";
   import Numpad from "../../components/numpad.svelte";
   import ContactSmartSelect from "../../contacts/components/contact-smart-select.svelte";
   import store from "../../store";
-  import PickAPlace from "svelte-pick-a-place";
-  import leaflet from "leaflet";
+  import { storable } from "../../utils/storable";
+  import { onMount } from "svelte";
 
   export let f7router;
 
+  let contact = storable("last-selected-contact", null);
+  let type = storable("last-selected-type", "Income");
+
   let data = {
     amount: 0,
-    contact: null,
-    type: "Income",
+    $contact,
+    $type,
     planned: false,
     info: "",
   };
 
   const onContactChange = (event) => {
-    data.contact = event.detail;
+    $contact = event.detail;
   };
 
   const onTransactionTypeChange = (event) => {
-    data.type = event.target.value;
+    $type = event.target.value;
   };
 
   const save = () => {
     f7.dialog.preloader();
-
+    
     store
       .dispatch("createTransaction", {
         ...data,
-        contact: data.contact.id,
+        contact: $contact.id,
+        type: $type,
       })
       .then(() => f7router.back())
       .finally(() => f7.dialog.close());
@@ -57,7 +62,10 @@
   <h1 style="text-align: center; font-size: 300%">{data.amount.toFixed(2)}€</h1>
 
   <List strong inset dividers form formStoreData>
-    <ContactSmartSelect on:change={(e) => onContactChange(e)} />
+    <ContactSmartSelect
+      selected={$contact}
+      on:change={(e) => onContactChange(e)}
+    />
     <ListItem
       title="Transaction type"
       smartSelect
@@ -65,7 +73,7 @@
     >
       <select
         name="Transaction type"
-        value="Income"
+        value={$type}
         on:change={(e) => onTransactionTypeChange(e)}
       >
         <option value="Income">Income</option>
