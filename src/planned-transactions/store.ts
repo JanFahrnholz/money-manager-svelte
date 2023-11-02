@@ -1,5 +1,8 @@
 import { client, clientId } from "../pocketbase";
 import { groupByProperty } from "../utils/functions";
+import getPlannedTransactions from "./actions/get";
+import deletePlannedTransaction from "./actions/delete";
+import confirmPlannedTransaction from "./actions/confirm";
 
 const plannedTransactionStoreConfig = {
   state: {
@@ -15,33 +18,9 @@ const plannedTransactionStoreConfig = {
     },
   },
   actions: {
-    async loadPlannedTransactions({ state }) {
-      try {
-        const transactions = await client
-          .collection("planned_transactions")
-          .getFullList({
-            sort: "-date",
-            expand: "contact,owner",
-          });
-        state.plannedTransactions = transactions;
-      } catch (error) {
-        console.log(error);
-      }
-    },
-    async deletePlannedTransaction({ state }, id) {
-      try {
-        await client.collection("planned_transactions").delete(id);
-        state.plannedTransactions = state.plannedTransactions.filter(
-          (transaction) => transaction.id !== id
-        );
-      } catch (error) {}
-    },
-    async confirmPlannedTransaction({ dispatch }, transaction) {
-      try {
-        await dispatch("createTransaction", transaction);
-        await dispatch("deletePlannedTransaction", transaction.id);
-      } catch (error) {}
-    },
+    getPlannedTransactions,
+    deletePlannedTransaction,
+    confirmPlannedTransaction    
   },
 };
 export default plannedTransactionStoreConfig;

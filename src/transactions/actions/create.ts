@@ -43,19 +43,26 @@ export async function createTransaction({ state, dispatch }, data) {
 
     dispatch("loadFirstTransactions");
   } catch (error) {
-    console.log(error);
+    throw new Error(error);
   }
 }
 
-const updateContactByTransaction = (dispatch, contact, transaction) => {
-  if (isInvoice(transaction))
-    dispatch("updateContact", {
-      ...contact,
-      balance: contact.balance - transaction.amount,
-    });
-  if (isRefund(transaction))
-    dispatch("updateContact", {
-      ...contact,
-      balance: contact.balance + transaction.amount,
-    });
+export const updateContactByTransaction = (dispatch, contact, transaction, action = "create") => {
+  
+  let balance = contact.balance;
+  
+  if (isInvoice(transaction)) {
+    if(action === "create") balance -= transaction.amount
+    if(action === "delete") balance += transaction.amount
+  }
+  if (isRefund(transaction)) {
+    if(action === "create") balance += transaction.amount
+    if(action === "delete") balance -= transaction.amount
+  }
+
+
+  dispatch("updateContact", {
+    ...contact,
+    balance
+  });
 };

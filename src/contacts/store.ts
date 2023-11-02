@@ -1,8 +1,9 @@
-import { client, clientId } from "../pocketbase";
 import { f7 } from "framework7-svelte";
+import { client, clientId } from "../pocketbase";
+import deleteContact from "./actions/delete";
 import updateContact from "./actions/update";
-import store from "../store";
-import { Contact } from "./types/contact";
+import createContact from "./actions/create";
+import getContacts from "./actions/get";
 
 const contactStoreConfig = {
   state: {
@@ -47,53 +48,10 @@ const contactStoreConfig = {
     },
   },
   actions: {
-    async loadContacts({ state }) {
-      state.loading = true;
-
-      try {
-        const contacts = await client.collection("contacts").getFullList();
-        state.contacts = [];
-        state.contacts = contacts;
-      } catch (error) {
-      } finally {
-        state.loading = false;
-      }
-    },
-    async addContact({ state }, { name, user }) {
-      try {
-        const contact = await client.collection("contacts").create({
-          name,
-          user,
-          owner: clientId,
-        });
-        state.contacts = [...state.contacts, contact];
-      } catch (error) {
-        f7.toast
-          .create({
-            text: error.message,
-            position: "top",
-            closeTimeout: 2000,
-          })
-          .open();
-        throw new Error(error.message);
-      }
-    },
-    async deleteContact({ state }, id) {
-      try {
-        await client.collection("contacts").delete(id);
-        state.contacts = state.contacts.filter((contact) => contact.id !== id);
-      } catch (error) {
-        f7.toast
-          .create({
-            text: error.message,
-            position: "top",
-            closeTimeout: 2000,
-          })
-          .open();
-        throw new Error(error.message);
-      }
-    },
+    getContacts,
+    createContact,
     updateContact,
+    deleteContact
   },
 };
 

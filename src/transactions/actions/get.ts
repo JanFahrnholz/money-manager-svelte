@@ -11,7 +11,7 @@ export const loadFirstTransactions = async ({ state }) => {
       });
     state.transactions = res;
   } catch (error) {
-    console.log(error);
+    throw new Error(error);
   }
 };
 
@@ -28,7 +28,7 @@ export const loadMoreTransactions = async ({ state }) => {
     const items = [...state.transactions.items, ...res.items];
     state.transactions = { ...res, items };
   } catch (error) {
-    console.log(error);
+    throw new Error(error);
   }
 };
 
@@ -41,6 +41,6 @@ export const loadAllTransactions = async ({ state }) => {
         expand: "contact,owner",
       });
   } catch (error) {
-    console.log(error);
+    throw new Error(error);
   }
 };
