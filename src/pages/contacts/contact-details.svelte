@@ -10,14 +10,13 @@
     useStore,
   } from "framework7-svelte";
   import store from "../../store";
+  import TransactionListIcon from "../../transactions/components/transaction-list-icon.svelte";
   import {
     formatDailyDate,
-    formatMonthlyExact,
-    formatTime,
+    formatTime
   } from "../../utils/formatter";
-  import ContactAnalytics from "../../contacts/components/contact-details/contact-analytics.svelte";
-  import TransactionListIcon from "../../transactions/components/transaction-list-icon.svelte";
   import { renderDailyDivider } from "../../utils/functions";
+  import TransactionStatistics from "../../statistics/components/transaction-statistics.svelte";
 
   let user = useStore("user", (v) => (user = v));
 
@@ -46,7 +45,7 @@
     <ListItem title="Balance" after={`${contact.balance}€`} />
   </List>
 
-  <ContactAnalytics {transactions} />
+  <TransactionStatistics {transactions} />
 
   <BlockTitle>Options</BlockTitle>
   <List strong inset dividers>
