@@ -12,10 +12,7 @@
   let type = defaultType;
 
   const onDateRangeChange = (event) => {
-    if (event.target.value === "all time") Statistics.setLastNDays(0);
-    if (event.target.value === "last 30 days") Statistics.setLastNDays(30);
-    if (event.target.value === "last 14 days") Statistics.setLastNDays(14);
-    if (event.target.value === "last 7 days") Statistics.setLastNDays(7);
+    Statistics.setLastNDays(+event.target.value);
     refresh();
   };
 

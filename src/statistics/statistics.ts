@@ -43,6 +43,7 @@ export default class Statistics<T extends DataItem> {
   };
 
   static getLastNDays = () => {
+    if(Statistics.dateRangeStart === null) return 0;
     const date = new Date();
     const dateStart = new Date(Statistics.dateRangeStart);
     const diff = date.getTime() - dateStart.getTime();
