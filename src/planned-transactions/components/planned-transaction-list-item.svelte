@@ -1,16 +1,16 @@
 <script lang="ts">
-  import { createEventDispatcher } from "svelte";
-  import TransactionListIcon from "../../transactions/components/transaction-list-icon.svelte";
   import {
-    ListItem,
     AccordionContent,
     List,
+    ListItem,
     SwipeoutActions,
     SwipeoutButton,
-    ListButton,
+    f7
   } from "framework7-svelte";
-  import store from "../../store";
+  import { createEventDispatcher } from "svelte";
   import ContactListItemAvatar from "../../contacts/components/contact-list-item-avatar.svelte";
+  import store from "../../store";
+  import TransactionListIcon from "../../transactions/components/transaction-list-icon.svelte";
 
   export let transactions;
   let contact = transactions[0].expand.contact;
@@ -24,10 +24,17 @@
     dispatch("close");
   };
   const confirm = (transaction) => {
-    store
-      .dispatch("confirmPlannedTransaction", transaction)
-      .then(() => dispatch("close"))
-      .catch((e) => console.log(e));
+    f7.dialog.confirm(
+      `Are you sure you want to confirm ${transaction?.amount.toFixed(
+        2
+      )}€ from ${contact?.name}`,
+      () => {
+        store
+          .dispatch("confirmPlannedTransaction", transaction)
+          .then(() => dispatch("close"))
+          .catch((e) => console.log(e));
+      }
+    );
   };
   const remove = (id) => {
     store.dispatch("deletePlannedTransaction", id);
@@ -53,7 +60,6 @@
           footer={transaction.type}
           after={`${transaction.info}`}
           swipeout
-
           on:swipeoutDelete={() => remove(transaction.id)}
           on:swipeoutClose={() => confirm(transaction)}
         >
@@ -61,11 +67,7 @@
             <TransactionListIcon {transaction} />
           </i>
           <SwipeoutActions left>
-            <SwipeoutButton 
-              color="green" 
-              confirmText={`Are you sure you want to confirm ${transaction?.amount.toFixed(2)}€ from ${contact?.name}`} 
-              close
-              >
+            <SwipeoutButton color="green" overswipe close>
               confirm
             </SwipeoutButton>
           </SwipeoutActions>
