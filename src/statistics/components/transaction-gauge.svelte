@@ -16,6 +16,7 @@
     if (!statistics) return;
 
     percentage = statistics.getPercentage();
+    percentage = percentage ? `${percentage.toFixed(2)}%` : "0%"
     total = statistics.getTotalAmount();
     type = TransactionStatistics.type;
   };
@@ -28,7 +29,7 @@
     size={200}
     borderWidth={10}
     borderBgColor={f7.colors.primary}
-    valueText={`${percentage || "0"}%`}
+    valueText={percentage}
     valueFontSize={41}
     valueTextColor={f7.colors.primary}
     labelText={`total of ${total || "0"}€`}
