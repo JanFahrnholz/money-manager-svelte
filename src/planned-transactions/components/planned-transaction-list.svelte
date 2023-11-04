@@ -14,35 +14,34 @@
 
   onMount(() =>
     f7ready(() => {
-      store.dispatch("loadPlannedTransactions", {});
+      store.dispatch("getPlannedTransactions", {});
     })
   );
 </script>
 
 {#if plannedTransactions.length !== 0}
-  <BlockTitle>Planned transactions</BlockTitle>
+  <BlockTitle>planned transactions</BlockTitle>
+  <List
+    accordionList
+    strong
+    inset
+    dividers
+    class="no-margin-bottom margin-top-half"
+  >
+    {#each plannedTransactions as [contactId, transactions]}
+      <PlannedTransactionListItem
+        {transactions}
+        on:open={() => (showHelper = true)}
+        on:close={() => (showHelper = false)}
+      />
+    {/each}
+  </List>
+
+  <div style="height: 15px;">
+    {#if showHelper}
+      <div class="block-footer no-margin-top no-margin-bottom" transition:fade>
+        Swipe to confirm or delete
+      </div>
+    {/if}
+  </div>
 {/if}
-
-<List
-  accordionList
-  strong
-  inset
-  dividers
-  class="margin-bottom-half margin-top-half"
->
-  {#each plannedTransactions as [contactId, transactions]}
-    <PlannedTransactionListItem
-      {transactions}
-      on:open={() => (showHelper = true)}
-      on:close={() => (showHelper = false)}
-    />
-  {/each}
-</List>
-
-<div style="height: 15px;">
-  {#if showHelper}
-    <div class="block-footer no-margin-top margin-bottom-half" transition:fade>
-      Swipe to confirm or delete
-    </div>
-  {/if}
-</div>
