@@ -1,0 +1,16 @@
+services:
+  money-manager-svelte:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: deploy
+    ports:
+      - "5173:80"
+    networks:
+      - nginx
+
+
+networks:
+  nginx:
+    name: nginx
+    external: true
