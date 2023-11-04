@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
       target: deploy
     ports:
-      - "5173:80"
+      - "80:80"
     networks:
       - nginx
 
