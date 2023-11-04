@@ -41,4 +41,11 @@ export default class Statistics<T extends DataItem> {
     date.setDate(date.getDate() - days);
     Statistics.dateRangeStart = date;
   };
+
+  static getLastNDays = () => {
+    const date = new Date();
+    const dateStart = new Date(Statistics.dateRangeStart);
+    const diff = date.getTime() - dateStart.getTime();
+    return Math.floor(diff / (1000 * 60 * 60 * 24));
+  };
 }
