@@ -9,14 +9,11 @@
     f7,
     useStore,
   } from "framework7-svelte";
+  import TransactionStatistics from "../../statistics/components/transaction-statistics.svelte";
   import store from "../../store";
   import TransactionListIcon from "../../transactions/components/transaction-list-icon.svelte";
-  import {
-    formatDailyDate,
-    formatTime
-  } from "../../utils/formatter";
+  import { formatDailyDate, formatTime } from "../../utils/formatter";
   import { renderDailyDivider } from "../../utils/functions";
-  import TransactionStatistics from "../../statistics/components/transaction-statistics.svelte";
 
   let user = useStore("user", (v) => (user = v));
 
