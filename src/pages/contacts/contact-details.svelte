@@ -30,6 +30,8 @@
       }
     );
   };
+
+  const makeCourier = ()=> {}
 </script>
 
 <Page>
@@ -46,6 +48,7 @@
 
   <BlockTitle>Options</BlockTitle>
   <List strong inset dividers>
+    <ListButton on:click={makeCourier} title="make courier" color="blue" />
     <ListButton on:click={deleteContact} title="delete contact" color="red" />
   </List>
 

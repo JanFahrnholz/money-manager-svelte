@@ -3,8 +3,10 @@
   import TransactionStatistics from "../transaction-statistics";
   import TransactionStatisticsOptions from "./transaction-statistics-options.svelte";
   let percentage;
+  let percentageText;
   let type;
   let total;
+  let avg;
   let statistics;
   let transactions = useStore("transactions", (value) => {
     statistics = new TransactionStatistics(value.items);
@@ -16,8 +18,9 @@
     if (!statistics) return;
 
     percentage = statistics.getPercentage();
-    percentage = percentage ? `${percentage.toFixed(2)}%` : "0%"
+    percentageText = percentage ? `${percentage.toFixed(2)}%` : "0%"
     total = statistics.getTotalAmount();
+    avg = statistics.getAverage();
     type = TransactionStatistics.type;
   };
 </script>
@@ -26,13 +29,13 @@
   <Gauge
     type="circle"
     value={percentage / 100}
-    size={200}
+    size={170}
     borderWidth={10}
-    borderBgColor={f7.colors.primary}
-    valueText={percentage}
-    valueFontSize={41}
+    borderColor={f7.colors.primary}
+    valueText={percentageText}
+    valueFontSize={30}
     valueTextColor={f7.colors.primary}
-    labelText={`total of ${total || "0"}€`}
+    labelText={`total ${total || "0"}€`}
   />
 </Block>
 <TransactionStatisticsOptions

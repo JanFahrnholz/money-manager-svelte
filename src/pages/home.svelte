@@ -7,6 +7,7 @@
   } from "framework7-svelte";
   import PlannedTransactionList from "../planned-transactions/components/planned-transaction-list.svelte";
   import TransactionGauge from "../statistics/components/transaction-gauge.svelte";
+  import TransactionPieChart from "../statistics/components/transaction-piechart.svelte";
   import store from "../store";
   import TransactionList from "../transactions/components/transaction-list.svelte";
 
@@ -21,5 +22,6 @@
 
 <BlockTitle>transactions</BlockTitle>
 <TransactionGauge />
+<!-- <TransactionPieChart /> -->
 <PlannedTransactionList />
 <TransactionList />

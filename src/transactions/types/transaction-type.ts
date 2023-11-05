@@ -7,3 +7,5 @@ export type TransactionType =
   | "Expense"
   | "Invoice"
   | "Refund";
+
+export const types = ["Income", "Expense", "Invoice", "Refund"]
