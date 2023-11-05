@@ -45,6 +45,9 @@
   >
     <select on:change={onDateRangeChange} value={dateRange}>
       <option value={0}>all time</option>
+      <option value={365}>last year</option>
+      <option value={365 / 2}>last half year</option>
+      <option value={60}>last 2 month</option>
       <option value={30}>last 30 days</option>
       <option value={14}>last 14 days</option>
       <option value={7}>last 7 days</option>
