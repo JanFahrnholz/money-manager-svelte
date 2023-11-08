@@ -20,7 +20,7 @@
 </script>
 
 {#if plannedTransactions.length !== 0}
-  <BlockTitle>planned transactions</BlockTitle>
+  <BlockTitle>Planned transactions</BlockTitle>
   <List
     accordionList
     strong

@@ -15,7 +15,7 @@
   let user = "";
 
   const save = () => {
-    store.dispatch("addContact", { name, user }).then(() => f7router.back());
+    store.dispatch("createContact", { name, user }).then(() => f7router.back());
   };
 </script>
 

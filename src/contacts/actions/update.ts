@@ -13,5 +13,8 @@ export default async function updateContact({ state }, contact) {
     });
 
     f7.toast.create({ text: "updated contact", closeTimeout: 2000 });
-  } catch (error) {}
+    return newContact;
+  } catch (error) {
+    f7.dialog.alert(error.message).setTitle("Contact update")
+  }
 }

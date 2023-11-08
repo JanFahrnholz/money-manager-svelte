@@ -5,15 +5,26 @@
     ListItem,
     SwipeoutActions,
     SwipeoutButton,
-    f7
+    f7,
   } from "framework7-svelte";
   import { createEventDispatcher } from "svelte";
   import ContactListItemAvatar from "../../contacts/components/contact-list-item-avatar.svelte";
   import store from "../../store";
   import TransactionListIcon from "../../transactions/components/transaction-list-icon.svelte";
+  import { isInvoice, isRefund } from "../../utils/transactions";
 
-  export let transactions;
+  export let transactions = [];
   let contact = transactions[0].expand.contact;
+  let balanceDiff = transactions.reduce((prev, item) => {
+    console.log(item, prev);
+
+    if (isInvoice(item)) return prev - item.amount;
+    if (isRefund(item)) return prev + item.amount;
+  }, 0);
+  console.log(
+    "🚀 ~ file: planned-transaction-list-item.svelte:22 ~ balanceDiff ~ balanceDiff:",
+    balanceDiff
+  );
 
   const dispatch = createEventDispatcher();
 
@@ -47,7 +58,9 @@
   onAccordionBeforeClose={close}
   accordionItem
   title={contact.name}
-  footer={`Balance: ${contact.balance}`}
+  footer={`Balance: ${contact.balance} ${
+    balanceDiff !== 0 ? `${balanceDiff > 0 ? "+" : ""}${balanceDiff}€` : ""
+  }`}
 >
   <i slot="media">
     <ContactListItemAvatar {contact} />

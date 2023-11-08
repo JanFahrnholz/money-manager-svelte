@@ -24,14 +24,40 @@
   const deleteContact = () => {
     f7.dialog.confirm(
       `All transactions for this contact will be deleted as well`,
-      `Delete contact`,
+      `Are you sure?`,
       () => {
         store.dispatch("deleteContact", contact.id).then(() => f7router.back());
       }
     );
   };
 
-  const makeCourier = ()=> {}
+  const makeCourier = () => {};
+  const removeLink = () => {
+    f7.dialog
+      .confirm(
+        "The user won't be able to see their transactions anymore.",
+        () => {
+          store
+            .dispatch("updateContact", {
+              ...contact,
+              user: "",
+            })
+            .then((updated) => (contact = updated));
+        }
+      )
+      .setTitle("Are you sure?");
+  };
+  const addLink = () => {
+    f7.dialog.prompt("Add user id", (user) => {
+      if (user === "") return;
+      store
+        .dispatch("updateContact", {
+          ...contact,
+          user,
+        })
+        .then((updated) => (contact = updated));
+    });
+  };
 </script>
 
 <Page>
@@ -49,6 +75,11 @@
   <BlockTitle>Options</BlockTitle>
   <List strong inset dividers>
     <ListButton on:click={makeCourier} title="make courier" color="blue" />
+    {#if contact.user === ""}
+      <ListButton on:click={addLink} title="link user id" color="blue" />
+    {:else}
+      <ListButton on:click={removeLink} title="remove link" color="red" />
+    {/if}
     <ListButton on:click={deleteContact} title="delete contact" color="red" />
   </List>
 
