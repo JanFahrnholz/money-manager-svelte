@@ -14,6 +14,7 @@
   import TransactionListIcon from "../../transactions/components/transaction-list-icon.svelte";
   import { formatDailyDate, formatTime } from "../../utils/formatter";
   import { renderDailyDivider } from "../../utils/functions";
+  import ContactOptions from "./contact-options.svelte";
 
   let user = useStore("user", (v) => (user = v));
 
@@ -21,43 +22,6 @@
   export let transactions;
   export let f7router;
 
-  const deleteContact = () => {
-    f7.dialog.confirm(
-      `All transactions for this contact will be deleted as well`,
-      `Are you sure?`,
-      () => {
-        store.dispatch("deleteContact", contact.id).then(() => f7router.back());
-      }
-    );
-  };
-
-  const makeCourier = () => {};
-  const removeLink = () => {
-    f7.dialog
-      .confirm(
-        "The user won't be able to see their transactions anymore.",
-        () => {
-          store
-            .dispatch("updateContact", {
-              ...contact,
-              user: "",
-            })
-            .then((updated) => (contact = updated));
-        }
-      )
-      .setTitle("Are you sure?");
-  };
-  const addLink = () => {
-    f7.dialog.prompt("Add user id", (user) => {
-      if (user === "") return;
-      store
-        .dispatch("updateContact", {
-          ...contact,
-          user,
-        })
-        .then((updated) => (contact = updated));
-    });
-  };
 </script>
 
 <Page>
@@ -68,20 +32,14 @@
     <ListItem title="Name" after={contact.name} />
     <ListItem title="ID" after={contact.user === "" ? "none" : contact.user} />
     <ListItem title="Balance" after={`${contact.balance}€`} />
+    {#if contact.user !== ""}
+      <ListItem title="Courier" after={contact.courier ? "Yes" : "No"} />
+    {/if}
   </List>
 
   <TransactionStatistics {transactions} />
 
-  <BlockTitle>Options</BlockTitle>
-  <List strong inset dividers>
-    <ListButton on:click={makeCourier} title="make courier" color="blue" />
-    {#if contact.user === ""}
-      <ListButton on:click={addLink} title="link user id" color="blue" />
-    {:else}
-      <ListButton on:click={removeLink} title="remove link" color="red" />
-    {/if}
-    <ListButton on:click={deleteContact} title="delete contact" color="red" />
-  </List>
+  <ContactOptions bind:contact />
 
   <BlockTitle>Transaction history</BlockTitle>
   <List strong inset dividers>

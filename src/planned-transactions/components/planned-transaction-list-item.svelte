@@ -21,6 +21,8 @@
     return prev;
   }, 0);
 
+  console.log(balanceDiff, contact.name)
+
   const dispatch = createEventDispatcher();
 
   const open = () => {
@@ -54,7 +56,7 @@
   accordionItem
   title={contact.name}
   footer={`Balance: ${contact.balance} ${
-    !balanceDiff ? `${balanceDiff > 0 ? "+" : ""}${balanceDiff}€` : ""
+    balanceDiff ? `${balanceDiff > 0 ? "+" : ""}${balanceDiff}€` : ""
   }`}
 >
   <i slot="media">

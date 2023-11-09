@@ -1,8 +1,10 @@
 import { f7 } from "framework7-svelte";
-import { client } from "../../pocketbase";
+import { client, clientId } from "../../pocketbase";
 
 export default async function updateContact({ state }, contact) {
   try {
+    if(contact.user === clientId) throw new Error("You cannot link yourself!");
+
     const contactId = contact.id;
     const newContact = await client
       .collection("contacts")
