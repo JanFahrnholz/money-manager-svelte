@@ -21,6 +21,9 @@ const contactStoreConfig = {
         internal: state.contacts.filter(
           (contact) => contact.owner === clientId
         ),
+        couriers: state.contacts.filter(
+          (contact) => contact.courier 
+        ),
       };
     },
     contactById({ state }, id) {

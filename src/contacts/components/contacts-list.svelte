@@ -14,11 +14,14 @@
   import ContactsListItem from "./contacts-list-item.svelte";
   import ContactListInfo from "./contact-list-info.svelte";
 
-  let contacts = useStore("contactsSorted", (value) => (contacts = value));
-
+  let contacts = useStore("contactsSorted", (value) => {
+    console.log("🚀 ~ file: contacts-list.svelte:18 ~ contacts:", contacts);
+    return (contacts = value);
+  });
   onMount(() => {
     f7ready(() => {
       store.dispatch("getContacts", {});
+      console.log(contacts);
     });
   });
 </script>
@@ -37,6 +40,15 @@
       />
     {/each}
   </List>
+  {#if contacts.couriers.length !== 0}
+    <BlockTitle>Couriers - {contacts.couriers.length}</BlockTitle>
+
+    <List strong inset dividers>
+      {#each contacts.couriers as contact}
+        <ContactsListItem {contact} />
+      {/each}
+    </List>
+  {/if}
 
   <BlockTitle
     >Your contacts - {contacts.internal.length}

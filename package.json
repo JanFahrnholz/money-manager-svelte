@@ -1,7 +1,7 @@
 {
   "name": "moneymanager",
   "private": true,
-  "version": "2.0.2-beta",
+  "version": "2.0.3-beta",
   "type": "module",
   "description": "MoneyManager",
   "repository": "github.com/JanFahrnholz/money-manager",
