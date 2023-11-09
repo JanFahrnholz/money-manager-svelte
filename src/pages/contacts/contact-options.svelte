@@ -56,7 +56,7 @@
       }
     );
   };
-  
+
   const addLink = () => {
     f7.dialog.prompt("Add user id", (user) => {
       if (user === "") return;
@@ -79,9 +79,9 @@
       <ListButton on:click={removeCourier} title="remove courier" color="red" />
     {:else}
       <ListButton on:click={addCourier} title="make courier" color="blue" />
+      <ListButton on:click={removeLink} title="remove link" color="red" />
     {/if}
 
-    <ListButton on:click={removeLink} title="remove link" color="red" />
   {/if}
   <ListButton on:click={deleteContact} title="delete contact" color="red" />
 </List>
