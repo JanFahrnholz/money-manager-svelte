@@ -20,7 +20,6 @@
   let toastTop;
 
   let user = useStore("user", (value) => {
-    console.log("🚀 ~ user changed", value);
     open = value === null ? true : false;
     return (user = value);
   });

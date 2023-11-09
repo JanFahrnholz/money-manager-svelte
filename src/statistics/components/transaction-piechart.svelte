@@ -37,7 +37,6 @@
         color: getColor(type),
       });
     });
-    console.log(datasets);
 
     percentage = statistics.getPercentage();
     percentage = percentage ? `${percentage.toFixed(2)}%` : "0%";

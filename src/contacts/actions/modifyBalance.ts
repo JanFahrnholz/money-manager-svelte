@@ -9,7 +9,6 @@ export default async function modifyContactBalance(
   try {
     const contactId = contact.id;
     const oldContact = await client.collection("contacts").getOne(contactId);
-    console.log("mod", { contact, modifier });
 
     const newContact = await client.collection("contacts").update(contactId, {
       ...oldContact,

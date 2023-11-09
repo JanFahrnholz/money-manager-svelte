@@ -20,7 +20,6 @@
   };
 
   const handleClick = () => {
-    console.log(absolute, date, "tt");
     if (!toggle) return;
     absolute = !absolute;
     refresh();

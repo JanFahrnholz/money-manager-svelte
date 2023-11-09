@@ -19,7 +19,6 @@
 
   const decimal = () => {
     value += ".";
-    console.log(value);
     isDecimal = true;
     dispatch("decimal");
   };

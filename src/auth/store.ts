@@ -35,8 +35,6 @@ const authStoreConfig = {
     },
     async modifyUserBalance({ state, dispatch }, modifier: number) {
       try {
-        console.log(modifier);
-
         await dispatch("updateUser", {
           ...state.user,
           balance: state.user.balance + modifier,

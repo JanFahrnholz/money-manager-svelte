@@ -16,15 +16,10 @@
   export let transactions = [];
   let contact = transactions[0].expand.contact;
   let balanceDiff = transactions.reduce((prev, item) => {
-    console.log(item, prev);
-
     if (isInvoice(item)) return prev - item.amount;
     if (isRefund(item)) return prev + item.amount;
+    return prev;
   }, 0);
-  console.log(
-    "🚀 ~ file: planned-transaction-list-item.svelte:22 ~ balanceDiff ~ balanceDiff:",
-    balanceDiff
-  );
 
   const dispatch = createEventDispatcher();
 
@@ -59,7 +54,7 @@
   accordionItem
   title={contact.name}
   footer={`Balance: ${contact.balance} ${
-    balanceDiff !== 0 ? `${balanceDiff > 0 ? "+" : ""}${balanceDiff}€` : ""
+    !balanceDiff ? `${balanceDiff > 0 ? "+" : ""}${balanceDiff}€` : ""
   }`}
 >
   <i slot="media">

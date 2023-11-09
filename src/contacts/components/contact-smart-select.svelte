@@ -6,7 +6,6 @@
   const dispatch = createEventDispatcher();
 
   export let selected = null;
-  console.log("🚀 ~ file: contact-smart-select.svelte:9 ~ initial:", selected)
 
   let contacts = useStore("contacts", (value) => {
     contacts = value.filter((contact) => contact.owner === clientId);
@@ -20,7 +19,7 @@
       (contact) => contact.id === event.target.value
     );
     selected = contact;
-    currentContactBalance = contact.balance;
+    if(contact) currentContactBalance = contact.balance;
     dispatch("change", contact);
   };
 
