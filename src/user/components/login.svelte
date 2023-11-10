@@ -54,7 +54,7 @@
 
 </script>
 
-<div style="height: 14rem;" />
+<div style="height: 33%;" />
 <div class="block-title-large text-white text-center">Login</div>
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div on:keydown={handleKeydown}>

@@ -1,3 +1,4 @@
+import { f7 } from "framework7-svelte";
 import { client, clientId } from "../pocketbase";
 import { alerts } from "../store";
 const authStoreConfig = {
@@ -41,6 +42,21 @@ const authStoreConfig = {
         });
       } catch (error) {}
     },
+    async updateSetting({state, dispatch}, {key, value}){
+      try {
+        dispatch("updateUser", {
+          id: state.user.id,
+          settings: {
+            ...state.user.settings,
+            [key]: value,
+          }
+        })
+        f7.toast.create({text: "user settings updated", closeTimeout: 1000})
+      } catch (error) {
+        f7.toast.create({text: "couldn't update user settings", closeTimeout: 1000})
+        
+      }
+    } 
   },
 };
 export default authStoreConfig;

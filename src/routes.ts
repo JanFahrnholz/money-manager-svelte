@@ -1,5 +1,5 @@
-import Login from "./auth/components/login.svelte";
-import Register from "./auth/components/register.svelte";
+import Login from "./user/components/login.svelte";
+import Register from "./user/components/register.svelte";
 import { contactRoutes } from "./contacts/routes";
 import NotFoundPage from "./pages/404.svelte";
 import Contacts from "./pages/contacts/contacts.svelte";

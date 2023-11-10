@@ -1,12 +1,10 @@
 <script lang="ts">
   import {
-    Link,
-    Icon,
-    Popover,
     List,
     ListItem,
-    useStore,
+    useStore
   } from "framework7-svelte";
+  import InfoPopover from "../../components/info-popover.svelte";
   import store from "../../store";
 
   let totalContactBalances = useStore(
@@ -16,20 +14,16 @@
   );
 </script>
 
-<Link popoverOpen=".contact-summary-popover">
-  <Icon size={18} ios="f7:info_circle_fill" md="material:info_outline" />
-</Link>
-
-<Popover class="contact-summary-popover">
+<InfoPopover key="contact-info" disablePadding>
   <List strong inset>
     <ListItem
-      title="Total negative"
-      after={`${totalContactBalances.negative}€`}
+    title="Total negative"
+    after={`${totalContactBalances.negative}€`}
     />
     <ListItem
-      title="Total positive"
-      after={`${totalContactBalances.positive}€`}
+    title="Total positive"
+    after={`${totalContactBalances.positive}€`}
     />
     <ListItem title="Count neutral" after={`${totalContactBalances.neutral}`} />
   </List>
-</Popover>
+</InfoPopover>

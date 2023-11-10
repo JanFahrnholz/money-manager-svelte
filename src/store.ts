@@ -1,6 +1,6 @@
 import { createStore } from "framework7/lite";
 import contactStoreConfig from "./contacts/store";
-import authStoreConfig from "./auth/store";
+import authStoreConfig from "./user/store";
 import transactionStoreConfig from "./transactions/store";
 import plannedTransactionStoreConfig from "./planned-transactions/store";
 import { writable } from "svelte/store";

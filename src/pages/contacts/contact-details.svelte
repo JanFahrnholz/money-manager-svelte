@@ -22,6 +22,15 @@
   export let transactions;
   export let f7router;
 
+  let showStatistics = user.settings?.showContactStatistics;
+  let showStatisticsText;
+
+  if (contact.settings?.showContactStatistics === undefined) {
+    showStatisticsText = `Default (${showStatistics ? "Yes" : "No"})`;
+  } else {
+    showStatistics = contact.settings?.showContactStatistics;
+    showStatisticsText = showStatistics ? "Yes" : "No";
+  }
 </script>
 
 <Page>
@@ -33,6 +42,9 @@
     <ListItem title="ID" after={contact.user === "" ? "none" : contact.user} />
     <ListItem title="Balance" after={`${contact.balance}€`} />
     {#if contact.user !== ""}
+      <ListItem title="Show statistics" after={showStatisticsText} />
+    {/if}
+    {#if contact.courier}
       <ListItem title="Courier" after={contact.courier ? "Yes" : "No"} />
     {/if}
   </List>

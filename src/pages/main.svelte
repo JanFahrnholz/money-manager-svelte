@@ -21,7 +21,7 @@
   import store from "../store";
   import { onMount } from "svelte";
   import { storable } from "../utils/storable";
-  import Login from "../auth/components/login.svelte";
+  import Login from "../user/components/login.svelte";
 
   export let f7router;
   let activeTab = storable("active-tab", 1);

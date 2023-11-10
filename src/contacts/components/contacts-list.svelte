@@ -13,6 +13,7 @@
   import store from "../../store";
   import ContactsListItem from "./contacts-list-item.svelte";
   import ContactListInfo from "./contact-list-info.svelte";
+  import InfoPopover from "../../components/info-popover.svelte";
 
   let contacts = useStore("contactsSorted", (value) => {
     console.log("🚀 ~ file: contacts-list.svelte:18 ~ contacts:", contacts);
@@ -27,7 +28,14 @@
 </script>
 
 <div id="contact-list">
-  <BlockTitle>Networked contacts - {contacts.external.length}</BlockTitle>
+  <BlockTitle>
+    Networked contacts - {contacts.external.length}
+    <InfoPopover key="network-contacts">
+        These user linked your id to their contacts and
+        granted you access to their network.
+    </InfoPopover>
+
+  </BlockTitle>
   <List strong inset dividers>
     {#if contacts.external.length === 0}
       <ListItem title="No contacts yet" footer="share your ID" />

@@ -1,6 +1,6 @@
 import { BaseAuthStore } from "pocketbase";
 
-export type User = BaseAuthStore & {
+export class User extends BaseAuthStore {
   username: string;
   verified: boolean;
   emailVisibility: boolean;
@@ -10,4 +10,7 @@ export type User = BaseAuthStore & {
   enableTransactionsTab: boolean;
   enableChats: boolean;
   enableInsights: boolean;
+  settings: {
+    showContactStatistics: boolean
+  }
 };

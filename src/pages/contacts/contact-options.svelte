@@ -1,10 +1,38 @@
 <script>
-  import { f7, List, ListButton, BlockTitle } from "framework7-svelte";
+  import {
+    f7,
+    useStore,
+    List,
+    ListButton,
+    BlockTitle,
+  } from "framework7-svelte";
   import store from "../../store";
 
   export let contact;
 
-  console.log(contact);
+  let user = useStore("user", (v) => (user = v));
+  let showStatistics = user.settings?.showContactStatistics;
+
+  if (contact.settings?.showContactStatistics !== undefined) {
+    showStatistics = contact.settings?.showContactStatistics;
+  }
+
+  const changeShowStatistics = () => {
+    console.log("ee", contact.settings);
+    store
+      .dispatch("updateContact", {
+        ...contact,
+        settings: {
+          ...contact.settings,
+          showContactStatistics: !showStatistics,
+        },
+      })
+      .then((updated) => {
+        contact = null;
+        contact = updated;
+      })
+      .catch((error) => console.log(error));
+  };
 
   const confirmUpdate = (message, data) => {
     f7.dialog
@@ -47,10 +75,9 @@
     );
   };
 
-
   const removeLink = () => {
     confirmUpdate(
-    "The user won't be able to see their transactions anymore. ",
+      "The user won't be able to see their transactions anymore. ",
       {
         user: "",
       }
@@ -75,13 +102,19 @@
   {#if contact.user === ""}
     <ListButton on:click={addLink} title="link user id" color="blue" />
   {:else}
+    <ListButton
+      on:click={changeShowStatistics}
+      title={`${showStatistics ? "hide" : "show"} statistics`}
+      color="blue"
+    />
+
     {#if contact.courier}
       <ListButton on:click={removeCourier} title="remove courier" color="red" />
     {:else}
       <ListButton on:click={addCourier} title="make courier" color="blue" />
       <ListButton on:click={removeLink} title="remove link" color="red" />
     {/if}
-
   {/if}
+
   <ListButton on:click={deleteContact} title="delete contact" color="red" />
 </List>
