@@ -13,6 +13,10 @@
 
   if(!title) title = key;
 
+  if(!user.settings){
+    user.settings = {};
+  }
+
   if (isBoolean) {
     value = user.settings[key] ? user.settings[key] : false;
   }
