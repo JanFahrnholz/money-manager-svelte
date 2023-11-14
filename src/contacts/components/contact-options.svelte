@@ -36,7 +36,7 @@
         ...contact,
         settings: {
           ...contact.settings,
-          showContactStatistics: !settings.showContactStatistics,
+          showContactStatistics: settings?.showContactStatistics ? !settings?.showContactStatistics : !showStatistics,
         },
       })
       .then((updated) => {
@@ -116,7 +116,7 @@
   {:else}
     <ListButton
       on:click={changeShowStatistics}
-      title={`${settings.showContactStatistics ? "hide" : "show"} statistics`}
+      title={`${settings?.showContactStatistics ? "hide" : "show"} statistics`}
       color="blue"
     />
 
