@@ -1,10 +1,10 @@
 <script>
   import {
-    f7,
-    useStore,
+    BlockTitle,
     List,
     ListButton,
-    BlockTitle,
+    f7,
+    useStore,
   } from "framework7-svelte";
   import store from "../../store";
 
@@ -18,7 +18,6 @@
   }
 
   const changeShowStatistics = () => {
-    console.log("ee", contact.settings);
     store
       .dispatch("updateContact", {
         ...contact,

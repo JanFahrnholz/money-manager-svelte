@@ -1,7 +1,7 @@
-import ContactsCreatePage from "../pages/contacts/contact-create.svelte";
-import ContactDetailsLinkedPage from "../pages/contacts/contact-details-linked.svelte";
-import ContactDetailsPage from "../pages/contacts/contact-details.svelte";
-import ContactsPage from "../pages/contacts/contacts.svelte";
+import ContactsCreatePage from "../contacts/pages/contact-create.svelte";
+import ContactDetailsLinkedPage from "../contacts/pages/contact-details-linked.svelte";
+import ContactDetailsPage from "../contacts/pages/contact-details.svelte";
+import ContactsPage from "../contacts/pages/contacts.svelte";
 import { f7 } from "framework7-svelte";
 import { client } from "../pocketbase";
 

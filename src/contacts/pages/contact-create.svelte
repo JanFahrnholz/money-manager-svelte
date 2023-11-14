@@ -26,7 +26,7 @@
     </NavRight>
   </Navbar>
 
-  <List id="contact-create-form" strong inset dividers form formStoreData>
+  <List id="contact-create-form" strong inset dividers form >
     <ListInput
       onChange={(e) => (name = e.target.value)}
       type="text"

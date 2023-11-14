@@ -6,21 +6,18 @@
     ListItem,
     Navbar,
     Page,
-    f7,
-    useStore,
+    useStore
   } from "framework7-svelte";
   import TransactionStatistics from "../../statistics/components/transaction-statistics.svelte";
-  import store from "../../store";
   import TransactionListIcon from "../../transactions/components/transaction-list-icon.svelte";
   import { formatDailyDate, formatTime } from "../../utils/formatter";
   import { renderDailyDivider } from "../../utils/functions";
-  import ContactOptions from "./contact-options.svelte";
+  import ContactOptions from "../components/contact-options.svelte";
 
   let user = useStore("user", (v) => (user = v));
 
   export let contact;
   export let transactions;
-  export let f7router;
 
   let showStatistics = user.settings?.showContactStatistics;
   let showStatisticsText;

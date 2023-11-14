@@ -1,6 +1,6 @@
 <script>
   import { ListItem } from "framework7-svelte";
-  import { clientId } from "../../pocketbase";
+  import { clientId } from "../../../pocketbase";
   import ContactListItemAvatar from "./contact-list-item-avatar.svelte";
 
   export let contact;

@@ -4,8 +4,8 @@
     ListItem,
     useStore
   } from "framework7-svelte";
-  import InfoPopover from "../../components/info-popover.svelte";
-  import store from "../../store";
+  import InfoPopover from "../../../components/info-popover.svelte";
+  import store from "../../../store";
 
   let totalContactBalances = useStore(
     store,

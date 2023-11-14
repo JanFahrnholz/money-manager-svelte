@@ -1,19 +1,16 @@
 <script lang="ts">
   import {
     BlockTitle,
-    Icon,
-    Link,
     List,
     ListItem,
-    Popover,
     f7ready,
-    useStore,
+    useStore
   } from "framework7-svelte";
   import { onMount } from "svelte";
-  import store from "../../store";
-  import ContactsListItem from "./contacts-list-item.svelte";
+  import InfoPopover from "../../../components/info-popover.svelte";
+  import store from "../../../store";
   import ContactListInfo from "./contact-list-info.svelte";
-  import InfoPopover from "../../components/info-popover.svelte";
+  import ContactsListItem from "./contacts-list-item.svelte";
 
   let contacts = useStore("contactsSorted", (value) => {
     console.log("🚀 ~ file: contacts-list.svelte:18 ~ contacts:", contacts);
@@ -22,7 +19,6 @@
   onMount(() => {
     f7ready(() => {
       store.dispatch("getContacts", {});
-      console.log(contacts);
     });
   });
 </script>
