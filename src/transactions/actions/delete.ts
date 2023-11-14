@@ -6,7 +6,7 @@ export const deleteTransaction = async ({ state, dispatch }, transaction) => {
   try {
     const { id, amount, expand } = transaction;
     await client.collection("transactions").delete(id);
-    state.transactions.items = state.transactions.items.filter(
+    state.transactions = state.transactions.filter(
       (transaction) => transaction.id !== id
     );
 

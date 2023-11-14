@@ -16,14 +16,13 @@
     useStore,
   } from "framework7-svelte";
   import Home from "./home.svelte";
-  import Contacts from "./contacts/contacts.svelte";
+  import Contacts from "../contacts/pages/contacts.svelte";
   import Profile from "./profile.svelte";
   import store from "../store";
   import { onMount } from "svelte";
   import { storable } from "../utils/storable";
   import Login from "../user/components/login.svelte";
 
-  export let f7router;
   let activeTab = storable("active-tab", 1);
   let showPreloader = true;
   let allowInfinite = true;
@@ -36,7 +35,7 @@
     if ($activeTab !== 1) return;
     if (!allowInfinite) return;
     allowInfinite = false;
-    store.dispatch("loadMoreTransactions", {}).finally(() => {
+    store.dispatch("getMoreTransactions", {}).finally(() => {
       showPreloader = false;
       allowInfinite = true;
     });
@@ -44,7 +43,7 @@
 
   onMount(() => {
     f7ready(() => {
-      store.dispatch("loadFirstTransactions", {}).finally(() => {
+      store.dispatch("getFirstTransactions", {}).finally(() => {
         showPreloader = false;
         allowInfinite = true;
       });

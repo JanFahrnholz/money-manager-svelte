@@ -1,14 +1,14 @@
 {
   "name": "moneymanager",
   "private": true,
-  "version": "2.0.4-beta",
+  "version": "2.0.5-beta",
   "type": "module",
   "description": "MoneyManager",
   "repository": "github.com/JanFahrnholz/money-manager",
   "scripts": {
     "dev": "vite",
     "start": "vite NODE_ENV=production",
-    "build": "cross-env NODE_ENV=production vite build",
+    "build": "NODE_ENV=production vite build",
     "build:workbox": "npx workbox generateSW workbox-config.js",
     "postinstall": "cpy --flat ./node_modules/framework7-icons/fonts/*.* ./src/fonts/ && cpy --flat ./node_modules/material-icons/iconfont/*.* ./src/fonts/"
   },

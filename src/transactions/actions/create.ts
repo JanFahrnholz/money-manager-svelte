@@ -39,7 +39,7 @@ export async function createTransaction({ state, dispatch }, data) {
     state.transactions = {
       ...state.transactions,
     };
-    state.transactions.items = [transaction, ...state.transactions.items];
+    state.transactions = [transaction, ...state.transactions];
 
     dispatch("loadFirstTransactions");
   } catch (error) {

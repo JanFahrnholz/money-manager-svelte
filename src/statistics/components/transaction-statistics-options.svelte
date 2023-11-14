@@ -1,8 +1,9 @@
 <script lang="ts">
-  import { List, ListItem, f7ready } from "framework7-svelte";
+  import { List, ListItem, f7, f7ready } from "framework7-svelte";
   import { createEventDispatcher, onMount } from "svelte";
   import Statistics from "../statistics";
   import TransactionStatistics from "../transaction-statistics";
+  import store from "../../store";
 
   const dispatch = createEventDispatcher();
 
@@ -12,8 +13,20 @@
   let type = defaultType;
 
   const onDateRangeChange = (event) => {
-    Statistics.setLastNDays(+event.target.value);
-    refresh();
+    const days = +event.target.value;
+    Statistics.setLastNDays(days);
+    const loader = f7.dialog.preloader("loading transaction");
+    const filter = days !== 0 ? `date >= "${new Date(Statistics.dateRangeStart).toISOString()}"` : "";
+    console.log("last " + days);
+    
+    loader.open();
+    const action = days === 0 ? "getAllTransactions" : "getTransactions";
+    store.dispatch(action, {filter}).then(() => {
+
+    }).finally(() => {
+      loader.close()
+      refresh();
+    })
   };
 
   const onTypeChange = (event) => {

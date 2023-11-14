@@ -16,13 +16,13 @@
 
 <List strong inset dividers>
   <ListButton title="create transaction" href="/transactions/create/" />
-  {#each transactions.items as transaction, index}
-    {#if renderDailyDivider(index, transactions.items)}
+  {#each transactions as transaction, index}
+    {#if renderDailyDivider(index, transactions)}
       <ListItem groupTitle title={formatDailyDate(transaction.date)} />
     {/if}
     <TransactionListItem {transaction} />
   {/each}
-  {#if transactions.items?.length === 0}
+  {#if transactions.length === 0}
     <ListItem title="no items yet" />
   {/if}
 </List>

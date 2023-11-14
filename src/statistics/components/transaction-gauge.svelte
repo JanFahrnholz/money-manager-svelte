@@ -9,7 +9,7 @@
   let avg;
   let statistics;
   let transactions = useStore("transactions", (value) => {
-    statistics = new TransactionStatistics(value.items);
+    statistics = new TransactionStatistics(value);
     transactions = value;
     refresh();
   });

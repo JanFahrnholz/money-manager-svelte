@@ -8,7 +8,7 @@
     f7,
   } from "framework7-svelte";
   import { createEventDispatcher } from "svelte";
-  import ContactListItemAvatar from "../../contacts/components/contact-list-item-avatar.svelte";
+  import ContactListItemAvatar from "../../contacts/components/contacts-list/contact-list-item-avatar.svelte";
   import store from "../../store";
   import TransactionListIcon from "../../transactions/components/transaction-list-icon.svelte";
   import { isInvoice, isRefund } from "../../utils/transactions";

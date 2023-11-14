@@ -1,19 +1,16 @@
-import { client, clientId } from "../pocketbase";
 import { createTransaction } from "./actions/create";
 import {
-  loadAllTransactions,
-  loadMoreTransactions,
-  loadFirstTransactions,
+  getAllTransactions,
+  getMoreTransactions,
+  getFirstTransactions,
+  getTransactions,
 } from "./actions/get";
 import { deleteTransaction } from "./actions/delete";
 
 const transactionStoreConfig = {
   state: {
-    transactions: {
-      items: [],
-      page: 1,
-      perPage: 20,
-    },
+    transactions: [],
+    lastTransactionFilterDate: undefined,
   },
   getters: {
     transactions({ state }) {
@@ -21,9 +18,10 @@ const transactionStoreConfig = {
     },
   },
   actions: {
-    loadFirstTransactions,
-    loadMoreTransactions,
-    loadAllTransactions,
+    getTransactions,
+    getFirstTransactions,
+    getMoreTransactions,
+    getAllTransactions,
     createTransaction,
     deleteTransaction,
   },

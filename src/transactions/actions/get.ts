@@ -1,43 +1,78 @@
 import { client } from "../../pocketbase";
 
-export const loadFirstTransactions = async ({ state }) => {
-  state.transactions.items = [];
+export const getFirstTransactions = async ({ state }) => {
+  const filterDate = new Date()
+  filterDate.setDate(filterDate.getDate() - 31)
   try {
-    const res = await client
-      .collection("transactions")
-      .getList(1, state.transactions.perPage, {
-        sort: "-date",
-        expand: "contact,owner",
-      });
-    state.transactions = res;
-  } catch (error) {
-    throw new Error(error);
-  }
-};
-
-export const loadMoreTransactions = async ({ state }) => {
-  try {
-    state.transactions.page++;
-    if (state.transactions.page > state.transactions.totalPages) return;
-    const res = await client
-      .collection("transactions")
-      .getList(state.transactions.page, state.transactions.perPage, {
-        sort: "-date",
-        expand: "contact,owner",
-      });
-    const items = [...state.transactions.items, ...res.items];
-    state.transactions = { ...res, items };
-  } catch (error) {
-    throw new Error(error);
-  }
-};
-
-export const loadAllTransactions = async ({ state }) => {
-  try {
-    state.transactions.items = await client
+    state.transactions = await client
       .collection("transactions")
       .getFullList({
         sort: "-date",
+        filter: `date > "${filterDate.toISOString()}"`,
+        expand: "contact,owner",
+      });
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+export const getMoreTransactions = async ({ state }) => {
+  try {
+    const lastTransactionDate = new Date(state.transactions.at(-1).date)
+    const lastFilterDate = new Date(state.lastTransactionFilterDate || lastTransactionDate)
+    const filterDate = new Date(lastFilterDate);
+    filterDate.setDate(lastFilterDate.getDate() - 30);
+    
+    const res = await client
+      .collection("transactions")
+      .getFullList({
+        sort: "-date",
+        filter: `date > "${filterDate.toISOString()}" && date < "${lastFilterDate.toISOString()}"`,
+        expand: "contact,owner",
+      });
+
+      state.transactions = [...state.transactions, ...res];
+      state.lastTransactionFilterDate = filterDate;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+export const getAllTransactions = async ({ state }) => {
+  try {
+    state.transactions = await client
+      .collection("transactions")
+      .getFullList({
+        sort: "-date",
+        expand: "contact,owner",
+      });
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const isoDateRegex = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z/;
+
+export const getTransactions = async ({ state }, { filter }) => {
+  if (filter?.includes("date")) {
+    const filterDate = new Date(filter?.match(isoDateRegex));
+    const lastTransactionDate = new Date(state.transactions.at(-1).date);
+    const lastFilterDate = new Date(state.lastTransactionFilterDate || lastTransactionDate)
+
+    if (lastFilterDate.getTime() <= filterDate.getTime()) {
+      return;
+    }else{
+      console.log("update last filter date", filterDate)
+      state.lastTransactionFilterDate = filterDate;
+    }
+  }
+
+  try {
+    state.transactions = await client
+      .collection("transactions")
+      .getFullList({
+        sort: "-date",
+        filter,
         expand: "contact,owner",
       });
   } catch (error) {

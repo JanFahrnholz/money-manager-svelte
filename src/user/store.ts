@@ -17,7 +17,7 @@ const authStoreConfig = {
           .collection("users")
           .authWithPassword(username, password);
         state.user = res.record;
-        dispatch("loadFirstTransactions");
+        dispatch("getFirstTransactions");
         dispatch("getContacts");
       } catch (error) {
         alerts.update((alerts) => [...alerts, error.message]);
@@ -25,7 +25,6 @@ const authStoreConfig = {
     },
     logout({ state }) {
       client.authStore.clear();
-
       state.user = null;
     },
     async updateUser({ state }, user) {
