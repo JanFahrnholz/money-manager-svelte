@@ -9,6 +9,7 @@
 
   export let defaultDateRange = 0;
   export let defaultType = null;
+  export let disableAlltime = false;
   let dateRange = defaultDateRange;
   let type = defaultType;
 
@@ -57,8 +58,10 @@
     smartSelectParams={{ openIn: "sheet" }}
   >
     <select on:change={onDateRangeChange} value={dateRange}>
-      <option value={0}>all time</option>
-      <option value={365}>last year</option>
+      {#if !disableAlltime}
+        <option value={0}>all time</option>
+        <option value={365}>last year</option>
+      {/if}
       <option value={365 / 2}>last 6 months</option>
       <option value={60}>last 2 month</option>
       <option value={30}>last 30 days</option>

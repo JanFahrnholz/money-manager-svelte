@@ -18,16 +18,21 @@
 
   export let contact;
   export let transactions;
+  let settings;
 
   let showStatistics = user.settings?.showContactStatistics;
   let showStatisticsText;
-
-  if (contact.settings?.showContactStatistics === undefined) {
-    showStatisticsText = `Default (${showStatistics ? "Yes" : "No"})`;
-  } else {
-    showStatistics = contact.settings?.showContactStatistics;
-    showStatisticsText = showStatistics ? "Yes" : "No";
+  $: {
+  
+    if (settings?.showContactStatistics === undefined) {
+      showStatisticsText = `Default (${showStatistics ? "Yes" : "No"})`;
+    } else {
+      showStatistics = settings?.showContactStatistics;
+      showStatisticsText = showStatistics ? "Yes" : "No";
+    }
   }
+  
+
 </script>
 
 <Page>
@@ -48,7 +53,7 @@
 
   <TransactionStatistics {transactions} />
 
-  <ContactOptions bind:contact />
+  <ContactOptions bind:contact bind:settings />
 
   <BlockTitle>Transaction history</BlockTitle>
   <List strong inset dividers>

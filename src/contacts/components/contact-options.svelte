@@ -9,26 +9,39 @@
   import store from "../../store";
 
   export let contact;
+  export let settings = contact.settings;
 
   let user = useStore("user", (v) => (user = v));
   let showStatistics = user.settings?.showContactStatistics;
 
-  if (contact.settings?.showContactStatistics !== undefined) {
-    showStatistics = contact.settings?.showContactStatistics;
+  if (settings?.showContactStatistics !== undefined) {
+    showStatistics = settings?.showContactStatistics;
   }
 
   const changeShowStatistics = () => {
+    // confirmUpdate(
+    //   `Do you want to ${
+    //     showStatistics ? "hide" : "show"
+    //   } the transaction statistics to linked user? They won't be able to see statistics older than 6 months`,
+    //   {
+    //     settings: {
+    //       ...contact.settings,
+    //       showContactStatistics: !showStatistics,
+    //     },
+    //   }
+    // );
+
     store
       .dispatch("updateContact", {
         ...contact,
         settings: {
           ...contact.settings,
-          showContactStatistics: !showStatistics,
+          showContactStatistics: !settings.showContactStatistics,
         },
       })
       .then((updated) => {
-        contact = null;
-        contact = updated;
+        settings = { ...settings, ...updated.settings };
+        console.log(settings);
       })
       .catch((error) => console.log(error));
   };
@@ -103,7 +116,7 @@
   {:else}
     <ListButton
       on:click={changeShowStatistics}
-      title={`${showStatistics ? "hide" : "show"} statistics`}
+      title={`${settings.showContactStatistics ? "hide" : "show"} statistics`}
       color="blue"
     />
 

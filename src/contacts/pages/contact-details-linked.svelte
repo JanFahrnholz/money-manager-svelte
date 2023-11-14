@@ -8,11 +8,18 @@
     useStore,
   } from "framework7-svelte";
   import { formatDailyDate } from "../../utils/formatter";
+  import TransactionStatistics from "../../statistics/components/transaction-statistics.svelte";
 
   let user = useStore("user", (v) => (user = v));
 
   export let contact;
   export let transactions;
+
+  let showStatistics = user.settings?.showContactStatistics;
+
+  if (contact.settings?.showContactStatistics !== undefined) {
+    showStatistics = contact.settings?.showContactStatistics;
+  }
 </script>
 
 <Page>
@@ -23,6 +30,10 @@
     <ListItem title="Owner ID" after={contact.owner} />
     <ListItem title="Balance" after={`${contact.balance}€`} />
   </List>
+
+  {#if showStatistics}
+    <TransactionStatistics disableAlltime {transactions} />
+  {/if}
 
   <BlockTitle>Transaction history</BlockTitle>
   <List strong inset dividers>

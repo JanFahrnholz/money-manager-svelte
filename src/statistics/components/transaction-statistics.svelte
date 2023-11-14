@@ -16,6 +16,7 @@
   let percentage;
   let absolute = false;
   export let transactions;
+  export let disableAlltime = false;
 
   const statistics = new TransactionStatistics(transactions);
 
@@ -60,6 +61,7 @@
 <BlockTitle>Statistics</BlockTitle>
 
 <TransactionStatisticsOptions
+  disableAlltime={disableAlltime}
   defaultDateRange={30}
   on:refresh={refreshStatistics}
 />
