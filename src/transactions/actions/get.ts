@@ -62,7 +62,6 @@ export const getTransactions = async ({ state }, { filter }) => {
     if (lastFilterDate.getTime() <= filterDate.getTime()) {
       return;
     }else{
-      console.log("update last filter date", filterDate)
       state.lastTransactionFilterDate = filterDate;
     }
   }

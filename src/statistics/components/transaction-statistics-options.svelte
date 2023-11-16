@@ -19,8 +19,7 @@
     Statistics.setLastNDays(days);
     if (!disableLoader) {
       const loader = f7.dialog.preloader("loading transaction");
-      const filter = days !== 0 ? `date >= "${new Date().toISOString()}"` : "";
-      console.log("last " + days);
+      const filter = days !== 0 ? `date >= "${new Date(Statistics.dateRangeStart).toISOString()}"` : "";
 
       loader.open();
       const action = days === 0 ? "getAllTransactions" : "getTransactions";
