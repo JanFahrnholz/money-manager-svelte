@@ -17,8 +17,10 @@
   let absolute = false;
   export let transactions;
   export let disableAlltime = false;
+  export let disableLoader = false;
 
   const statistics = new TransactionStatistics(transactions);
+
 
   let formatDate = (date) => {
     if (!date) return "none";
@@ -62,6 +64,7 @@
 
 <TransactionStatisticsOptions
   disableAlltime={disableAlltime}
+  disableLoader={disableLoader}
   defaultDateRange={30}
   on:refresh={refreshStatistics}
 />

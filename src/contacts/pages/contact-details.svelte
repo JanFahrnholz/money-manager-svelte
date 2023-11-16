@@ -51,7 +51,7 @@
     {/if}
   </List>
 
-  <TransactionStatistics {transactions} />
+  <TransactionStatistics {transactions} disableLoader />
 
   <ContactOptions bind:contact bind:settings />
 

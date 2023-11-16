@@ -10,24 +10,28 @@
   export let defaultDateRange = 0;
   export let defaultType = null;
   export let disableAlltime = false;
+  export let disableLoader = false;
   let dateRange = defaultDateRange;
   let type = defaultType;
 
   const onDateRangeChange = (event) => {
     const days = +event.target.value;
     Statistics.setLastNDays(days);
-    const loader = f7.dialog.preloader("loading transaction");
-    const filter = days !== 0 ? `date >= "${new Date(Statistics.dateRangeStart).toISOString()}"` : "";
-    console.log("last " + days);
-    
-    loader.open();
-    const action = days === 0 ? "getAllTransactions" : "getTransactions";
-    store.dispatch(action, {filter}).then(() => {
+    if (!disableLoader) {
+      const loader = f7.dialog.preloader("loading transaction");
+      const filter = days !== 0 ? `date >= "${new Date().toISOString()}"` : "";
+      console.log("last " + days);
 
-    }).finally(() => {
-      loader.close()
-      refresh();
-    })
+      loader.open();
+      const action = days === 0 ? "getAllTransactions" : "getTransactions";
+      store
+        .dispatch(action, { filter })
+        .then(() => {})
+        .finally(() => {
+          loader.close();
+        });
+    }
+    refresh();
   };
 
   const onTypeChange = (event) => {

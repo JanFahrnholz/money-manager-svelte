@@ -32,7 +32,7 @@
   </List>
 
   {#if showStatistics}
-    <TransactionStatistics disableAlltime {transactions} />
+    <TransactionStatistics disableLoader disableAlltime {transactions} />
   {/if}
 
   <BlockTitle>Transaction history</BlockTitle>
