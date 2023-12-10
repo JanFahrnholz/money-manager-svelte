@@ -1,6 +1,7 @@
 import { f7 } from "framework7-svelte";
 import { client, clientId } from "../pocketbase";
 import { alerts } from "../store";
+import { errorToast } from "../utils/toast";
 const authStoreConfig = {
   state: {
     user: client.authStore.model,
@@ -52,7 +53,7 @@ const authStoreConfig = {
         })
         f7.toast.create({text: "user settings updated", closeTimeout: 1000})
       } catch (error) {
-        f7.toast.create({text: "couldn't update user settings", closeTimeout: 1000})
+        errorToast({message: "could not update settings"})
         
       }
     } 

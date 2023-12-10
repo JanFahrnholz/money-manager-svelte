@@ -36,12 +36,9 @@ export async function createTransaction({ state, dispatch }, data) {
     if (isRefund(transaction))
       dispatch("modifyUserBalance", transaction.amount);
 
-    state.transactions = {
-      ...state.transactions,
-    };
     state.transactions = [transaction, ...state.transactions];
 
-    dispatch("loadFirstTransactions");
+    dispatch("getFirstTransactions");
   } catch (error) {
     throw new Error(error);
   }

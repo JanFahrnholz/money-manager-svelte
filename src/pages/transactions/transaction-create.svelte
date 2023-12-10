@@ -9,13 +9,11 @@
     Page,
     Toggle,
     f7,
-    f7ready,
   } from "framework7-svelte";
   import Numpad from "../../components/numpad.svelte";
   import ContactSmartSelect from "../../contacts/components/contact-smart-select.svelte";
   import store from "../../store";
   import { storable } from "../../utils/storable";
-  import { onMount } from "svelte";
 
   export let f7router;
 
@@ -40,7 +38,7 @@
 
   const save = () => {
     f7.dialog.preloader();
-    
+
     store
       .dispatch("createTransaction", {
         ...data,
