@@ -1,4 +1,7 @@
 
+# Build files
+www/
+
 # Logs
 logs
 *.log
