@@ -37,7 +37,7 @@
 
   <BlockTitle>Transaction history</BlockTitle>
   <List strong inset dividers>
-    {#each transactions as transaction}
+    {#each transactions as transaction (transaction.id)}
       <ListItem
         title={transaction.type}
         after={`${transaction.amount}€`}

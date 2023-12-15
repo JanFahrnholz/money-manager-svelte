@@ -28,7 +28,7 @@
     dividers
     class="no-margin-bottom margin-top-half"
   >
-    {#each plannedTransactions as [contactId, transactions]}
+    {#each plannedTransactions as [contactId, transactions] (`planned-transaction-${contactId}`)}
       <PlannedTransactionListItem
         {transactions}
         on:open={() => (showHelper = true)}

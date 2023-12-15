@@ -64,7 +64,7 @@
   </i>
   <AccordionContent>
     <List dividers>
-      {#each transactions as transaction}
+      {#each transactions as transaction (transaction.id)}
         <ListItem
           title={`${transaction.amount}€`}
           footer={transaction.type}

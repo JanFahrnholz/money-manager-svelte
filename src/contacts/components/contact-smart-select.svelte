@@ -42,7 +42,7 @@
   required
 >
   <select name="contact" value={selected?.id} on:change={(e) => onChange(e)}>
-    {#each contacts as contact}
+    {#each contacts as contact (contact.id)}
       <option value={contact.id}>{contact.name}</option>
     {/each}
   </select>

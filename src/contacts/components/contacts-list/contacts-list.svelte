@@ -36,7 +36,7 @@
     {#if contacts.external.length === 0}
       <ListItem title="No contacts yet" footer="share your ID" />
     {/if}
-    {#each contacts.external as contact}
+    {#each contacts.external as contact (contact.id)}
       <ListItem
         title={contact.name}
         after={`${contact.balance}€`}
@@ -48,7 +48,7 @@
     <BlockTitle>Couriers - {contacts.couriers.length}</BlockTitle>
 
     <List strong inset dividers>
-      {#each contacts.couriers as contact}
+      {#each contacts.couriers as contact (contact.id)}
         <ContactsListItem {contact} />
       {/each}
     </List>
@@ -59,7 +59,7 @@
     <ContactListInfo />
   </BlockTitle>
   <List strong inset dividers>
-    {#each contacts.internal as contact}
+    {#each contacts.internal as contact (contact.id)}
       <ContactsListItem {contact} />
     {/each}
   </List>
