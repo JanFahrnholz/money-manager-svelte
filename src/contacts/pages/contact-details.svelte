@@ -58,7 +58,6 @@
   <BlockTitle>Transaction history</BlockTitle>
   <List strong inset dividers>
     <ListButton title="new transaction" href="/transactions/create/" />
-    {#each transactions as transaction, index}
     {#each transactions as transaction, index (transaction.id)}
       {#if renderDailyDivider(index, transactions)}
         <ListItem groupTitle title={formatDailyDate(transaction.date)} />
