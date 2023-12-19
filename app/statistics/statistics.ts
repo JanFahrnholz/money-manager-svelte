@@ -8,7 +8,7 @@ export default class Statistics<T extends DataItem> {
   static dateRangeEnd: Date = new Date();
 
   constructor(data: T[]) {
-    this.data = data;
+    this.data = data ? data : [];
   }
 
   public getData(

@@ -1,29 +1,32 @@
 <script lang="ts">
   import {
+    Block,
     BlockTitle,
     List,
     ListButton,
     ListItem,
     Navbar,
     Page,
-    useStore
+    Popover,
+    useStore,
   } from "framework7-svelte";
   import TransactionStatistics from "../../statistics/components/transaction-statistics.svelte";
   import TransactionListIcon from "../../transactions/components/transaction-list-icon.svelte";
   import { formatDailyDate, formatTime } from "../../utils/formatter";
   import { renderDailyDivider } from "../../utils/functions";
   import ContactOptions from "../components/contact-options.svelte";
+  import CopyPopover from "../../components/copy-popover.svelte";
 
   let user = useStore("user", (v) => (user = v));
 
   export let contact;
   export let transactions;
   let settings;
+  let popover;
 
   let showStatistics = user.settings?.showContactStatistics;
   let showStatisticsText;
   $: {
-  
     if (settings?.showContactStatistics === undefined) {
       showStatisticsText = `Default (${showStatistics ? "Yes" : "No"})`;
     } else {
@@ -31,8 +34,8 @@
       showStatisticsText = showStatistics ? "Yes" : "No";
     }
   }
-  
 
+  const copyPopover = () =>{}
 </script>
 
 <Page>
@@ -41,7 +44,10 @@
   <BlockTitle>General</BlockTitle>
   <List strong inset dividers>
     <ListItem title="Name" after={contact.name} />
-    <ListItem title="ID" after={contact.user === "" ? "none" : contact.user} />
+      <ListItem
+      title="ID"
+      after={contact.user === "" ? "none" : contact.user}
+      />
     <ListItem title="Balance" after={`${contact.balance}€`} />
     {#if contact.user !== ""}
       <ListItem title="Show statistics" after={showStatisticsText} />

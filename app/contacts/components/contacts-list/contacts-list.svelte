@@ -25,8 +25,10 @@
 
 <div id="contact-list">
   <BlockTitle>
-    Networked contacts - {contacts.external.length}
+    Network IDs - {contacts.external.length}
     <InfoPopover key="network-contacts">
+      // TODO: Add request allow deny feature
+        These contacts represent your identity in the linked a network
         These user linked your id to their contacts and
         granted you access to their network.
     </InfoPopover>
@@ -38,7 +40,7 @@
     {/if}
     {#each contacts.external as contact (contact.id)}
       <ListItem
-        title={contact.name}
+        title={contact.owner}
         after={`${contact.balance}€`}
         link={`/contacts/${contact.id}/`}
       />

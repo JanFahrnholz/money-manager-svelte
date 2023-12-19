@@ -6,11 +6,11 @@
   "description": "MoneyManager",
   "repository": "github.com/JanFahrnholz/money-manager",
   "scripts": {
-    "dev": "vite",
-    "start": "vite NODE_ENV=production",
+    "dev": "./node_modules/.bin/vite",
+    "start": "./node_modules/.bin/vite NODE_ENV=production",
     "build": "NODE_ENV=production vite build",
     "build:workbox": "npx workbox generateSW workbox-config.js",
-    "postinstall": "cpy --flat ./node_modules/framework7-icons/fonts/*.* ./src/fonts/ && cpy --flat ./node_modules/material-icons/iconfont/*.* ./src/fonts/"
+    "postinstall": "./node_modules/.bin/cpy --flat ./node_modules/framework7-icons/fonts/*.* ./fonts/ && cpy --flat ./node_modules/material-icons/iconfont/*.* ./fonts/"
   },
   "dependencies": {
     "dom7": "^4.0.6",
@@ -19,6 +19,7 @@
     "framework7-svelte": "^8.2.0",
     "leaflet": "^1.9.4",
     "material-icons": "^1.13.8",
+    "mongodb": "^6.3.0",
     "pocketbase": "^0.15.3",
     "skeleton-elements": "^4.0.1",
     "svelte": "^4.0.5",
@@ -26,7 +27,8 @@
     "svelte-i18n": "^3.7.0",
     "svelte-pick-a-place": "^1.1.0",
     "swiper": "^10.0.4",
-    "timeago.js": "^4.0.2"
+    "timeago.js": "^4.0.2",
+    "web-push": "^3.6.6"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^2.4.2",
@@ -39,6 +41,7 @@
     "svelte-preprocess": "^5.0.4",
     "typescript": "^5.1.6",
     "vite": "^4.4.4",
+    "vite-plugin-node-polyfills": "^0.17.0",
     "workbox-cli": "^7.0.0"
   }
 }

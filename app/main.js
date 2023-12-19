@@ -5,7 +5,6 @@ import "framework7/css/bundle";
 import "./css/icons.css";
 import "./css/app.css";
 import App from "./app.svelte";
-
 Framework7.use(Framework7Svelte);
 
 // Mount Svelte App
