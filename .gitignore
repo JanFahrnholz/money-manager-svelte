@@ -1,4 +1,7 @@
 
+pocketbase/pb_data
+pocketbase/pb_public
+
 # Build files
 app/www/
 
