@@ -1,20 +1,25 @@
 services:
   app:
     build:
-      context: app
-      target: deploy
+      context: ./app
     env_file:
-      - ./.env
+      - ./.env.local
     ports:
-      - 8080:80
-
-  api:
-    build:
-      context: ./api
-      target: dev
-    env_file:
-      - ./.env
-    ports:
-      - 3000:3000
+      - 8080:5173
+    working_dir: /app
     volumes:
-      - ./api:/api
+      - ./app:/app
+      - /app/node_modules
+
+  pocketbase:
+    build:
+      context: ./pocketbase
+    restart: unless-stopped
+    env_file:
+      - ./.env.local
+    ports:
+      - 8090:8090
+    volumes:
+      - ./pocketbase/pb_hooks:/app/pb_hooks
+      - ./pocketbase/pb_data:/app/pb_data
+      - ./pocketbase/pb_public:/app/pb_public #optional

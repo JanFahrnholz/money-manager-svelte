@@ -1,10 +1,8 @@
 import PocketBase from "pocketbase";
 
-const url =
-  process.env.NODE_ENV === "production"
-    ? "https://pb.industed.com"
-    : "https://pb-staging.industed.com";
+const url = "http://localhost:8090";
 
+console.log(url)
 const client = new PocketBase(url);
 client.autoCancellation(false);
 

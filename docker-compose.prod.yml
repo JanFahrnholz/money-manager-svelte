@@ -1,14 +1,34 @@
 services:
-  money-manager-svelte:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: deploy
-    networks:
-      - nginx
+    app:
+      build:
+        context: ./app
+        dockerfile: Dockerfile.prod
+        target: deploy
+      env_file:
+        - ./.env
+      ports:
+        - 8080:80
+#      networks:
+#        - nginx
 
-
-networks:
-  nginx:
-    name: nginx
-    external: true
+    pocketbase:
+      build:
+        context: ./pocketbase
+        dockerfile: Dockerfile.prod
+      restart: unless-stopped
+      env_file:
+        - ./.env
+      ports:
+        - 8090:8090
+      volumes:
+        - ./pocketbase/pb_hooks:/app/pb_hooks
+        - ./pocketbase/pb_data:/app/pb_data
+        - ./pocketbase/pb_public:/app/pb_public
+#      networks:
+#       - nginx
+#
+#networks:
+# nginx:
+#   name: nginx
+#   external: true
+#
