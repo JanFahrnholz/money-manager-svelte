@@ -1,3 +1,5 @@
+import {Transaction} from "../transactions/types/transaction";
+
 export function groupByProperty(array, property) {
   return array.reduce((grouped, item) => {
     const key = item[property];
@@ -19,3 +21,27 @@ export const renderDailyDivider = (index, list) => {
     return true;
   return false;
 };
+
+export function getMonthStartAndEndDates(transactions: Transaction[]) {
+  const monthStartAndEndDates = {};
+
+  for (const transaction of transactions) {
+    const transactionDate = new Date(transaction.date);
+    const monthYear = `${transactionDate.getFullYear()}-${transactionDate.getMonth() + 1}`;
+
+    // If the monthYear key doesn't exist, initialize it with the start and end dates
+    if (!monthStartAndEndDates[monthYear]) {
+      const firstDayOfMonth = new Date(transactionDate.getFullYear(), transactionDate.getMonth(), 1);
+      const lastDayOfMonth = new Date(transactionDate.getFullYear(), transactionDate.getMonth() + 1, 0);
+
+      monthStartAndEndDates[monthYear] = {
+        key: monthYear,
+        label: `${firstDayOfMonth.toLocaleDateString("en-US", {month: "long", year: "numeric"})}`,
+        start: firstDayOfMonth.toISOString(),
+        end: lastDayOfMonth.toISOString(),
+      };
+    }
+  }
+
+  return monthStartAndEndDates;
+}
