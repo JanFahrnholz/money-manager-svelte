@@ -23,12 +23,6 @@ export default async () => {
         treeshake: false,
       },
     },
-    optimizeDeps: {
-      include: ['mongodb'],
-    },
-    ssr: {
-      noExternal: ['mongodb'],
-    },
     resolve: {
       alias: {
         "@": SRC_DIR,
