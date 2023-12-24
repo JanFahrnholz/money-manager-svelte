@@ -40,6 +40,7 @@ export default class Statistics<T extends DataItem> {
     const date = new Date();
     date.setDate(date.getDate() - days);
     Statistics.dateRangeStart = date;
+    Statistics.dateRangeEnd = new Date()
   };
 
   static getLastNDays = () => {
