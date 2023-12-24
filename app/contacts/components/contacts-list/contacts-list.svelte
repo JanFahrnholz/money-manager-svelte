@@ -13,7 +13,6 @@
   import ContactsListItem from "./contacts-list-item.svelte";
 
   let contacts = useStore("contactsSorted", (value) => {
-    console.log("🚀 ~ file: contacts-list.svelte:18 ~ contacts:", contacts);
     return (contacts = value);
   });
   onMount(() => {
