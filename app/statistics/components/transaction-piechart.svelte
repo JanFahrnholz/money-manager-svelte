@@ -1,5 +1,5 @@
 <script>
-  import { Block, Gauge, f7, useStore, PieChart } from "framework7-svelte";
+  import {Block, Gauge, f7, useStore, PieChart, List, ListItem} from "framework7-svelte";
   import TransactionStatistics from "../transaction-statistics";
   import TransactionStatisticsOptions from "./transaction-statistics-options.svelte";
   import { types } from "../../transactions/types/transaction-type";
@@ -52,6 +52,7 @@
     {datasets}
   />
 </Block>
+
 <TransactionStatisticsOptions
   defaultDateRange={30}
   defaultType="Income"

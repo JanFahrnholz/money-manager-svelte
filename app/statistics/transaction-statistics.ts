@@ -21,8 +21,8 @@ export default class TransactionStatistics extends Statistics<Transaction> {
     });
   };
 
-  getTotalAmount = (): number => {
-    return this.getDataByType().reduce(
+  getTotalAmount = (type = TransactionStatistics.type): number => {
+    return this.getDataByType(type).reduce(
       (total, transaction) => total + transaction.amount,
       0
     );
@@ -38,6 +38,16 @@ export default class TransactionStatistics extends Statistics<Transaction> {
   getPercentage = (type = TransactionStatistics.type) => {
     return (this.getDataByType(type).length / this.getData().length) * 100;
   };
+
+  getIncomeExpenseDifference = () => {
+    return this.getTotalAmount("Income") - this.getTotalAmount("Expense")
+  }
+  getRefundInvoiceDifference = () => {
+    return this.getTotalAmount("Refund") - this.getTotalAmount("Invoice")
+  }
+  getCombinedDifference = () => {
+    return this.getIncomeExpenseDifference() + this.getTotalAmount("Refund")
+  }
 
   getFirstEntry = () => {
     return this.getDataByType().at(-1);
