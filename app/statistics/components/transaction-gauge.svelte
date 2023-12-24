@@ -2,15 +2,18 @@
     import {Block, Gauge, f7, useStore, ListItem, List} from "framework7-svelte";
     import TransactionStatistics from "../transaction-statistics";
     import TransactionStatisticsOptions from "./transaction-statistics-options.svelte";
+    import {formatDateRange} from "../../utils/formatter";
 
     let percentage;
     let percentageText;
     let expenseIncomeDiff = 0;
     let invoiceRefundDiff = 0;
     let combinedDiff = 0;
-    let type;
-    let total;
     let avg;
+    let type;
+    let start;
+    let end;
+    let total;
     let statistics;
     let transactions = useStore("transactions", (value) => {
         statistics = new TransactionStatistics(value);
@@ -37,6 +40,8 @@
         combinedDiff = statistics.getCombinedDifference().toFixed(2);
         combinedDiff += "€"
         type = TransactionStatistics.type;
+        start = formatDateRange(TransactionStatistics.dateRangeStart);
+        end = formatDateRange(TransactionStatistics.dateRangeEnd)
     };
 </script>
 
@@ -53,11 +58,14 @@
             labelText={`total ${total || "0"}€`}
     />
 </Block>
-<List strong inset outline>
+<List strong inset outline class="no-margin-bottom">
     <ListItem title="expense / income difference" after={expenseIncomeDiff}/>
     <ListItem title="invoice / refund difference" after={invoiceRefundDiff}/>
     <ListItem title="profit" after={combinedDiff}/>
 </List>
+<div class="block-footer margin-top-half no-margin-bottom">
+    From {start} to {end}
+</div>
 <TransactionStatisticsOptions
         {transactions}
         defaultDateRange={30}

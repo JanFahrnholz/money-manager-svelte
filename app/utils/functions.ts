@@ -45,3 +45,14 @@ export function getMonthStartAndEndDates(transactions: Transaction[]) {
 
   return monthStartAndEndDates;
 }
+
+export function isDateToday(inputDate) {
+  const today = new Date();
+  const inputDateObj = new Date(inputDate);
+
+  // Set hours, minutes, seconds, and milliseconds to zero for accurate comparison
+  today.setHours(0, 0, 0, 0);
+  inputDateObj.setHours(0, 0, 0, 0);
+
+  return today.getTime() === inputDateObj.getTime();
+}

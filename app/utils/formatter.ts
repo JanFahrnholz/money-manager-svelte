@@ -1,3 +1,5 @@
+import {isDateToday} from "./functions";
+
 export const formatDailyDate = (date: Date) =>
   new Date(date).toLocaleDateString("default", {
     day: "2-digit",
@@ -24,3 +26,12 @@ export const formatTime = (date) =>
     hour: "2-digit",
     minute: "2-digit",
   });
+
+export const formatDateRange = (date) => {
+    if (isDateToday(date)) return "today"
+
+    return new Date(date).toLocaleDateString("default", {
+        day: "2-digit",
+        month: "long",
+    })
+}
