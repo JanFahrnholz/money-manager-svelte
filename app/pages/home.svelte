@@ -14,13 +14,13 @@
   let user = useStore(store, "user", (value) => (user = value));
 </script>
 
-<BlockTitle>your account</BlockTitle>
+<BlockTitle>Your account</BlockTitle>
 <List strong inset dividers class="margin-bottom-half">
   <ListItem title="Balance" after={`${user?.balance}€`} />
   <ListItem title="Your ID" after={`${user?.id}`} />
 </List>
 
-<BlockTitle>transactions</BlockTitle>
+<BlockTitle>Transactions</BlockTitle>
 <TransactionGauge />
 <!-- <TransactionPieChart /> -->
 <PlannedTransactionList />
