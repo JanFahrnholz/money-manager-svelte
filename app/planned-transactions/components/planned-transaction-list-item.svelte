@@ -21,8 +21,6 @@
     return prev;
   }, 0);
 
-  console.log(balanceDiff, contact.name)
-
   const dispatch = createEventDispatcher();
 
   const open = () => {

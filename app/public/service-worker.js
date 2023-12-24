@@ -34,8 +34,8 @@ self.addEventListener('activate', async () => {
             userVisibleOnly: true
         };
         console.log(options)
-        const subscription = await self.registration.pushManager.subscribe(options)
-        console.log(JSON.stringify(subscription))
+        //const subscription = await self.registration.pushManager.subscribe(options)
+        //console.log(JSON.stringify(subscription))
     } catch (err) {
         console.log('Error', err)
     }
