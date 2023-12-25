@@ -41,7 +41,6 @@
       })
       .then((updated) => {
         settings = { ...settings, ...updated.settings };
-        console.log(settings);
       })
       .catch((error) => console.log(error));
   };

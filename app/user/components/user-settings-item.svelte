@@ -28,8 +28,6 @@
     }
   };
 
-  console.log(value);
-  
 </script>
 
 {#if isBoolean}
