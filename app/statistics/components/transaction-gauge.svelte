@@ -66,6 +66,7 @@
 <div class="block-footer margin-top-half no-margin-bottom">
     From {start} to {end}
 </div>
+
 <TransactionStatisticsOptions
         {transactions}
         defaultDateRange={30}

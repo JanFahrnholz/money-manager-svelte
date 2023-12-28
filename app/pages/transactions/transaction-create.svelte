@@ -8,7 +8,7 @@
     Navbar,
     Page,
     Toggle,
-    f7,
+    f7, useStore,
   } from "framework7-svelte";
   import Numpad from "../../components/numpad.svelte";
   import ContactSmartSelect from "../../contacts/components/contact-smart-select.svelte";
@@ -16,9 +16,15 @@
   import { storable } from "../../utils/storable";
 
   export let f7router;
+  export let f7route;
 
   let contact = storable("last-selected-contact", null);
   let type = storable("last-selected-type", "Income");
+  let contacts = useStore(store, "contacts", (v) => contacts = v)
+
+  if(f7route.query.contact){
+    $contact = contacts.find(c => c.id === f7route.query.contact)
+  }
 
   let data = {
     amount: 0,

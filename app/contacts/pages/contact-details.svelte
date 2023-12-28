@@ -17,17 +17,20 @@
   import ContactOptions from "../components/contact-options.svelte";
   import CopyPopover from "../../components/copy-popover.svelte";
 
-  let user = useStore("user", (v) => (user = v));
+  let user = useStore("user", (v) => {
+    user = v
+  });
 
   export let contact;
   export let transactions;
   let settings;
   let popover;
 
-  let showStatistics = user.settings?.showContactStatistics;
+  let showStatistics;
   let showStatisticsText;
   $: {
-    if (settings?.showContactStatistics === undefined) {
+    showStatistics = user.settings?.showContactStatistics;
+    if (settings?.showContactStatistics === "default") {
       showStatisticsText = `Default (${showStatistics ? "Yes" : "No"})`;
     } else {
       showStatistics = settings?.showContactStatistics;
@@ -63,7 +66,7 @@
 
   <BlockTitle>Transaction history</BlockTitle>
   <List strong inset dividers>
-    <ListButton title="new transaction" href="/transactions/create/" />
+    <ListButton title="new transaction" href={`/transactions/create/?contact=${contact.id}`} />
     {#each transactions as transaction, index (transaction.id)}
       {#if renderDailyDivider(index, transactions)}
         <ListItem groupTitle title={formatDailyDate(transaction.date)} />

@@ -16,9 +16,12 @@
 </script>
 
 <style>
-    /* Add your styles here */
+    .no-border{
+        border: none;
+        border-radius: 0;
+    }
 </style>
-<List strong outline dividers inset class="margin-bottom-half">
+<List strong inset class="margin-bottom-half no-border">
     <ListItem title="Sort by" smartSelect smartSelectParams={{ openIn: 'popover' }}>
         <select bind:value={selectedOption} on:change={handleSortChange}>
             {#each options as option (option)}

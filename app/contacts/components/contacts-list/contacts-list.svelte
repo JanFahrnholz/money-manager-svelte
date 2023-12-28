@@ -20,8 +20,6 @@
     let internal
     $:internal = contacts?.internal;
 
-    $: console.log(internal)
-
     let options = [
         {label: 'Sort by created asc', value: 'created'},
         {label: 'Sort by created desc', value: 'created', reverse: true},
