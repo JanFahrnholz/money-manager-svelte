@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "dom7": "^4.0.6",
-    "framework7": "^8.2.0",
+    "framework7": "^8.3.0",
     "framework7-icons": "^5.0.5",
     "framework7-svelte": "^8.2.0",
     "leaflet": "^1.9.4",

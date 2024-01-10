@@ -112,7 +112,7 @@
       />
     </Toolbar>
 
-    <Tabs class="p-0">
+    <Tabs class="p-0" swipeable>
       <Tab
         id="tab-1"
         tabActive={$activeTab === 1}
