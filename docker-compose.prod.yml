@@ -4,6 +4,7 @@ services:
       context: ./app
       dockerfile: Dockerfile.prod
       target: deploy
+    restart: always
     container_name: money-manager-svelte
     env_file:
       - ./.env
@@ -14,7 +15,7 @@ services:
     build:
       context: ./pocketbase
       dockerfile: Dockerfile.prod
-    restart: unless-stopped
+    restart: always
     env_file:
       - ./.env
     ports:
