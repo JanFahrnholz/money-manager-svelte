@@ -28,7 +28,7 @@
   <i slot="media" class="icon">
     <TransactionListIcon {transaction} />
   </i>
-  <SwipeoutActions right>
+  <SwipeoutActions left>
     <SwipeoutButton
       delete
       overswipe

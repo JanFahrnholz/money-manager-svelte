@@ -4,6 +4,25 @@ onAfterBootstrap((e) => {
   console.log("Pocketbase started!");
 });
 
+routerAdd("GET", "/:owner/planned_transactions/:id/confirm", (c) => {
+    const id = c.pathParam("id");
+    
+    $app.dao().runInTransaction(txDao => {
+        const collection = txDao.findCollectionByNameOrId("transactions");
+        const record = txDao.findRecordById("planned_transactions", id);
+        const confirmed = new Record(collection, record.schemaData())
+        console.log(confirmed)
+        confirmed.set("date", (new Date()).toISOString())
+    
+        txDao.save(confirmed);
+        txDao.delete(record)
+    })
+
+    return c.json(200, {success: true})
+}, $apis.activityLogger($app), $apis.requireAdminOrOwnerAuth("owner"))
+
+
+
 routerAdd("GET", "/contact/:id/score", (c) => {
   const id = c.pathParam("id");
   const contact = $app.dao().findRecordById("contacts", id);

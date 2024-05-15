@@ -34,6 +34,6 @@
     />
   </List>
   <p class="grid grid-cols-1 grid-gap" style="padding: 4rem">
-    <Button large fill on:click={null}>Login</Button>
+    <Button large fill on:click={null}>Create account</Button>
   </p>
 </Page>
