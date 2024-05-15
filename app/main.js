@@ -5,11 +5,22 @@ import "framework7/css/bundle";
 import "./css/icons.css";
 import "./css/app.css";
 import App from "./app.svelte";
+
 Framework7.use(Framework7Svelte);
 
 // Mount Svelte App
 const app = new App({
   target: document.getElementById("app"),
 });
-
 export default app;
+
+let worker;
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("./service-worker.js", { scope: "./" })
+      .then((res) => (worker = res));
+  });
+}
+
+export { worker };

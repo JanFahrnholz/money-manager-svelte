@@ -1,19 +1,62 @@
 /// <reference path="../pb_data/types.d.ts" />
 
 onAfterBootstrap((e) => {
-    console.log("Pocketbase started!");
-})
+  console.log("Pocketbase started!");
+});
 
-routerAdd("GET", "/transactions/:id/confirm", (c) => {
-    const id = c.pathParam("id");
-    const collection = $app.dao().findCollectionByNameOrId("transactions");
-    const record = $app.dao().findRecordById("planned_transactions", id);
-    const data  = record.schemaData()
+routerAdd("GET", "/contact/:id/score", (c) => {
+  const id = c.pathParam("id");
+  const contact = $app.dao().findRecordById("contacts", id);
+  const { calculateContactScore } = require(`${__hooks}/utils.js`);
 
-    data.date = (new Date()).toISOString();
-    const confirmed = new Record(collection, data)
+  return c.json(200, { score: calculateContactScore(contact) });
+});
 
-    $app.dao().save(confirmed);
-    $app.dao().delete(record)
-    return c.json(200, confirmed)
-})
+cronAdd("save-total-contact-balance-history", "0 */4 * * *", () => {
+  const stats = $app.dao().findRecordsByFilter("statistics", ``);
+});
+
+onRecordAfterCreateRequest((c) => {
+  const { isInvoice, isRefund } = require(`${__hooks}/utils.js`);
+  const id = c.record.get("contact");
+  const contact = $app.dao().findRecordById("contacts", id);
+  const amount = c.record.getInt("amount");
+
+  if (isInvoice(c.record)) {
+    contact.set("balance", contact.get("balance") - amount);
+    $app.dao().saveRecord(contact);
+  }
+  if (isRefund(c.record)) {
+    contact.set("balance", contact.get("balance") + amount);
+    $app.dao().saveRecord(contact);
+  }
+}, "transactions");
+
+onRecordAfterDeleteRequest((c) => {
+  const { isInvoice, isRefund } = require(`${__hooks}/utils.js`);
+  const id = c.record.get("contact");
+  const contact = $app.dao().findRecordById("contacts", id);
+  const amount = c.record.getInt("amount");
+
+  if (isInvoice(c.record)) {
+    contact.set("balance", contact.get("balance") + amount);
+    $app.dao().saveRecord(contact);
+  }
+  if (isRefund(c.record)) {
+    contact.set("balance", contact.get("balance") - amount);
+    $app.dao().saveRecord(contact);
+  }
+}, "transactions");
+
+onRecordsListRequest((c) => {
+  const { calculateContactScore } = require(`${__hooks}/utils.js`);
+
+  c.result.items = c.result.items.map((item) => {
+    item.withUnknownData(true);
+    item.set("score", calculateContactScore(item));
+
+    return item;
+  });
+
+  c.httpContext.json(200, JSON.parse(JSON.stringify(c.result)));
+}, "contacts");

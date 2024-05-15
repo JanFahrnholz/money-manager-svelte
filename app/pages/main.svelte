@@ -78,6 +78,7 @@
             <Icon material="add" />
           </Link>
         </NavRight>
+
         <Subnavbar>
           <Searchbar searchContainer="#contact-list" searchIn=".item-title" />
         </Subnavbar>

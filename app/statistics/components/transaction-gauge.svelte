@@ -20,6 +20,9 @@
         transactions = value;
         refresh();
     });
+    let visible = useStore("hasLinkedContact", (value) => {
+        visible = value;
+    });
 
     const refresh = () => {
         if (!statistics) return;
@@ -43,33 +46,37 @@
         start = formatDateRange(TransactionStatistics.dateRangeStart);
         end = formatDateRange(TransactionStatistics.dateRangeEnd)
     };
+
+
 </script>
 
-<Block class="text-align-center">
-    <Gauge
-            type="circle"
-            value={percentage / 100}
-            size={170}
-            borderWidth={10}
-            borderColor={f7.colors.primary}
-            valueText={percentageText}
-            valueFontSize={30}
-            valueTextColor={f7.colors.primary}
-            labelText={`total ${total || "0"}€`}
-    />
-</Block>
-<List strong inset outline class="no-margin-bottom">
-    <ListItem title="expense / income difference" after={expenseIncomeDiff}/>
-    <ListItem title="invoice / refund difference" after={invoiceRefundDiff}/>
-    <ListItem title="profit" after={combinedDiff}/>
-</List>
-<div class="block-footer margin-top-half no-margin-bottom">
-    From {start} to {end}
-</div>
+{#if visible}
+    <Block class="text-align-center">
+        <Gauge
+                type="circle"
+                value={percentage / 100}
+                size={170}
+                borderWidth={10}
+                borderColor={f7.colors.primary}
+                valueText={percentageText}
+                valueFontSize={30}
+                valueTextColor={f7.colors.primary}
+                labelText={`total ${total || "0"}€`}
+        />
+    </Block>
+    <List strong inset outline class="no-margin-bottom">
+        <ListItem title="expense / income difference" after={expenseIncomeDiff}/>
+        <ListItem title="invoice / refund difference" after={invoiceRefundDiff}/>
+        <ListItem title="profit" after={combinedDiff}/>
+    </List>
+    <div class="block-footer margin-top-half no-margin-bottom">
+        From {start} to {end}
+    </div>
 
-<TransactionStatisticsOptions
-        {transactions}
-        defaultDateRange={30}
-        defaultType="Income"
-        on:refresh={refresh}
-/>
+    <TransactionStatisticsOptions
+            {transactions}
+            defaultDateRange={30}
+            defaultType="Income"
+            on:refresh={refresh}
+    />
+{/if}

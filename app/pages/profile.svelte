@@ -11,6 +11,7 @@
   import store from "../store";
   import AppVersion from "../components/app-version.svelte";
   import UserSettings from "../user/components/user-settings.svelte";
+  import {worker} from "../main.js";
 
   let notificationPermission = Notification.permission;
 
@@ -21,6 +22,10 @@
   const allowNotifications = async () => {
     notificationPermission = await Notification.requestPermission();
   };
+
+  const notify = () => {
+    if(worker) worker.showNotification("MoneyManager is great!");
+  }
 </script>
 
 <UserSettings />
@@ -31,6 +36,13 @@
       title="Allow notifications"
       color="blue"
       onClick={allowNotifications}
+    />
+  {/if}
+  {#if notificationPermission === "granted"}
+    <ListButton
+      title="Test notification"
+      color="blue"
+      onClick={notify}
     />
   {/if}
 </List>

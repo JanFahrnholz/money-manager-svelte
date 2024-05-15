@@ -8,8 +8,8 @@ services:
       - 8080:5173
     working_dir: /app
     volumes:
-      - ./app:/app
       - ./app/public:/app
+      - ./app:/app
       - /app/node_modules
 
   pocketbase:

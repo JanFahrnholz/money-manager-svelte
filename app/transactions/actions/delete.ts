@@ -1,16 +1,13 @@
 import { client } from "../../pocketbase";
-import { isInvoice, isRefund } from "../../utils/transactions";
-import { updateContactByTransaction } from "./create";
 
-export const deleteTransaction = async ({ state, dispatch }, transaction) => {
+export const deleteTransaction = async ({ state }, transaction) => {
   try {
-    const { id, amount, expand } = transaction;
+    const { id } = transaction;
     await client.collection("transactions").delete(id);
     state.transactions = state.transactions.filter(
       (transaction) => transaction.id !== id
     );
 
-    updateContactByTransaction(dispatch, expand.contact, transaction, "delete");
   } catch (error) {
     throw new Error(error);
   }

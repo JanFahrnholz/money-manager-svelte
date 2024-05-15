@@ -1,8 +1,6 @@
 import PocketBase from "pocketbase";
 
-const url = "https://pb.industed.com";
-
-console.log(url)
+const url = "http://localhost:8090";
 const client = new PocketBase(url);
 client.autoCancellation(false);
 

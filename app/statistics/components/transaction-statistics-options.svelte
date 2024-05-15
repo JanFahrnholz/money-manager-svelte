@@ -31,21 +31,23 @@
             Statistics.setLastNDays(days);
         }
 
-        if (!disableLoader) {
-            const loader = f7.dialog.preloader("loading transaction");
-            const filter = days !== 0 ? `date >= "${Statistics.dateRangeStart.toISOString()}"` : "";
-            console.log("start", Statistics.dateRangeStart)
-            console.log("end", Statistics.dateRangeEnd)
-            loader.open();
-            const action = days === 0 ? "getAllTransactions" : "getTransactions";
-            store
-                .dispatch(action, {filter})
-                .then(() => {
-                })
-                .finally(() => {
-                    loader.close();
-                });
+        if (disableLoader) {
+            refresh()
+            return;
         }
+        const loader = f7.dialog.preloader("loading transaction");
+        const filter = days !== 0 ? `date >= "${Statistics.dateRangeStart.toISOString()}"` : "";
+        console.log("start", Statistics.dateRangeStart)
+        console.log("end", Statistics.dateRangeEnd)
+        loader.open();
+        const action = days === 0 ? "getAllTransactions" : "getTransactions";
+        store
+            .dispatch(action, {filter})
+            .then(() => {
+            })
+            .finally(() => {
+                loader.close();
+            });
 
         refresh();
     };

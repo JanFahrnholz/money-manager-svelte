@@ -6,6 +6,7 @@ import {
   isRefund,
 } from "../utils/transactions";
 import Statistics from "./statistics";
+import { types } from "../transactions/types/transaction-type";
 
 export default class TransactionStatistics extends Statistics<Transaction> {
   static type = null;
@@ -40,14 +41,14 @@ export default class TransactionStatistics extends Statistics<Transaction> {
   };
 
   getIncomeExpenseDifference = () => {
-    return this.getTotalAmount("Income") - this.getTotalAmount("Expense")
-  }
+    return this.getTotalAmount("Income") - this.getTotalAmount("Expense");
+  };
   getRefundInvoiceDifference = () => {
-    return this.getTotalAmount("Refund") - this.getTotalAmount("Invoice")
-  }
+    return this.getTotalAmount("Refund") - this.getTotalAmount("Invoice");
+  };
   getCombinedDifference = () => {
-    return this.getIncomeExpenseDifference() + this.getTotalAmount("Refund")
-  }
+    return this.getIncomeExpenseDifference() + this.getTotalAmount("Refund");
+  };
 
   getFirstEntry = () => {
     return this.getDataByType().at(-1);
@@ -55,5 +56,22 @@ export default class TransactionStatistics extends Statistics<Transaction> {
 
   getLastEntry = () => {
     return this.getDataByType().at(0);
+  };
+
+  getAreaChartData = (weeks = 4) => {
+    const colors = {
+      Income: "#0f0",
+      Expense: "#f00",
+      Invoice: "#ff0",
+      Refund: "#060",
+    };
+
+    return {
+      datasets: types.map((type) => ({
+        label: type,
+        color: colors[type],
+        values: this.getGroupedItems("day"),
+      })),
+    };
   };
 }

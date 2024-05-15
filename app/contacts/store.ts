@@ -49,6 +49,9 @@ const contactStoreConfig = {
           { positive: 0, negative: 0, neutral: 0 }
         );
     },
+    hasLinkedContact({state}){
+      return state.contacts.some(c => c.user)
+    }
   },
   actions: {
     getContacts,
