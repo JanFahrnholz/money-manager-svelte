@@ -12,12 +12,24 @@ const authStoreConfig = {
     },
   },
   actions: {
+    async register({ state, dispatch }, { password }) {
+      try{
+        const user = await client.collection("users").create({
+          password,
+          passwordConfirm: password,
+          balance: 0,
+        })
+        dispatch("login", { username: user.username, password })
+      }catch(e){
+        errorToast({message: `Error while creating account: ${e.message}`})
+      }
+    },
     async login({ state, dispatch }, { username, password }) {
       try {
-        const res = await client
+        const { record } = await client
           .collection("users")
           .authWithPassword(username, password);
-        state.user = res.record;
+        state.user = record;
         dispatch("getFirstTransactions");
         dispatch("getContacts");
       } catch (error) {
@@ -53,8 +65,7 @@ const authStoreConfig = {
         })
         f7.toast.create({text: "user settings updated", closeTimeout: 1000})
       } catch (error) {
-        errorToast({message: "could not update settings"})
-        
+        errorToast({message: "could not update settings"}) 
       }
     } 
   },

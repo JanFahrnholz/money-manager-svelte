@@ -6,7 +6,7 @@
   "description": "MoneyManager",
   "repository": "github.com/JanFahrnholz/money-manager",
   "scripts": {
-    "dev": "./node_modules/.bin/vite",
+    "dev": "vite",
     "start": "./node_modules/.bin/vite NODE_ENV=production",
     "build": "NODE_ENV=production vite build",
     "build:workbox": "npx workbox generateSW workbox-config.js",

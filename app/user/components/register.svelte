@@ -9,8 +9,22 @@
     Page,
     View,
   } from "framework7-svelte";
+  import store from "../../store";
 
   let password = "";
+  let loading = false;
+  
+  const register = async () => {
+    loading = true;
+    try {
+      console.log(password)
+      await store.dispatch("register", { password });
+    } catch (error) {
+      
+    } finally {
+      loading = false;
+    }
+  };
 </script>
 
 <Page name="register">
@@ -33,7 +47,7 @@
       bind:value={password}
     />
   </List>
-  <p class="grid grid-cols-1 grid-gap" style="padding: 4rem">
-    <Button large fill on:click={null}>Create account</Button>
+  <p class="grid grid-cols-1 grid-gap font-black" style="padding: 4rem">
+    <Button large fill on:click={register}>Create account</Button>
   </p>
 </Page>

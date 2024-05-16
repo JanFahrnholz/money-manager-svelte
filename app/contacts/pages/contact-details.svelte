@@ -16,6 +16,7 @@
   import { renderDailyDivider } from "../../utils/functions";
   import ContactOptions from "../components/contact-options.svelte";
   import CopyPopover from "../../components/copy-popover.svelte";
+  import BalanceHistory from "../../statistics/components/balance-history.svelte";
 
   let user = useStore("user", (v) => {
     user = v
@@ -24,7 +25,6 @@
   export let contact;
   export let transactions;
   let settings;
-  let popover;
 
   let showStatistics;
   let showStatisticsText;
@@ -60,11 +60,13 @@
     {/if}
   </List>
 
+  <BalanceHistory {contact} />
+
   <TransactionStatistics {transactions} disableLoader />
 
   <ContactOptions bind:contact bind:settings />
 
-  <BlockTitle>Transaction history</BlockTitle>
+  <BlockTitle>Transaction history - {transactions.length}</BlockTitle>
   <List strong inset dividers>
     <ListButton title="new transaction" href={`/transactions/create/?contact=${contact.id}`} />
     {#each transactions as transaction, index (transaction.id)}

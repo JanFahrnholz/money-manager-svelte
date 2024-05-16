@@ -1,3 +1,18 @@
+/**
+ * 
+ * @param {models.Record} record 
+ * @param {number} modifier 
+ */
+const modifyBalance = (record, modifier) => {
+    record.set("balance", record.getInt("balance") - modifier);
+    $app.dao().saveRecord(record)
+ 
+    if(record.collection().name === "contacts") {
+        const { pushContactHistory } = require(`${__hooks}/statistics.js`);
+        pushContactHistory(record);
+    }
+
+}
 
 const calculateContactScore = (contact) => {
     let score = 1000;
@@ -31,6 +46,7 @@ const isRefund = (transaction) =>
     transaction.type === "Refund" || transaction.type === "Rückzahlung" || transaction.get("type") === "Refund" || transaction.get("type") === "Rückzahlung";
 
 module.exports = {
+    modifyBalance,
     calculateContactScore,
     isMoreThanXDaysAgo,
     isIncome,

@@ -23,31 +23,18 @@ routerAdd("GET", "/:owner/planned_transactions/:id/confirm", (c) => {
 
 
 
-routerAdd("GET", "/contact/:id/score", (c) => {
-  const id = c.pathParam("id");
-  const contact = $app.dao().findRecordById("contacts", id);
-  const { calculateContactScore } = require(`${__hooks}/utils.js`);
-
-  return c.json(200, { score: calculateContactScore(contact) });
-});
-
-cronAdd("save-total-contact-balance-history", "0 */4 * * *", () => {
-  const stats = $app.dao().findRecordsByFilter("statistics", ``);
-});
 
 onRecordAfterCreateRequest((c) => {
-  const { isInvoice, isRefund } = require(`${__hooks}/utils.js`);
+  const { isInvoice, isRefund, modifyBalance } = require(`${__hooks}/utils.js`);
   const id = c.record.get("contact");
   const contact = $app.dao().findRecordById("contacts", id);
   const amount = c.record.getInt("amount");
 
   if (isInvoice(c.record)) {
-    contact.set("balance", contact.get("balance") - amount);
-    $app.dao().saveRecord(contact);
+    modifyBalance(contact, -amount)
   }
   if (isRefund(c.record)) {
-    contact.set("balance", contact.get("balance") + amount);
-    $app.dao().saveRecord(contact);
+    modifyBalance(contact, amount);
   }
 }, "transactions");
 
@@ -58,14 +45,25 @@ onRecordAfterDeleteRequest((c) => {
   const amount = c.record.getInt("amount");
 
   if (isInvoice(c.record)) {
-    contact.set("balance", contact.get("balance") + amount);
-    $app.dao().saveRecord(contact);
+    modifyBalance(contact, amount);
   }
   if (isRefund(c.record)) {
-    contact.set("balance", contact.get("balance") - amount);
-    $app.dao().saveRecord(contact);
+    modifyBalance(contact, -amount)
   }
 }, "transactions");
+
+
+
+onRecordBeforeCreateRequest((c) => {
+    c.record.set("statistics", {
+        balanceHistory: [{
+            date: c.record.getCreated().string(),
+            balance: c.record.getInt("balance")
+        }]
+    })
+
+    $app.dao().saveRecord(c.record)
+}, "contacts")
 
 onRecordsListRequest((c) => {
   const { calculateContactScore } = require(`${__hooks}/utils.js`);
@@ -79,3 +77,15 @@ onRecordsListRequest((c) => {
 
   c.httpContext.json(200, JSON.parse(JSON.stringify(c.result)));
 }, "contacts");
+
+routerAdd("GET", "/contact/:id/score", (c) => {
+    const id = c.pathParam("id");
+    const contact = $app.dao().findRecordById("contacts", id);
+    const { calculateContactScore } = require(`${__hooks}/utils.js`);
+  
+    return c.json(200, { score: calculateContactScore(contact) });
+  });
+  
+  cronAdd("save-total-contact-balance-history", "0 */4 * * *", () => {
+    const stats = $app.dao().findRecordsByFilter("statistics", ``);
+});

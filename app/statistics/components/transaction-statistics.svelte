@@ -19,8 +19,7 @@
   export let disableAlltime = false;
   export let disableLoader = false;
 
-  const statistics = new TransactionStatistics(transactions);
-
+  export const statistics = new TransactionStatistics(transactions);
 
   let formatDate = (date) => {
     if (!date) return "none";
@@ -63,8 +62,8 @@
 <BlockTitle>Statistics</BlockTitle>
 
 <TransactionStatisticsOptions
-  disableAlltime={disableAlltime}
-  disableLoader={disableLoader}
+  {disableAlltime}
+  {disableLoader}
   defaultDateRange={30}
   on:refresh={refreshStatistics}
 />
@@ -83,6 +82,7 @@
   >
     <span slot="after">{lastEntryDate}</span>
   </ListItem>
+  <ListItem title={`count`} after={statistics.getDataByType().lengths} />
   <ListItem title={`sum`} after={totalAmount} />
   <ListItem title={`average`} after={totalAverage} />
   {#if type !== null}
