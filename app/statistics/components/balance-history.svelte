@@ -80,7 +80,7 @@
 </script>
 
 <BlockTitle>Balance history</BlockTitle>
-<Block>
+<Block inset>
   <AreaChart
     axis
     axisLabels={labels}
