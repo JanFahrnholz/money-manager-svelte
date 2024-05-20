@@ -1,56 +1,81 @@
 /**
- * 
- * @param {models.Record} record 
- * @param {number} modifier 
+ *
+ * @param {models.Record} record
+ * @param {number} modifier
  */
 const modifyBalance = (record, modifier) => {
-    record.set("balance", record.getInt("balance") - modifier);
-    $app.dao().saveRecord(record)
- 
-    if(record.collection().name === "contacts") {
-        const { pushContactHistory } = require(`${__hooks}/statistics.js`);
-        pushContactHistory(record);
-    }
+  console.log(
+    "UTIL",
+    record.getInt("balance"),
+    modifier,
+    record.getInt("balance") + modifier
+  );
+  record.set("balance", record.getInt("balance") + modifier);
+  $app.dao().saveRecord(record);
+};
 
-}
-
-const calculateContactScore = (contact) => {
-    let score = 1000;
-
-    const balance = contact.getInt("balance");
-
-    if(balance < 0) score -= 10
-    if(balance < -50) score -= 10
-    if(balance < -100) score -= 10
-
-    return score;
-}
+/**
+ *
+ * @param {string} id
+ * @returns {models.record[]}
+ */
+const getTransactionsByContactId = (id) => {
+  return $app
+    .dao()
+    .findRecordsByFilter("transactions", "contact = {:id}", "date", 0, 0, {
+      id,
+    });
+};
 
 function isMoreThanXDaysAgo(inputDate, days) {
-    const millisecondsInDay = 24 * 60 * 60 * 1000;
-    const inputDateObj = new Date(inputDate);
-    const currentDate = new Date();
+  const millisecondsInDay = 24 * 60 * 60 * 1000;
+  const inputDateObj = new Date(inputDate);
+  const currentDate = new Date();
 
-    const differenceInDays = Math.floor((currentDate - inputDateObj) / millisecondsInDay);
+  const differenceInDays = Math.floor(
+    (currentDate - inputDateObj) / millisecondsInDay
+  );
 
-    return differenceInDays > days;
+  return differenceInDays > days;
 }
+/**
+ * Enum for common colors.
+ * @readonly
+ * @enum {{names: string[]}}
+ */
+const TYPES = Object.freeze({
+  INCOME: { names: ["Income", "Einnahme"] },
+  EXPENSE: { names: ["Expense", "Ausgabe"] },
+  INVOICE: { names: ["Invoice", "Rechnung"] },
+  REFUND: { names: ["Refund", "Rückzahlung"] },
+});
 
-const isIncome = (transaction) =>
-    transaction.type === "Income" || transaction.type === "Einnahme" || transaction.get("type") === "Income" || transaction.get("type") === "Einnahme";
-const isExpense = (transaction) =>
-    transaction.type === "Expense" || transaction.type === "Ausgabe" || transaction.get("type") === "Expense" || transaction.get("type") === "Ausgabe";
-const isInvoice = (transaction) =>
-    transaction.type === "Invoice" || transaction.type === "Rechnung" || transaction.get("type") === "Invoice" || transaction.get("type") === "Rechnung";
-const isRefund = (transaction) =>
-    transaction.type === "Refund" || transaction.type === "Rückzahlung" || transaction.get("type") === "Refund" || transaction.get("type") === "Rückzahlung";
+/**
+ * @param {TYPES} type
+ */
+isType = (transaction, type) => {
+  if (transaction?.type) {
+    return type.names.includes(transaction.type);
+  }
+
+  try {
+    return type.names.includes(transaction?.get("type"))
+  } catch (e) {
+    return false
+  }
+};
+const isIncome = (transaction) => isType(transaction, TYPES.INCOME);
+const isExpense = (transaction) => isType(transaction, TYPES.EXPENSE);
+const isInvoice = (transaction) => isType(transaction, TYPES.INVOICE);
+const isRefund = (transaction) => isType(transaction, TYPES.REFUND);
 
 module.exports = {
-    modifyBalance,
-    calculateContactScore,
-    isMoreThanXDaysAgo,
-    isIncome,
-    isExpense,
-    isInvoice,
-    isRefund
-}
+  modifyBalance,
+  isMoreThanXDaysAgo,
+  getTransactionsByContactId,
+  isIncome,
+  isExpense,
+  isInvoice,
+  isRefund,
+  TYPES,
+};

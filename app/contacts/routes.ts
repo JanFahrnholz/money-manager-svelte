@@ -21,7 +21,9 @@ export const contactRoutes = [
 
       try {
         const { id } = to.params;
-        const contact = await client.collection("contacts").getOne(id);
+        const contact = await client.collection("contacts").getOne(id, {
+          expand: "statistics"
+        });
         const transactions = await client
           .collection("transactions")
           .getFullList({

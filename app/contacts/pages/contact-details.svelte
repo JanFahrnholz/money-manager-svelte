@@ -1,22 +1,18 @@
 <script lang="ts">
   import {
-    Block,
     BlockTitle,
     List,
     ListButton,
     ListItem,
     Navbar,
     Page,
-    Popover,
-    useStore,
+    useStore
   } from "framework7-svelte";
   import TransactionStatistics from "../../statistics/components/transaction-statistics.svelte";
   import TransactionListIcon from "../../transactions/components/transaction-list-icon.svelte";
   import { formatDailyDate, formatTime } from "../../utils/formatter";
   import { renderDailyDivider } from "../../utils/functions";
   import ContactOptions from "../components/contact-options.svelte";
-  import CopyPopover from "../../components/copy-popover.svelte";
-  import BalanceHistory from "../../statistics/components/balance-history.svelte";
 
   let user = useStore("user", (v) => {
     user = v
@@ -60,9 +56,7 @@
     {/if}
   </List>
 
-  <BalanceHistory {contact} />
-
-  <TransactionStatistics {transactions} disableLoader />
+  <TransactionStatistics {transactions} {contact} disableLoader />
 
   <ContactOptions bind:contact bind:settings />
 

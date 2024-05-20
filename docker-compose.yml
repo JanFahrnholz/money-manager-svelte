@@ -2,6 +2,7 @@ services:
   app:
     build:
       context: ./app
+    restart: unless-stopped
     env_file:
       - ./.env.local
     ports:

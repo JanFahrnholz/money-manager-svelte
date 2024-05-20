@@ -13,11 +13,13 @@
   export let defaultType = null;
   export let disableAlltime = false;
   export let disableLoader = false;
+  export let dateRangeStart = Statistics.dateRangeStart;
+  export let dateRangeEnd = Statistics.dateRangeEnd;
   let dateRange = defaultDateRange;
   let type = defaultType;
   let months;
   $: months = getMonthStartAndEndDates(transactions);
-  //$: console.log(months, transactions)
+
   const onDateRangeChange = (event) => {
     const value = event.target.value;
     let days;
@@ -35,11 +37,10 @@
       refresh();
       return;
     }
-    const loader = f7.dialog.preloader("loading transaction");
+    const loader = f7.dialog.preloader("loading transactions");
     const filter =
       days !== 0 ? `date >= "${Statistics.dateRangeStart.toISOString()}"` : "";
-    console.log("start", Statistics.dateRangeStart);
-    console.log("end", Statistics.dateRangeEnd);
+
     loader.open();
     const action = days === 0 ? "getAllTransactions" : "getTransactions";
     store
@@ -61,6 +62,8 @@
   const refresh = () => {
     dateRange = Statistics.getLastNDays();
     type = TransactionStatistics.type;
+    dateRangeStart = Statistics.dateRangeStart;
+    dateRangeEnd = Statistics.dateRangeEnd;
     dispatch("refresh");
   };
 
@@ -90,7 +93,7 @@
       <option value={14}>last 14 days</option>
       <option value={7}>last 7 days</option>
       {#each Object.entries(months) as [key, month] (key)}
-        <option value={key}>{month.label}</option>
+        <option value={key}>{month?.label}</option>
       {/each}
     </select>
   </ListItem>

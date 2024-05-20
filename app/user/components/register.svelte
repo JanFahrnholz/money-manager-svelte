@@ -1,13 +1,11 @@
 <script lang="ts">
   import {
     Button,
-    Link,
     List,
     ListInput,
     NavLeft,
     Navbar,
-    Page,
-    View,
+    Page
   } from "framework7-svelte";
   import store from "../../store";
 
@@ -17,7 +15,6 @@
   const register = async () => {
     loading = true;
     try {
-      console.log(password)
       await store.dispatch("register", { password });
     } catch (error) {
       

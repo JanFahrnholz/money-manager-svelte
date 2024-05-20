@@ -4,41 +4,51 @@ onAfterBootstrap((e) => {
   console.log("Pocketbase started!");
 });
 
-routerAdd("GET", "/:owner/planned_transactions/:id/confirm", (c) => {
+routerAdd(
+  "GET",
+  "/:owner/planned_transactions/:id/confirm",
+  (c) => {
     const id = c.pathParam("id");
-    
-    $app.dao().runInTransaction(txDao => {
-        const collection = txDao.findCollectionByNameOrId("transactions");
-        const record = txDao.findRecordById("planned_transactions", id);
-        const confirmed = new Record(collection, record.schemaData())
-        console.log(confirmed)
-        confirmed.set("date", (new Date()).toISOString())
-    
-        txDao.save(confirmed);
-        txDao.delete(record)
-    })
 
-    return c.json(200, {success: true})
-}, $apis.activityLogger($app), $apis.requireAdminOrOwnerAuth("owner"))
+    $app.dao().runInTransaction((txDao) => {
+      const collection = txDao.findCollectionByNameOrId("transactions");
+      const record = txDao.findRecordById("planned_transactions", id);
+      const confirmed = new Record(collection, record.schemaData());
+      console.log(confirmed);
+      confirmed.set("date", new Date().toISOString());
 
+      txDao.save(confirmed);
+      txDao.delete(record);
+    });
 
+    return c.json(200, { success: true });
+  },
+  $apis.activityLogger($app),
+  $apis.requireAdminOrOwnerAuth("owner")
+);
 
-
-onRecordAfterCreateRequest((c) => {
+onRecordBeforeCreateRequest((c) => {
   const { isInvoice, isRefund, modifyBalance } = require(`${__hooks}/utils.js`);
+  const { pushContactHistory } = require(`${__hooks}/statistics.js`);
+
   const id = c.record.get("contact");
   const contact = $app.dao().findRecordById("contacts", id);
   const amount = c.record.getInt("amount");
-
+  console.log("===================== CREATE T", JSON.stringify(contact));
   if (isInvoice(c.record)) {
-    modifyBalance(contact, -amount)
+    modifyBalance(contact, -amount);
+    pushContactHistory(contact);
   }
   if (isRefund(c.record)) {
     modifyBalance(contact, amount);
+    pushContactHistory(contact);
   }
+
 }, "transactions");
 
-onRecordAfterDeleteRequest((c) => {
+onRecordBeforeDeleteRequest((c) => {
+    const {admin} = $apis.requestInfo(c.httpContext)
+    if(admin) return true
   const { isInvoice, isRefund } = require(`${__hooks}/utils.js`);
   const id = c.record.get("contact");
   const contact = $app.dao().findRecordById("contacts", id);
@@ -48,25 +58,22 @@ onRecordAfterDeleteRequest((c) => {
     modifyBalance(contact, amount);
   }
   if (isRefund(c.record)) {
-    modifyBalance(contact, -amount)
+    modifyBalance(contact, -amount);
   }
 }, "transactions");
 
-
+// =========== CONTACTS ===========
 
 onRecordBeforeCreateRequest((c) => {
-    c.record.set("statistics", {
-        balanceHistory: [{
-            date: c.record.getCreated().string(),
-            balance: c.record.getInt("balance")
-        }]
-    })
+  const { ensureContactStatistics } = require(`${__hooks}/statistics.js`);
 
-    $app.dao().saveRecord(c.record)
-}, "contacts")
+  c.record = ensureContactStatistics(c.record);
+
+  $app.dao().saveRecord(c.record);
+}, "contacts");
 
 onRecordsListRequest((c) => {
-  const { calculateContactScore } = require(`${__hooks}/utils.js`);
+  const { calculateContactScore } = require(`${__hooks}/statistics.js`);
 
   c.result.items = c.result.items.map((item) => {
     item.withUnknownData(true);
@@ -78,14 +85,29 @@ onRecordsListRequest((c) => {
   c.httpContext.json(200, JSON.parse(JSON.stringify(c.result)));
 }, "contacts");
 
+onRecordViewRequest((c) => {
+  const {
+    calculateContactScore,
+    ensureContactStatistics,
+  } = require(`${__hooks}/statistics.js`);
+
+  c.record = ensureContactStatistics(c.record, true);
+  $app.dao().expandRecord(c.record, ["statistics"]);
+  c.record.withUnknownData(true);
+  c.record.set("score", calculateContactScore(c.record));
+  console.log(c.record, JSON.stringify(c.record))
+
+  c.httpContext.json(200, JSON.parse(JSON.stringify(c.record)));
+}, "contacts");
+
 routerAdd("GET", "/contact/:id/score", (c) => {
-    const id = c.pathParam("id");
-    const contact = $app.dao().findRecordById("contacts", id);
-    const { calculateContactScore } = require(`${__hooks}/utils.js`);
-  
-    return c.json(200, { score: calculateContactScore(contact) });
-  });
-  
-  cronAdd("save-total-contact-balance-history", "0 */4 * * *", () => {
-    const stats = $app.dao().findRecordsByFilter("statistics", ``);
+  const id = c.pathParam("id");
+  const contact = $app.dao().findRecordById("contacts", id);
+  const { calculateContactScore } = require(`${__hooks}/utils.js`);
+
+  return c.json(200, { score: calculateContactScore(contact) });
+});
+
+cronAdd("save-total-contact-balance-history", "0 */4 * * *", () => {
+  const stats = $app.dao().findRecordsByFilter("statistics", ``);
 });

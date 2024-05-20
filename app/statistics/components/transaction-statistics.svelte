@@ -5,7 +5,12 @@
   import { formatMonthlyExact } from "../../utils/formatter";
   import TransactionStatistics from "../transaction-statistics";
   import TransactionStatisticsOptions from "./transaction-statistics-options.svelte";
+  import Statistics from "../statistics";
+  import BalanceHistory from "./balance-history.svelte";
 
+  let dateRangeStart = Statistics.dateRangeStart;
+  let dateRangeEnd = Statistics.dateRangeEnd;
+  let count;
   let totalAmount;
   let totalAverage;
   let firstEntry;
@@ -15,6 +20,7 @@
   let type;
   let percentage;
   let absolute = false;
+  export let contact = null;
   export let transactions;
   export let disableAlltime = false;
   export let disableLoader = false;
@@ -38,6 +44,7 @@
   };
 
   const refreshStatistics = () => {
+    count = statistics.getData().length
     lastEntry = statistics.getLastEntry();
     firstEntry = statistics.getFirstEntry();
     type = TransactionStatistics.type;
@@ -59,12 +66,18 @@
   );
 </script>
 
+{#if contact}
+  <BalanceHistory {contact} {dateRangeStart} {dateRangeEnd} />
+{/if}
+
 <BlockTitle>Statistics</BlockTitle>
 
 <TransactionStatisticsOptions
   {disableAlltime}
   {disableLoader}
-  defaultDateRange={30}
+  bind:dateRangeStart
+  bind:dateRangeEnd
+  defaultDateRange={7}
   on:refresh={refreshStatistics}
 />
 <List strong inset dividers>
@@ -82,7 +95,7 @@
   >
     <span slot="after">{lastEntryDate}</span>
   </ListItem>
-  <ListItem title={`count`} after={statistics.getDataByType().lengths} />
+  <ListItem title={`count`} after={count} />
   <ListItem title={`sum`} after={totalAmount} />
   <ListItem title={`average`} after={totalAverage} />
   {#if type !== null}

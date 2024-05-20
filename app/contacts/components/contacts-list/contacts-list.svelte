@@ -34,7 +34,6 @@
 
     $:{
         const option = options.find((option) => option.label === selectedOption);
-        console.log(option)
         sortContacts(option.value, option?.reverse);
     }
 
