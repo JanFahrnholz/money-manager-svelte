@@ -14,7 +14,6 @@ routerAdd(
       const collection = txDao.findCollectionByNameOrId("transactions");
       const record = txDao.findRecordById("planned_transactions", id);
       const confirmed = new Record(collection, record.schemaData());
-      console.log(confirmed);
       confirmed.set("date", new Date().toISOString());
 
       txDao.save(confirmed);
@@ -95,7 +94,6 @@ onRecordViewRequest((c) => {
   $app.dao().expandRecord(c.record, ["statistics"]);
   c.record.withUnknownData(true);
   c.record.set("score", calculateContactScore(c.record));
-  console.log(c.record, JSON.stringify(c.record))
 
   c.httpContext.json(200, JSON.parse(JSON.stringify(c.record)));
 }, "contacts");

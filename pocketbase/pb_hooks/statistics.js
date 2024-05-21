@@ -13,7 +13,6 @@ function calculateContactScore(contact) {
   }
 
   const transactions = getTransactionsByContactId(contact.getId());
-  console.log("🚀 ~ calculateContactScore ~ transactions:", JSON.stringify(transactions))
 
   const contactData = transactions.reduce(
     (data, item) => {
@@ -120,8 +119,6 @@ const calculatePastBalanceHistory = (contact) => {
   const transactions = getTransactionsByContactId(contact.getId()).filter(
     (t) => isInvoice(t) || isRefund(t)
   );
-
-  console.log("CALCALCACLALC", transactions)
 
   transactions.forEach((t) => {
     balance = isInvoice(t)
