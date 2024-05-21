@@ -11,7 +11,7 @@ const modifyBalance = (record, modifier) => {
     record.getInt("balance") + modifier
   );
   record.set("balance", record.getInt("balance") + modifier);
-  $app.dao().saveRecord(record);
+  return record;
 };
 
 /**

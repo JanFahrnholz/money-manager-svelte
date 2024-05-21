@@ -149,7 +149,12 @@ const calculatePastBalanceHistory = (contact) => {
  */
 const pushContactHistory = (contact) => {
   const balance = contact.getInt("balance");
-  let statistics = JSON.parse(contact.get("statistics") || {});
+
+  let statistics = null
+
+  try {
+    statistics = JSON.parse(contact.get("statistics") || {});
+  } catch (error) {}
 
   if (!statistics)
     statistics = {
@@ -164,7 +169,7 @@ const pushContactHistory = (contact) => {
   });
 
   contact.set("statistics", JSON.stringify(statistics));
-  $app.dao().saveRecord(contact);
+  return contact
 };
 
 module.exports = {

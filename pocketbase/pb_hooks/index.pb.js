@@ -30,35 +30,42 @@ onRecordBeforeCreateRequest((c) => {
   const { isInvoice, isRefund, modifyBalance } = require(`${__hooks}/utils.js`);
   const { pushContactHistory } = require(`${__hooks}/statistics.js`);
 
-  const id = c.record.get("contact");
-  const contact = $app.dao().findRecordById("contacts", id);
-  const amount = c.record.getInt("amount");
-  console.log("===================== CREATE T", JSON.stringify(contact));
-  if (isInvoice(c.record)) {
-    modifyBalance(contact, -amount);
-    pushContactHistory(contact);
-  }
-  if (isRefund(c.record)) {
-    modifyBalance(contact, amount);
-    pushContactHistory(contact);
-  }
-
+  $app.dao().runInTransaction((dao) => {
+    const id = c.record.get("contact");
+    let contact = dao.findRecordById("contacts", id);
+    const amount = c.record.getInt("amount");
+    console.log("===================== CREATE T", JSON.stringify(contact));
+    if (isInvoice(c.record)) {
+      contact = modifyBalance(contact, -amount);
+      contact = pushContactHistory(contact);
+    }
+    if (isRefund(c.record)) {
+      contact = modifyBalance(contact, amount);
+      contact = pushContactHistory(contact);
+    }
+    dao.saveRecord(contact);
+    dao.saveRecord(c.record);
+  });
 }, "transactions");
 
 onRecordBeforeDeleteRequest((c) => {
-    const {admin} = $apis.requestInfo(c.httpContext)
-    if(admin) return true
-  const { isInvoice, isRefund } = require(`${__hooks}/utils.js`);
+  const { admin } = $apis.requestInfo(c.httpContext);
+  if (admin) return true;
+  const { isInvoice, isRefund, modifyBalance } = require(`${__hooks}/utils.js`);
   const id = c.record.get("contact");
-  const contact = $app.dao().findRecordById("contacts", id);
-  const amount = c.record.getInt("amount");
 
-  if (isInvoice(c.record)) {
-    modifyBalance(contact, amount);
-  }
-  if (isRefund(c.record)) {
-    modifyBalance(contact, -amount);
-  }
+  $app.dao().runInTransaction((dao) => {
+    let contact = dao.findRecordById("contacts", id);
+    const amount = c.record.getInt("amount");
+
+    if (isInvoice(c.record)) {
+      contact = modifyBalance(contact, amount);
+    }
+    if (isRefund(c.record)) {
+      contact = modifyBalance(contact, -amount);
+    }
+    dao.saveRecord(contact);
+  });
 }, "transactions");
 
 // =========== CONTACTS ===========
