@@ -22,6 +22,7 @@
   import { onMount } from "svelte";
   import { storable } from "../utils/storable";
   import Login from "../user/components/login.svelte";
+  import { client } from "../pocketbase";
 
   let activeTab = storable("active-tab", 1);
   let showPreloader = true;
@@ -64,7 +65,7 @@
   onPtrRefresh={reload}
   class="p-0"
 >
-  {#if !user}
+  {#if !user || !client.authStore.isValid}
     <Login />
   {:else}
     <Navbar>
