@@ -1,9 +1,10 @@
 import { f7 } from "framework7-svelte";
 import { client, clientId } from "../../pocketbase";
+import { ApiError } from "../../utils/errors";
 
-export default async function updateContact({ state }, contact) {
+export async function updateContact({ state }, contact) {
   try {
-    if(contact.user === clientId) throw new Error("You cannot link yourself!");
+    if (contact.user === clientId && contact.owner === clientId) throw new Error("You cannot link yourself!");
 
     const contactId = contact.id;
     const newContact = await client
@@ -17,6 +18,24 @@ export default async function updateContact({ state }, contact) {
     f7.toast.create({ text: "updated contact", closeTimeout: 2000 });
     return newContact;
   } catch (error) {
-    f7.dialog.alert(error.message).setTitle("Contact update")
+    console.log(error)
+    new ApiError(error).dialog();
+  }
+}
+
+export async function editLinkedName({ state }, contact){
+  try {
+    const res = await client.send(`/contact/${contact.id}/edit-linked-name`,{
+      method: "POST",
+      body: contact
+    })
+
+    state.contacts = state.contacts.map((c) => {
+      return c.id === contact.id ? res.contact : c;
+    });
+
+    return res.contact
+  } catch (error) {
+    new ApiError(error).dialog()
   }
 }

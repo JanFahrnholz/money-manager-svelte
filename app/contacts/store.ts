@@ -1,17 +1,22 @@
 import { f7 } from "framework7-svelte";
 import { client, clientId } from "../pocketbase";
 import deleteContact from "./actions/delete";
-import updateContact from "./actions/update";
+import { updateContact, editLinkedName } from "./actions/update";
 import createContact from "./actions/create";
 import getContacts from "./actions/get";
+import { makeCourier, removeCourier } from "./actions/courier";
 
 const contactStoreConfig = {
   state: {
     contacts: [],
+    managerContacts: [],
   },
   getters: {
     contacts({ state }) {
       return state.contacts;
+    },
+    managerContacts({ state }) {
+      return state.managerContacts;
     },
     contactsSorted({ state }) {
       return {
@@ -19,7 +24,7 @@ const contactStoreConfig = {
           (contact) => contact.owner !== clientId
         ),
         internal: state.contacts.filter(
-          (contact) => contact.owner === clientId
+          (contact) => contact.owner === clientId && !contact.courier
         ),
         couriers: state.contacts
           .filter((contact) => contact.owner === clientId)
@@ -57,7 +62,10 @@ const contactStoreConfig = {
     getContacts,
     createContact,
     updateContact,
+    editLinkedName,
     deleteContact,
+    makeCourier,
+    removeCourier,
   },
 };
 

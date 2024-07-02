@@ -8,6 +8,7 @@
     Page,
   } from "framework7-svelte";
   import store from "../../store";
+  import { _ } from "svelte-i18n";
 
   export let f7router;
 
@@ -20,9 +21,9 @@
 </script>
 
 <Page name="create contact">
-  <Navbar title="Create contact" backLink="Back">
+  <Navbar title={$_("contact.create")} backLink={$_("back")}>
     <NavRight>
-      <Link text="save" on:click={save} />
+      <Link text={$_("save")} on:click={save} />
     </NavRight>
   </Navbar>
 
@@ -36,8 +37,8 @@
     <ListInput
       onChange={(e) => (user = e.target.value)}
       type="text"
-      placeholder="User ID"
-      info="Linked users can see their transactions, balance etc."
+      placeholder="optional: user ID"
+      info={$_("contact.create.helper")}
       clearButton
     />
   </List>

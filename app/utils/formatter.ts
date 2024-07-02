@@ -1,4 +1,6 @@
+import { _ } from "svelte-i18n";
 import {isDateToday} from "./functions";
+import { isCollect, isExpense, isIncome, isInvoice, isRedeem, isRefund, isRestock } from "./transactions";
 
 export const formatDailyDate = (date: Date) =>{
     const year = new Date(date).getFullYear() !== new Date().getFullYear() ? "numeric" : undefined
@@ -37,4 +39,14 @@ export const formatDateRange = (date) => {
         day: "2-digit",
         month: "long",
     })
+}
+
+export const formatTransactionType = (format ,transaction, long = false) => {
+  if(isIncome(transaction)) return format("transaction.type.income");
+  if(isExpense(transaction)) return format("transaction.type.expense");
+  if(isInvoice(transaction)) return format("transaction.type.invoice");
+  if(isRefund(transaction)) return format("transaction.type.refund");
+  if(isRestock(transaction)) return format(`transaction.type.restock${long ? ".long" : ""}`);
+  if(isCollect(transaction)) return format(`transaction.type.collect${long ? ".long" : ""}`);
+  if(isRedeem(transaction)) return format(`transaction.type.redeem${long ? ".long" : ""}`);
 }

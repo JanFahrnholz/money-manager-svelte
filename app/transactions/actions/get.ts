@@ -7,7 +7,7 @@ export const getFirstTransactions = async ({ state }) => {
     state.transactions = await client.collection("transactions").getFullList({
       sort: "-date",
       filter: `date > "${filterDate.toISOString().replace("T", " ")}"`,
-      expand: "contact,owner",
+      expand: "contact,owner,courier,courier.contacts_via_courier",
     });
   } catch (error) {
     throw new Error(error);
@@ -26,7 +26,7 @@ export const getMoreTransactions = async ({ state }) => {
     const res = await client.collection("transactions").getFullList({
       sort: "-date",
       filter: `date > "${filterDate.toISOString().replace("T", " ")}" && date < "${lastFilterDate.toISOString().replace("T", " ")}"`,
-      expand: "contact,owner",
+      expand: "contact,owner,courier,courier.contacts_via_courier",
     });
 
     state.transactions = [...state.transactions, ...res];
@@ -40,7 +40,7 @@ export const getAllTransactions = async ({ state }) => {
   try {
     state.transactions = await client.collection("transactions").getFullList({
       sort: "-date",
-      expand: "contact,owner",
+      expand: "contact,owner,courier,courier.contacts_via_courier",
     });
   } catch (error) {
     throw new Error(error);
@@ -68,7 +68,7 @@ export const getTransactions = async ({ state }, { filter }) => {
     state.transactions = await client.collection("transactions").getFullList({
       sort: "-date",
       filter,
-      expand: "contact,owner",
+      expand: "contact,owner,courier,courier.contacts_via_courier",
     });
   } catch (error) {
     throw new Error(error);

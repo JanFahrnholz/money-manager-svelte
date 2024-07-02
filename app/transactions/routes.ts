@@ -1,4 +1,4 @@
-import TransactionCreatePage from "../pages/transactions/transaction-create.svelte";
+import TransactionCreatePage from "./components/transaction-create.svelte";
 
 export const transactionRoutes = [
   {

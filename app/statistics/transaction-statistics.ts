@@ -22,6 +22,10 @@ export default class TransactionStatistics extends Statistics<Transaction> {
         });
     };
 
+    getCount = (type = TransactionStatistics.type): number => {
+        return this.getDataByType(type).length
+    }
+
     getTotalAmount = (type = TransactionStatistics.type): number => {
         return this.getDataByType(type).reduce(
             (total, transaction) => total + transaction.amount,

@@ -33,7 +33,7 @@ self.addEventListener('activate', async () => {
             applicationServerKey: "BHPn55cE-pOa8RK4j-IAq-tfdyIGmf8rCb5rHYxJl6zepNxBLvzSp2Vp0S4aRrxOoNmkzPQrn9tGVKL5K-iltLI",
             userVisibleOnly: true
         };
-        console.log(options)
+
         //const subscription = await self.registration.pushManager.subscribe(options)
         //console.log(JSON.stringify(subscription))
     } catch (err) {

@@ -59,8 +59,6 @@ function calculateContactScore(contact) {
     refund: 0.5,
   };
 
-  console.log(normBalance, netTransactions, normInvoice, normRefund);
-
   // Calculate score
   const score =
     (normBalance * weights.balance +
@@ -68,8 +66,6 @@ function calculateContactScore(contact) {
       normInvoice * weights.invoice +
       normRefund * weights.refund) *
     100;
-
-  console.log("============= calc score", contact.getString("name"), score);
 
   return score.toFixed(2);
 }

@@ -47,7 +47,7 @@
       outline
       large
       on:click={clear}
-      disabled={!value}>Clear</Button
+      disabled={!value}>C</Button
     >
     <Button class="numpad-button" outline large on:click={select(0)}>0</Button>
     <Button

@@ -5,6 +5,8 @@
   import { getMonthStartAndEndDates } from "../../utils/functions";
   import Statistics from "../statistics";
   import TransactionStatistics from "../transaction-statistics";
+  import { formatTransactionType } from "../../utils/formatter";
+  import { _ } from "svelte-i18n";
 
   const dispatch = createEventDispatcher();
 
@@ -78,15 +80,15 @@
 
 <List strong inset dividers>
   <ListItem
-    title="date range"
+    title={$_("statistics.date-range")}
     smartSelect
     smartSelectParams={{ openIn: "sheet" }}
   >
     <select on:change={onDateRangeChange} value={dateRange}>
       {#if !disableAlltime}
         <option value={0}>all time</option>
-        <option value={365}>last year</option>
-      {/if}
+        {/if}
+      <option value={365}>last year</option>
       <option value={365 / 2}>last 6 months</option>
       <option value={60}>last 2 month</option>
       <option value={30}>last 30 days</option>
@@ -97,13 +99,13 @@
       {/each}
     </select>
   </ListItem>
-  <ListItem title="type" smartSelect smartSelectParams={{ openIn: "sheet" }}>
+  <ListItem title={$_("transaction.type.title")} after={formatTransactionType($_, { type })} smartSelect smartSelectParams={{ openIn: "sheet", setValueText: false }}>
     <select on:change={onTypeChange} value={type}>
       <option value={null}>any</option>
-      <option value={"Income"}>Income</option>
-      <option value={"Expense"}>Expense</option>
-      <option value={"Invoice"}>Invoice</option>
-      <option value={"Refund"}>Refund</option>
+      <option value={"Income"}>{$_("transaction.type.income")}</option>
+      <option value={"Expense"}>{$_("transaction.type.expense")}</option>
+      <option value={"Invoice"}>{$_("transaction.type.invoice")}</option>
+      <option value={"Refund"}>{$_("transaction.type.refund")}</option>
     </select>
   </ListItem>
 </List>

@@ -11,6 +11,8 @@
   import { client } from "../../pocketbase";
   import store, { alerts } from "../../store";
   import Alerts from "../../components/alerts.svelte";
+  import { _ } from "svelte-i18n";
+  import { ApiError } from "../../utils/errors";
 
 
   let open = true;
@@ -30,6 +32,7 @@
       await store.dispatch("login", { username, password });
     } catch (error) {
       showToastTop(error.message)
+      new ApiError(error).dialog()
     } finally {
       loading = false;
     }
@@ -55,32 +58,32 @@
 </script>
 
 <div style="height: 33%;" />
-<div class="block-title-large text-white text-center">Login</div>
+<div class="block-title-large text-white text-center">{$_("page.login.title")}</div>
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div on:keydown={handleKeydown}>
   <List strong inset dividers>
     <ListInput
     type="text"
     name="username"
-    placeholder="Your ID"
+    placeholder={$_("page.login.placeholder-1")}
     bind:value={username}
     />
     <ListInput
     type="password"
     name="password"
-    placeholder="Your password"
+    placeholder={$_("page.login.placeholder-2")}
     bind:value={password}
     />
   </List>
 </div>
-<Alerts/>
+
 <p class="grid grid-cols-1 grid-gap" style="padding: 4rem">
-  <Button large fill on:click={login}>
+  <Button large fill textColor="black" on:click={login}>
     {#if loading}
       <Preloader />
     {:else}
-      Login
+      {$_("page.login.submit")}
     {/if}
   </Button>
-  <Link href="/create-id/">no account? create one</Link>
+  <Link href="/create-id/">{$_("page.login.register")}</Link>
 </p>

@@ -3,14 +3,14 @@
  * @param {models.Record} record
  * @param {number} modifier
  */
-const modifyBalance = (record, modifier) => {
+const modifyBalance = (record, modifier, attribute = "balance") => {
   console.log(
-    "UTIL",
-    record.getInt("balance"),
-    modifier,
-    record.getInt("balance") + modifier
+    "Modifed balance value",
+    record.getInt(attribute),
+    modifier, "=",
+    record.getInt(attribute) + modifier
   );
-  record.set("balance", record.getInt("balance") + modifier);
+  record.set(attribute, record.getInt(attribute) + modifier);
   return record;
 };
 
@@ -48,9 +48,12 @@ const TYPES = Object.freeze({
   EXPENSE: { names: ["Expense", "Ausgabe"] },
   INVOICE: { names: ["Invoice", "Rechnung"] },
   REFUND: { names: ["Refund", "Rückzahlung"] },
+  RESTOCK: { names: ["Restock"] },
+  COLLECT: { names: ["Collect"] },
+  REDEEM: { names: ["Redeem"] },
 });
 
-/**
+/** 
  * @param {TYPES} type
  */
 isType = (transaction, type) => {
@@ -68,6 +71,9 @@ const isIncome = (transaction) => isType(transaction, TYPES.INCOME);
 const isExpense = (transaction) => isType(transaction, TYPES.EXPENSE);
 const isInvoice = (transaction) => isType(transaction, TYPES.INVOICE);
 const isRefund = (transaction) => isType(transaction, TYPES.REFUND);
+const isRestock = (transaction) => isType(transaction, TYPES.RESTOCK);
+const isCollect = (transaction) => isType(transaction, TYPES.COLLECT);
+const isRedeem = (transaction) => isType(transaction, TYPES.REDEEM);
 
 module.exports = {
   modifyBalance,
@@ -77,5 +83,8 @@ module.exports = {
   isExpense,
   isInvoice,
   isRefund,
+  isRestock,
+  isCollect,
+  isRedeem,
   TYPES,
 };

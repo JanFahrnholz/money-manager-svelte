@@ -1,7 +1,9 @@
 import { f7 } from "framework7-svelte";
 import { client, clientId } from "../pocketbase";
 import { alerts } from "../store";
+import { ApiError } from "../utils/errors";
 import { errorToast } from "../utils/toast";
+
 const authStoreConfig = {
   state: {
     user: client.authStore.model,
@@ -12,16 +14,23 @@ const authStoreConfig = {
     },
   },
   actions: {
-    async register({ state, dispatch }, { password }) {
-      try{
+    setUser({ state }, user) {
+      state.user = {
+        ...state.user,
+        ...user,
+      };
+    },
+    async register({ state, dispatch }, { username, password }) {
+      try {
         const user = await client.collection("users").create({
+          username,
           password,
           passwordConfirm: password,
           balance: 0,
-        })
-        dispatch("login", { username: user.username, password })
-      }catch(e){
-        errorToast({message: `Error while creating account: ${e.message}`})
+        });
+        dispatch("login", { username: user.username, password });
+      } catch (e) {
+        throw new ApiError(e).dialog();
       }
     },
     async login({ state, dispatch }, { username, password }) {
@@ -54,20 +63,20 @@ const authStoreConfig = {
         });
       } catch (error) {}
     },
-    async updateSetting({state, dispatch}, {key, value}){
+    async updateSetting({ state, dispatch }, { key, value }) {
       try {
         dispatch("updateUser", {
           id: state.user.id,
           settings: {
             ...state.user.settings,
             [key]: value,
-          }
-        })
-        f7.toast.create({text: "user settings updated", closeTimeout: 1000})
+          },
+        });
+        f7.toast.create({ text: "user settings updated", closeTimeout: 1000 });
       } catch (error) {
-        errorToast({message: "could not update settings"}) 
+        errorToast({ message: "could not update settings" });
       }
-    } 
+    },
   },
 };
 export default authStoreConfig;

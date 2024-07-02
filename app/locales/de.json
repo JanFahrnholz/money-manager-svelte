@@ -1,0 +1,224 @@
+{
+  "actions": {
+    "balanceChanged": "Kontostand {1} ==> {2}"
+  },
+  "amount": "Betrag",
+  "at": "bei",
+  "at-you": "bei dir",
+  "back": "zurück",
+  "balance": "Kontostand",
+  "cancel": "abbrechen",
+  "contact": {
+    "actions": {
+      "add-link": "User ID verlinken",
+      "add-name": "Name hinzufügen",
+      "delete": "Kontakt löschen",
+      "edit-name": "Name bearbeiten",
+      "make-courier": "zum Kurier ernennen",
+      "remove-courier": "Kurierstatus entfernen",
+      "remove-link": "Link entfernen",
+      "statistics-visibility": "Statistik Sichtbarkeit"
+    },
+    "create": "Kontakt erstellen",
+    "create.helper": "Verlinkte User können ihre Transaktionen und Kontostand sehen",
+    "details": {
+      "linked": {
+        "title": "Dein verlinktes Profil"
+      },
+      "title": "Kontakt Details"
+    },
+    "helper": {
+      "linked": "Jemand hat deine Account ID mit seinem Kontakt verknüpft. Hier siehst du deine Profile bei den verknüpften Accounts."
+    },
+    "select": {
+      "title": "Kontakt auswählen"
+    },
+    "title": "Kontakt"
+  },
+  "contacts": "Kontakte",
+  "courier": {
+    "bonus-balance": "Bonus Kontostand",
+    "details": {
+      "title": "Kurier Details"
+    },
+    "inventory-balance": "Inventar Kontostand",
+    "progress": "Fortschritt",
+    "sales-balance": "Kassierbarer Kontostand"
+  },
+  "created": "erstellt am",
+  "delete": "löschen",
+  "details": "Details",
+  "empty": {
+    "contacts": {
+      "owned": "Du hast noch keine eigenen Kontakte, tippe auf das Plus erstelle einen!"
+    }
+  },
+  "for": "für",
+  "from": "von",
+  "from-you": "von dir",
+  "general": "Allgemein",
+  "language": "Sprache",
+  "languages": {
+    "de": "Deutsch",
+    "en": "Englisch"
+  },
+  "last-n-days": "letzte {days} tage",
+  "linked-id": "Verlinkte ID",
+  "login": "anmelden",
+  "logout": "abmelden",
+  "none": "kein wert",
+  "none-yet": "Noch keine",
+  "page": {
+    "courier": {
+      "helper-1": "Kuriere können deine Kontakte sehen. Du kannst mit neuen Transaktionstypen ihr Inventar aufstocken, Umsatz kassieren und den Bonus einlösen.",
+      "helper-2": "Der Kurier kann sein Inventar in Umsatz konvertieren indem er 'Einnahme' Transaktionen mit deinen Kontakten erstellt.",
+      "helper-bonus": "Der Kurier erhält pro Transaktion {percentage}% des Betrags als Bonus",
+      "inventory": "Verbleibendes Inventar",
+      "name": "Kurier Name",
+      "sales": "Kassierbarer Umsatz",
+      "title": "Kurier Profil"
+    },
+    "login": {
+      "placeholder-1": "Account ID",
+      "placeholder-2": "Master Passwort",
+      "register": "Noch kein Account? Hier registrieren",
+      "submit": "Jetzt einloggen",
+      "title": "Einloggen"
+    },
+    "manager": {
+      "bonus": {
+        "balance": "Bonus Kontostand",
+        "current": "Aktueller Bonus"
+      },
+      "helper-1": "Als Kurier kannst du die Kontakte des Mangers sehen. Der Manager kann dein Inventar aufstocken, den Umsatz kassieren und deinen Bonus einlösen.",
+      "helper-2": "Konvertiere dein Inventar in Umsatz indem du Transaktionen mit den Kontakten des Mangers erstellst",
+      "helper-bonus": "Für jede Transaktion erhältst du {percentage}% des Betrag auf dein Bonus Kontostand",
+      "inventory": "Dein verbleibendes Inventar",
+      "owned": {
+        "title": "Kurier Profil"
+      },
+      "sales": "Dein Umsatz",
+      "title": "Manager Profil"
+    },
+    "register": {
+      "nickname": {
+        "placeholder": "Spitzname"
+      },
+      "password": {
+        "placeholder-1": "Master Passwort",
+        "placeholder-2": "Master Passwort bestätigen"
+      },
+      "submit": "Account erstellen",
+      "title": "Registrieren"
+    }
+  },
+  "planned-transaction": {
+    "confirm": {
+      "helper": "Tippen zum bestätigen",
+      "new-balance": "neuer Kontostand: {balance}€",
+      "title": "Bestätigen"
+    },
+    "title": "Geplante Transaktionen"
+  },
+  "profit": {
+    "helper": "(Einnahme - Ausgabe) + Rückzahlung"
+  },
+  "save": "speichern",
+  "search": "Suchen",
+  "select": "auswählen",
+  "settings": {
+    "contact": {
+    },
+    "defaultDisplayText": "Standard ({value})",
+    "text": "Einstellungen",
+    "user": {
+      "showStatisticsBalanceHistoryContact": {
+        "title": "Kontostandverlauf sichtbar für Kontakte"
+      },
+      "showStatisticsContact": {
+        "text": "Verlinkte Kontakte sehen max. das letzte Jahr",
+        "title": "Statistik sichtbar für Kontakte"
+      },
+      "showStatisticsHomepage": {
+        "title": "Statistik auf Home anzeigen"
+      }
+    }
+  },
+  "sort": {
+    "title": "Sortieren nach"
+  },
+  "statistics": {
+    "average": "Durchschnitt",
+    "count": "Anzahl",
+    "date-range": "Zeitraum",
+    "expense-income-difference": "Ausgabe / Einnahme Differenz",
+    "invoice-refund-difference": "Rechnung / Rückzahlung Differenz",
+    "last": "Letzter Eintrag",
+    "percentage": "Anteil",
+    "show": "Statistik anzeigen",
+    "sum": "Summe",
+    "title": "Statistik"
+  },
+  "tab": {
+    "1": {
+      "title": "MoneyManager"
+    },
+    "2": {
+      "title": "Kontakte"
+    },
+    "3": {
+      "title": "Profil"
+    }
+  },
+  "to": "bis",
+  "total": "Gesamt",
+  "transaction": {
+    "actions": {
+      "contact-details": "Kontakt anzeigen",
+      "courier-details": "Kurier anzeigen",
+      "delete": {
+        "confirm": "Bist du dir sicher? Kontostände werden gegebenenfalls zurückgebucht.",
+        "title": "Transaktion löschen"
+      },
+      "manager-details": "Manager anzeigen"
+    },
+    "create": {
+      "error": {
+        "amount-zero": "Transaktionshöhe darf nicht null sein",
+        "no-contact": "Kein Kontakt ausgewählt"
+      },
+      "info": "Zusätzliche info",
+      "planned": "Geplant",
+      "title": "Transaktion erstellen"
+    },
+    "history": "Transaktionshistorie",
+    "type": {
+      "collect": "Kassieren",
+      "collect.long": "Umsatz kassieren",
+      "expense": "Ausgabe",
+      "income": "Einnahme",
+      "invoice": "Rechnung",
+      "redeem": "Einlösen",
+      "redeem.long": "Bonus einlösen",
+      "refund": "Rückzahlung",
+      "restock": "Aufstocken",
+      "restock.long": "Inventar aufstocken",
+      "title": "Transaktionstyp"
+    }
+  },
+  "transactions": "Transaktionen",
+  "you": "Du",
+  "your": {
+    "account": "Dein Konto",
+    "balance": "Dein Kontostand",
+    "contacts": "Deine Kontakte",
+    "couriers": "Deine Kuriere",
+    "id": "Deine ID",
+    "links": "Deine verlinkten Profile",
+    "manageable": {
+      "from": "Von {owner}",
+      "title": "Deine verwaltbare Kontakte"
+    },
+    "managers": "Deine Manager"
+  }
+}

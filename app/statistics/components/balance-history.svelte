@@ -1,6 +1,7 @@
 <script>
   import { AreaChart, Block, BlockTitle } from "framework7-svelte";
   import { formatDailyDate, formatMonthlyExact } from "../../utils/formatter";
+  import { _ } from "svelte-i18n";
 
   export let contact;
   export let dateRangeStart;
@@ -31,7 +32,7 @@
       startDate === null ? new Date(contact.created) : new Date(startDate);
 
     balanceHistory.forEach((p) => {
-      const dateString = new Date(p.date).toISOString().split("T")[0];
+      const dateString = new Date(p?.date).toISOString().split("T")[0];
       dailyBalances[dateString] = p.balance;
     });
 
@@ -75,19 +76,20 @@
   };
 
   $: {
-    refreshHistory(dateRangeStart, dateRangeEnd);
+    try {
+      refreshHistory(dateRangeStart, dateRangeEnd)
+    } catch (e) {}
   }
 </script>
 
-<BlockTitle>Balance history</BlockTitle>
-<Block inset>
+<Block style="overflow: hidden;" class="margin-bottom-half">
   <AreaChart
     axis
     axisLabels={labels}
     toggleDatasets
     tooltip
-    lineChart
     legend
+    lineChart
     formatTooltipAxisLabel={(date) => formatMonthlyExact(date)}
     formatAxisLabel={(date) => formatDailyDate(date)}
     formatTooltipDataset={(label, value) => {
@@ -98,7 +100,7 @@
     formatTooltipTotal={() => ""}
     datasets={[
       {
-        label: "Balance",
+        label: $_("balance"),
         color: "#ffd600",
         values,
       },

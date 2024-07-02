@@ -22,14 +22,14 @@ export const contactRoutes = [
       try {
         const { id } = to.params;
         const contact = await client.collection("contacts").getOne(id, {
-          expand: "statistics"
+          expand: "owner,statistics,courier"
         });
         const transactions = await client
           .collection("transactions")
           .getFullList({
             filter: `contact="${id}"`,
             sort: "-date",
-            expand: "contact,owner",
+            expand: "contact,owner,courier.contacts_via_courier",
           });
 
         resolve(
@@ -37,7 +37,7 @@ export const contactRoutes = [
             component:
               contact.owner === client.authStore.model?.id
                 ? ContactDetailsPage
-                : ContactDetailsLinkedPage,
+                : ContactDetailsLinkedPage
           },
           {
             props: {

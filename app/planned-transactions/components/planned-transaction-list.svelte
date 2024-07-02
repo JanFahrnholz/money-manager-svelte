@@ -4,6 +4,7 @@
   import { fade } from "svelte/transition";
   import store from "../../store";
   import PlannedTransactionListItem from "./planned-transaction-list-item.svelte";
+  import { _ } from "svelte-i18n";
 
   let plannedTransactions = useStore(
     "plannedTransactionsByContact",
@@ -20,7 +21,7 @@
 </script>
 
 {#if plannedTransactions.length !== 0}
-  <BlockTitle>Planned transactions</BlockTitle>
+  <BlockTitle>{$_("planned-transaction.title")}</BlockTitle>
   <List
     accordionList
     strong
@@ -40,7 +41,7 @@
   <div style="height: 15px;">
     {#if showHelper}
       <div class="block-footer no-margin-top no-margin-bottom" transition:fade>
-        Swipe to confirm or delete
+        {$_("planned-transaction.confirm.helper")}
       </div>
     {/if}
   </div>

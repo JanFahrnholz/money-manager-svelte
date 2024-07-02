@@ -3,6 +3,7 @@
   import { formatDailyDate } from "../../utils/formatter";
   import { renderDailyDivider } from "../../utils/functions";
   import TransactionListItem from "./transaction-list-item.svelte";
+  import { _ } from "svelte-i18n";
 
   let transactions = useStore("transactions", (value) => {
     return (transactions = value);
@@ -10,7 +11,7 @@
 </script>
 
 <List strong inset dividers>
-  <ListButton title="create transaction" href="/transactions/create/" />
+  <ListButton title={$_("transaction.create.title")} href="/transactions/create/" />
   {#each transactions as transaction, index (`transaction-${transaction.id}`)}
     {#if renderDailyDivider(index, transactions)}
       <ListItem groupTitle title={formatDailyDate(transaction.date)} />

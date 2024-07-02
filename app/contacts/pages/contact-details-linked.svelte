@@ -1,48 +1,70 @@
 <script lang="ts">
   import {
+    BlockFooter,
     BlockTitle,
     List,
     ListItem,
     Navbar,
     Page,
+    f7ready,
     useStore,
   } from "framework7-svelte";
-  import { formatDailyDate } from "../../utils/formatter";
+  import { onMount } from "svelte";
   import TransactionStatistics from "../../statistics/components/transaction-statistics.svelte";
+  import TransactionListItem from "../../transactions/components/transaction-list-item.svelte";
+  import { formatDailyDate } from "../../utils/formatter";
+  import { renderDailyDivider } from "../../utils/functions";
+  import { ContactSettings } from "../../utils/settings";
+  import ContactOptionsLinked from "../components/contact-options-linked.svelte";
+  import CourierDetails from "../../components/couriers/courier-details.svelte";
+  import {_} from "svelte-i18n" 
 
   let user = useStore("user", (v) => (user = v));
 
   export let contact;
   export let transactions;
 
-  let showStatistics = user.settings?.showContactStatistics;
+  let settings;
 
-  if (contact.settings?.showContactStatistics !== undefined) {
-    showStatistics = contact.settings?.showContactStatistics;
-  }
+  onMount(() =>
+    f7ready(() => {
+      settings = new ContactSettings(contact, contact.expand.owner);
+      settings.notifyObservers(settings);
+    })
+  );
 </script>
 
 <Page>
-  <Navbar title="Linked contact details" backLink="Back" />
+  <Navbar title={$_("contact.details.linked.title")} backLink={$_("back")} />
 
+  <BlockTitle>{$_("general")}</BlockTitle>
   <List strong inset dividers>
-    <ListItem title="Name" after={contact.name} />
-    <ListItem title="Owner ID" after={contact.owner} />
-    <ListItem title="Balance" after={`${contact.balance}€`} />
+    <ListItem title="Name" after={contact?.linkedName || "none"} />
+    <ListItem title={$_("linked-id")} after={contact.owner} />
+    <ListItem title={$_("balance")} after={`${contact.balance}€`} />
   </List>
+  <BlockFooter>
 
-  {#if showStatistics}
-    <TransactionStatistics disableLoader disableAlltime {transactions} />
+  </BlockFooter>
+
+  {#if settings?.get("showStatisticsContact")}
+    <TransactionStatistics
+      disableLoader
+      disableAlltime
+      {transactions}
+      {contact}
+    />
   {/if}
+
+  <ContactOptionsLinked bind:contact bind:settings />
 
   <BlockTitle>Transaction history</BlockTitle>
   <List strong inset dividers>
-    {#each transactions as transaction (transaction.id)}
-      <ListItem
-        title={transaction.type}
-        after={`${transaction.amount}€`}
-        footer={formatDailyDate(transaction.date)}
-      />
+    {#each transactions as transaction, index (transaction.id)}
+      {#if renderDailyDivider(index, transactions)}
+        <ListItem groupTitle title={formatDailyDate(transaction.date)} />
+      {/if}
+      <TransactionListItem {transaction} detailed />
     {/each}
     {#if transactions.length === 0}
       <ListItem title="No transactions yet" />

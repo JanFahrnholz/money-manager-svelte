@@ -1,0 +1,224 @@
+{
+  "actions": {
+    "balanceChanged": "Balance {1} ==> {2}"
+  },
+  "amount": "amount",
+  "at": "at",
+  "at-you": "at you",
+  "back": "back",
+  "balance": "balance",
+  "cancel": "cancel",
+  "contact": {
+    "actions": {
+      "add-link": "link user id",
+      "add-name": "add name",
+      "delete": "delete contact",
+      "edit-name": "edit name",
+      "make-courier": "make courier",
+      "remove-courier": "remove courier",
+      "remove-link": "remove link",
+      "statistics-visibility": "statistics visibility"
+    },
+    "create": "create contact",
+    "create.helper": "Linked users can see their transactions, balance etc.",
+    "details": {
+      "linked": {
+        "title": "Your linked profile"
+      },
+      "title": "contact details"
+    },
+    "helper": {
+      "linked": "Someone linked your account ID to their contact. \nHere you can see your profiles for the linked accounts."
+    },
+    "select": {
+      "title": "Select contact"
+    },
+    "title": "Contact"
+  },
+  "contacts": "contacts",
+  "courier": {
+    "bonus-balance": "Bonus balance",
+    "details": {
+      "title": "Courier details"
+    },
+    "inventory-balance": "Inventory balance",
+    "progress": "Progress",
+    "sales-balance": "Collectable balance"
+  },
+  "created": "created at",
+  "delete": "delete",
+  "details": "details",
+  "empty": {
+    "contacts": {
+      "owned": "You don't have a own contact yet. Tap on the '+' and create one"
+    }
+  },
+  "for": "for",
+  "from": "from",
+  "from-you": "from you",
+  "general": "General",
+  "language": "Language",
+  "languages": {
+    "de": "German",
+    "en": "English"
+  },
+  "last-n-days": "last {days} days",
+  "linked-id": "linked ID",
+  "login": "login",
+  "logout": "logout",
+  "none": "none",
+  "none-yet": "none yet",
+  "page": {
+    "courier": {
+      "helper-1": "Couriers can see your contacts. You can restock their inventory, collect revenue and redeem a bonus via new transaction types",
+      "helper-2": "The courier can convert their inventory in revenue by creating 'Income' transactions with your contacts",
+      "helper-bonus": "For every transaction the courier gets {percentage}% of the amount as bonus",
+      "inventory": "Inventory left",
+      "name": "Contact",
+      "sales": "Collectable revenue",
+      "title": "Courier details"
+    },
+    "login": {
+      "placeholder-1": "Account ID",
+      "placeholder-2": "Master password",
+      "register": "no account? create one",
+      "submit": "",
+      "title": "Login"
+    },
+    "manager": {
+      "bonus": {
+        "balance": "Bonus balance",
+        "current": "Current bonus"
+      },
+      "helper-1": "As a courier you can see the managers contacts. The manager can restock your inventory, collect the revenue and redeem your bonus",
+      "helper-2": "Convert your inventory to sales by creating transactions with the managers contacts",
+      "helper-bonus": "For every transaction you create {percentage}% of the amount will be added to your bonus balance",
+      "inventory": "Your remaining inventory",
+      "owned": {
+        "title": "Courier profile"
+      },
+      "sales": "Your revenue",
+      "title": "Manager profile"
+    },
+    "register": {
+      "nickname": {
+        "placeholder": "Nickname"
+      },
+      "password": {
+        "placeholder-1": "Master password",
+        "placeholder-2": "Confirm master password"
+      },
+      "submit": "Create account",
+      "title": "Sign up"
+    }
+  },
+  "planned-transaction": {
+    "confirm": {
+      "helper": "Tap to confirm",
+      "new-balance": "new balance: {balance}€",
+      "title": "Confirm"
+    },
+    "title": "Planned transactions"
+  },
+  "profit": {
+    "helper": "(Income - Expense) + Refund"
+  },
+  "save": "save",
+  "search": "search",
+  "select": "select",
+  "settings": {
+    "contact": {
+    },
+    "defaultDisplayText": "Default ({value})",
+    "text": "Settings",
+    "user": {
+      "showStatisticsBalanceHistoryContact": {
+        "title": "Show balance history to contacts"
+      },
+      "showStatisticsContact": {
+        "text": "They will only see the last year",
+        "title": "Show statistics to contacts"
+      },
+      "showStatisticsHomepage": {
+        "title": "Show statistics on home tab"
+      }
+    }
+  },
+  "sort": {
+    "title": "Sort by"
+  },
+  "statistics": {
+    "average": "Average",
+    "count": "Count",
+    "date-range": "Date range",
+    "expense-income-difference": "Expense / Income difference",
+    "invoice-refund-difference": "Invoice / Refund difference",
+    "last": "Last entry",
+    "percentage": "Percentage",
+    "show": "Show statistics",
+    "sum": "Sum",
+    "title": "Statistics"
+  },
+  "tab": {
+    "1": {
+      "title": "MoneyManager"
+    },
+    "2": {
+      "title": "Contacts"
+    },
+    "3": {
+      "title": "Profile"
+    }
+  },
+  "to": "to",
+  "total": "Total",
+  "transaction": {
+    "actions": {
+      "contact-details": "Go to contact",
+      "courier-details": "Go to Courier",
+      "delete": {
+        "confirm": "Are you sure? Contact balances may be reverted.",
+        "title": "delete transaction"
+      },
+      "manager-details": "Manager details"
+    },
+    "create": {
+      "error": {
+        "amount-zero": "Transaction amount cannot be zero",
+        "no-contact": "Please select a contact"
+      },
+      "info": "Additional info",
+      "planned": "Planned",
+      "title": "Create transaction"
+    },
+    "history": "Transaction history",
+    "type": {
+      "collect": "Collect",
+      "collect.long": "Collect sales",
+      "expense": "Expense",
+      "income": "Income",
+      "invoice": "Invoice",
+      "redeem": "Redeem",
+      "redeem.long": "Redeem bonus",
+      "refund": "Refund",
+      "restock": "Restock",
+      "restock.long": "Restock inventory",
+      "title": "Transaction type"
+    }
+  },
+  "transactions": "Transactions",
+  "you": "you",
+  "your": {
+    "account": "Your account",
+    "balance": "Your balance",
+    "contacts": "Your contacts",
+    "couriers": "Your couriers",
+    "id": "Your ID",
+    "links": "Your links",
+    "manageable": {
+      "from": "From {owner}",
+      "title": "Your manageable contacts"
+    },
+    "managers": "Your managers"
+  }
+}

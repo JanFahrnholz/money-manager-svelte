@@ -6,7 +6,11 @@ export function storable(key, data) {
   const isBrowser = typeof window !== "undefined";
 
   if (localStorage.getItem(key)) {
-    set(JSON.parse(localStorage.getItem(key)));
+    try{
+      set(JSON.parse(localStorage.getItem(key)));
+    }catch(e){
+      set(undefined)
+    }
   }
 
   return {

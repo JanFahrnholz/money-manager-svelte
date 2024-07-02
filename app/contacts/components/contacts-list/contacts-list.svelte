@@ -1,103 +1,105 @@
 <script lang="ts">
-    import {
-        BlockTitle,
-        List,
-        ListItem,
-        f7ready,
-        useStore
-    } from "framework7-svelte";
-    import {onMount} from "svelte";
-    import InfoPopover from "../../../components/info-popover.svelte";
-    import store from "../../../store";
-    import ContactListInfo from "./contact-list-info.svelte";
-    import ContactsListItem from "./contacts-list-item.svelte";
-    import SortDropdown from "../../../components/sort-dropdown.svelte"
+  import { BlockFooter, BlockTitle, List, ListItem, Preloader, f7ready, useStore } from "framework7-svelte";
+  import { _ } from "svelte-i18n";
+  import InfoPopover from "../../../components/info-popover.svelte";
+  import SortDropdown from "../../../components/sort-dropdown.svelte";
+  import { ContactCollection } from "../../../utils/iterator";
+  import ContactListInfo from "./contact-list-info.svelte";
+  import ContactListItemAvatar from "./contact-list-item-avatar.svelte";
+  import ContactsListItem from "./contacts-list-item.svelte";
+  import ManagerCard from "../../../components/couriers/manager-card.svelte";
+  import { onMount } from "svelte";
+  import { storable } from "../../../utils/storable";
 
-    let contacts = useStore("contactsSorted", (value) => {
-        internal = value.internal
-        return (contacts = value);
-    });
-    let internal
-    $:internal = contacts?.internal;
+  let selectedSort = storable("last-contact-sort", "created-asc");
+  let managers = [];
+  let linked = [];
+  let owned = [];
+  let couriers = [];
+  let loading = true;
 
-    let options = [
-        {label: 'Sort by created asc', value: 'created'},
-        {label: 'Sort by created desc', value: 'created', reverse: true},
-        {label: 'Sort by name asc', value: 'name'},
-        {label: 'Sort by name desc', value: 'name', reverse: true},
-        {label: 'Sort by balance asc', value: 'balance'},
-        {label: 'Sort by balance desc', value: 'balance', reverse: true},
-        // Add more options as needed
-    ];
+  let contacts = useStore("contacts", (value) => {
+    loading = !value 
+    contacts = new ContactCollection(value);
+    managers = contacts.getManagers().items();
+    linked = contacts.getLinked().items();
+    owned = contacts.getDefaults().items();
+    couriers = contacts.getCouriers().items();
+  });
 
-    let selectedOption = 'Sort by created asc';
+  let options = [
+    "created",
+    "name",
+    "balance",
+  ];
 
-    $:{
-        const option = options.find((option) => option.label === selectedOption);
-        sortContacts(option.value, option?.reverse);
-    }
-
-
-    function sortContacts(sortBy, reverse = false) {
-        const sorted = internal.sort((a, b) => {
-            if (a[sortBy] < b[sortBy]) return -1;
-            if (a[sortBy] > b[sortBy]) return 1;
-            return 0;
-        }) || [];
-
-        if(reverse) sorted.reverse();
-
-        internal = sorted
-    }
-
-    onMount(() => {
-        f7ready(() => {
-            store.dispatch("getContacts", {});
-        });
-    });
 </script>
 
 <div id="contact-list">
+  {#if managers.length > 0}
     <BlockTitle>
-        Network IDs - {contacts.external.length}
-        <InfoPopover key="network-contacts">
-            // TODO: Add request allow deny feature
-            These contacts represent your identity in the linked a network
-            These user linked your id to their contacts and
-            granted you access to their network.
-        </InfoPopover>
+      {$_("your.managers")} - {managers.length}
+    </BlockTitle>
 
+    {#each managers as contact (contact.id)}
+      <ManagerCard {contact} />
+    {/each}
+  {/if}
+  {#if linked.length > 0}
+    <BlockTitle>
+      {$_("your.links")} - {linked.length}
+      <InfoPopover key="linked-contacts">
+        {$_("contact.helper.linked")}
+      </InfoPopover>
     </BlockTitle>
     <List strong inset dividers>
-        {#if contacts.external.length === 0}
-            <ListItem title="No contacts yet" footer="share your ID"/>
-        {/if}
-        {#each contacts.external as contact (contact.id)}
-            <ListItem
-                    title={contact.owner}
-                    after={`${contact.balance}€`}
-                    link={`/contacts/${contact.id}/`}
-            />
-        {/each}
+      {#each linked as contact (contact.id)}
+        <ListItem
+          title={contact.linkedName ? contact.linkedName : contact.owner}
+          after={`${contact.balance}€`}
+          link={`/contacts/${contact.id}/`}
+        >
+          <i slot="media" class="icon">
+            <ContactListItemAvatar {contact} />
+          </i></ListItem
+        >
+      {/each}
     </List>
-    {#if contacts.couriers.length !== 0}
-        <BlockTitle>Couriers - {contacts.couriers.length}</BlockTitle>
+  {/if}
+  {#if couriers.length !== 0}
+    <BlockTitle>{$_("your.couriers")} - {couriers.length}</BlockTitle>
 
-        <List strong inset dividers>
-            {#each contacts.couriers as contact (contact.id)}
-                <ContactsListItem {contact}/>
-            {/each}
-        </List>
-    {/if}
-
-    <BlockTitle
-    >Your contacts - {contacts.internal.length}
-        <ContactListInfo/>
-    </BlockTitle>
-    <SortDropdown {options} bind:selectedOption />
-    <List strong inset dividers class="margin-top-half">
-        {#each internal as contact (contact.id)}
-            <ContactsListItem {contact}/>
-        {/each}
+    <List strong inset dividers>
+      {#each couriers as contact (contact.id)}
+        <ContactsListItem {contact} />
+      {/each}
     </List>
+  {/if}
+
+  <BlockTitle
+    >{$_("your.contacts")} - {owned.length}
+    <ContactListInfo />
+  </BlockTitle>
+  <SortDropdown
+    {options}
+    bind:data={owned}
+    bind:selectedOption={$selectedSort}
+  />
+  {#if loading}
+  <div class="text-center margin-top">
+    <Preloader />
+  </div>
+  {/if}
+  <List strong inset dividers contactsList class="margin-top-half">
+    {#each owned as contact, index (contact.id)}
+      <ContactsListItem {contact} />
+    {/each}
+  </List>
+  {#if owned.length === 0 && !loading}
+    <BlockFooter class="margin-top text-center">
+      {$_("empty.contacts.owned")}
+    </BlockFooter>
+  {/if}
 </div>
+<br />
+<br />

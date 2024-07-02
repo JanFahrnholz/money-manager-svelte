@@ -4,6 +4,8 @@ import authStoreConfig from "./user/store";
 import transactionStoreConfig from "./transactions/store";
 import plannedTransactionStoreConfig from "./planned-transactions/store";
 import { writable } from "svelte/store";
+import { Router } from "framework7/types";
+
 
 const store = createStore({
   state: {
@@ -30,5 +32,6 @@ const store = createStore({
 });
 
 export const alerts = writable([]);
+export const mainRouter = writable<Router.Router>(null);
 
 export default store;

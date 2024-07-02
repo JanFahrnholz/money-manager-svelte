@@ -1,6 +1,6 @@
 import {Transaction} from "../transactions/types/transaction";
 
-export function groupByProperty(array, property) {
+export function groupByProperty<T>(array: T[], property: string): {[property: string]: T[]} {
   return array.reduce((grouped, item) => {
     const key = item[property];
     if (!grouped[key]) {
@@ -21,6 +21,16 @@ export const renderDailyDivider = (index, list) => {
     return true;
   return false;
 };
+
+export const renderAlphabeticalDivider = (index, list, property) => {
+  if (index === 0) return true;
+
+  const current = list[index][property].charAt(0).toUpperCase();
+  const previous = list[index - 1][property].charAt(0).toUpperCase();
+
+  return current !== previous;
+};
+
 
 export function getMonthStartAndEndDates(transactions: Transaction[]) {
   const monthStartAndEndDates = {};

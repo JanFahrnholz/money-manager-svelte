@@ -1,39 +1,40 @@
-<script>
+<script lang="ts">
   import { ListItem, Toggle } from "framework7-svelte";
-  import store from "../../store";
-
-  export let user;
+  import { _ } from "svelte-i18n";
+  export let settings;
   export let type;
   export let key;
-  export let title;
-  export let text;
   let value;
 
   const isBoolean = type === "boolean";
+  let disabled = false;
 
-  if(!title) title = key;
-
-  if(!user.settings){
-    user.settings = {};
-  }
-
-  if (isBoolean) {
-    value = user.settings[key] ? user.settings[key] : false;
-  }
-  const change = (event) => {
-    if (isBoolean) {
-      store.dispatch("updateSetting", { key, value: event.target.checked }).then(() =>{
-        value != value;
-      });
-    }
+  const e = (key) => {
+    return $_(key) !== key ? $_(key) : undefined;
   };
 
+  $: value = settings?.get(key);
+
+  const change = async (event) => {
+    try {
+      disabled = true;
+      await settings.set(key, event);
+      value = event;
+    } catch (error) {
+      value = settings.get(key);
+    } finally {
+      disabled = false;
+    }
+  };
 </script>
 
 {#if isBoolean}
-  <ListItem {title} footer={text}>
+  <ListItem
+    title={$_(`settings.user.${key}.title`)}
+    footer={e(`settings.user.${key}.text`)}
+  >
     <span slot="after">
-      <Toggle checked={value} {value} onChange={change} />
+      <Toggle {disabled} {value} checked={value} onToggleChange={change} />
     </span>
-</ListItem>
+  </ListItem>
 {/if}

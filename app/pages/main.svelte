@@ -4,7 +4,6 @@
     Link,
     NavRight,
     NavTitle,
-    NavTitleLarge,
     Navbar,
     Page,
     Searchbar,
@@ -15,14 +14,18 @@
     f7ready,
     useStore,
   } from "framework7-svelte";
-  import Home from "./home.svelte";
-  import Contacts from "../contacts/pages/contacts.svelte";
-  import Profile from "./profile.svelte";
-  import store from "../store";
   import { onMount } from "svelte";
-  import { storable } from "../utils/storable";
-  import Login from "../user/components/login.svelte";
+  import Contacts from "../contacts/pages/contacts.svelte";
   import { client } from "../pocketbase";
+  import store, { mainRouter } from "../store";
+  import Login from "../user/components/login.svelte";
+  import { storable } from "../utils/storable";
+  import Home from "./home.svelte";
+  import Profile from "./profile.svelte";
+  import { _ } from "svelte-i18n";
+
+  export let f7router;
+  $: $mainRouter = f7router
 
   let activeTab = storable("active-tab", 1);
   let showPreloader = true;
@@ -48,6 +51,8 @@
         showPreloader = false;
         allowInfinite = true;
       });
+
+      store.dispatch("getContacts", {});
     });
   });
 
@@ -65,15 +70,15 @@
   onPtrRefresh={reload}
   class="p-0"
 >
-  {#if !user || !client.authStore.isValid}
+  {#if !user || !client.authStore.isValid}
     <Login />
   {:else}
     <Navbar>
       {#if $activeTab === 1}
-        <NavTitle sliding>MoneyManager</NavTitle>
+        <NavTitle sliding>{$_("tab.1.title")}</NavTitle>
       {/if}
       {#if $activeTab === 2}
-        <NavTitle>Contacts</NavTitle>
+        <NavTitle>{$_("tab.2.title")}</NavTitle>
         <NavRight>
           <Link href="/contacts/create/" color="primary">
             <Icon material="add" />
@@ -81,11 +86,15 @@
         </NavRight>
 
         <Subnavbar>
-          <Searchbar searchContainer="#contact-list" searchIn=".item-title" />
+          <Searchbar
+            placeholder={$_("search")}
+            searchContainer="#contact-list"
+            searchIn=".item-title"
+          />
         </Subnavbar>
       {/if}
       {#if $activeTab === 3}
-        <NavTitle>Profile</NavTitle>
+        <NavTitle>{$_("tab.3.title")}</NavTitle>
       {/if}
     </Navbar>
 
@@ -103,14 +112,14 @@
         tabLinkActive={$activeTab === 2}
         tabLink="#tab-2"
         iconMaterial="people"
-        text="Contacts"
+        text={$_("contacts")}
       />
       <Link
         on:click={() => activeTab.set(3)}
         tabLinkActive={$activeTab === 3}
         tabLink="#tab-3"
         iconMaterial="account_circle"
-        text="Profile"
+        text={$_("tab.3.title")}
       />
     </Toolbar>
 
@@ -129,8 +138,6 @@
         onTabShow={() => activeTab.set(2)}
         class="page-content p-0"
       >
-        <br />
-        <br />
         <Contacts />
       </Tab>
       <Tab

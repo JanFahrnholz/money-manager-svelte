@@ -1,17 +1,13 @@
 <script>
   import {
-    BlockTitle,
     List,
-    ListButton,
-    ListItem,
-    Navbar,
-    Page,
-    Toggle,
+    ListButton
   } from "framework7-svelte";
-  import store from "../store";
+  import { _ } from "svelte-i18n";
   import AppVersion from "../components/app-version.svelte";
+  import { worker } from "../main.js";
+  import store from "../store";
   import UserSettings from "../user/components/user-settings.svelte";
-  import {worker} from "../main.js";
 
   let notificationPermission = Notification.permission;
 
@@ -24,13 +20,13 @@
   };
 
   const notify = () => {
-    if(worker) worker.showNotification("MoneyManager is great!");
-  }
+    if (worker) worker.showNotification("MoneyManager is great!");
+  };
 </script>
 
 <UserSettings />
 
-<List inset strong>
+<!-- <List inset strong>
   {#if notificationPermission !== "granted"}
     <ListButton
       title="Allow notifications"
@@ -39,16 +35,12 @@
     />
   {/if}
   {#if notificationPermission === "granted"}
-    <ListButton
-      title="Test notification"
-      color="blue"
-      onClick={notify}
-    />
+    <ListButton title="Test notification" color="blue" onClick={notify} />
   {/if}
-</List>
+</List> -->
 
 <List inset strong>
-  <ListButton title="Logout" color="red" onClick={logout} />
+  <ListButton title={$_("logout")} color="red" onClick={logout} />
 </List>
 
 <AppVersion />
