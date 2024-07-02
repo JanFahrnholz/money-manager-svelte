@@ -1,6 +1,6 @@
-import PocketBase, { RecordService } from "pocketbase";
+import PocketBase from "pocketbase";
 
-const url = "http://localhost:8090";
+const url = "https://pb.industed.com";
 const client = new PocketBase(url);
 client.autoCancellation(false);
 
