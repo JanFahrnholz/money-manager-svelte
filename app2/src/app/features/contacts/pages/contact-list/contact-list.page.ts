@@ -1,19 +1,155 @@
-import { Component } from '@angular/core';
-import { IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/angular/standalone';
+import { Component, computed, OnInit, signal } from '@angular/core';
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonContent,
+  IonSearchbar,
+  IonSegment,
+  IonSegmentButton,
+  IonLabel,
+  IonList,
+  IonFab,
+  IonFabButton,
+  IonIcon,
+  IonAlert,
+} from '@ionic/angular/standalone';
+import { TranslateModule } from '@ngx-translate/core';
+import { addIcons } from 'ionicons';
+import { add } from 'ionicons/icons';
+import { ContactService } from '../../services/contact.service';
+import { ContactListItemComponent } from '../../components/contact-list-item/contact-list-item.component';
+
+type FilterMode = 'all' | 'owned' | 'linked';
 
 @Component({
   selector: 'app-contact-list',
   standalone: true,
-  imports: [IonHeader, IonToolbar, IonTitle, IonContent],
+  imports: [
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonSearchbar,
+    IonSegment,
+    IonSegmentButton,
+    IonLabel,
+    IonList,
+    IonFab,
+    IonFabButton,
+    IonIcon,
+    IonAlert,
+    TranslateModule,
+    ContactListItemComponent,
+  ],
   template: `
     <ion-header>
       <ion-toolbar>
-        <ion-title>Kontakte</ion-title>
+        <ion-title>{{ 'tabs.contacts' | translate }}</ion-title>
+      </ion-toolbar>
+      <ion-toolbar>
+        <ion-searchbar
+          [placeholder]="'search' | translate"
+          (ionInput)="onSearch($event)"
+          [debounce]="200"
+        />
+      </ion-toolbar>
+      <ion-toolbar>
+        <ion-segment [value]="filter()" (ionChange)="onFilterChange($event)">
+          <ion-segment-button value="all">
+            <ion-label>{{ 'all' | translate }}</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="owned">
+            <ion-label>{{ 'owned' | translate }}</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="linked">
+            <ion-label>{{ 'linked' | translate }}</ion-label>
+          </ion-segment-button>
+        </ion-segment>
       </ion-toolbar>
     </ion-header>
-    <ion-content class="ion-padding">
-      Contacts works!
+
+    <ion-content>
+      <ion-list>
+        @for (contact of filteredContacts(); track contact.id) {
+          <app-contact-list-item [contact]="contact" />
+        }
+      </ion-list>
+
+      <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+        <ion-fab-button (click)="alertOpen.set(true)">
+          <ion-icon name="add" />
+        </ion-fab-button>
+      </ion-fab>
+
+      <ion-alert
+        [isOpen]="alertOpen()"
+        [header]="'contact.create' | translate"
+        [inputs]="alertInputs"
+        [buttons]="alertButtons"
+        (didDismiss)="alertOpen.set(false)"
+      />
     </ion-content>
   `,
 })
-export class ContactListPage {}
+export class ContactListPage implements OnInit {
+  readonly searchTerm = signal('');
+  readonly filter = signal<FilterMode>('all');
+  readonly alertOpen = signal(false);
+
+  readonly alertInputs = [
+    {
+      name: 'name',
+      type: 'text' as const,
+      placeholder: 'Name',
+    },
+  ];
+
+  readonly alertButtons = [
+    {
+      text: 'Cancel',
+      role: 'cancel' as const,
+    },
+    {
+      text: 'OK',
+      handler: (data: { name: string }) => {
+        const name = data.name?.trim();
+        if (name) {
+          this.contactService.create(name);
+        }
+      },
+    },
+  ];
+
+  readonly filteredContacts = computed(() => {
+    let list =
+      this.filter() === 'owned'
+        ? this.contactService.owned()
+        : this.filter() === 'linked'
+          ? this.contactService.linked()
+          : this.contactService.contacts();
+
+    const term = this.searchTerm().toLowerCase();
+    if (term) {
+      list = list.filter((c) => c.name.toLowerCase().includes(term));
+    }
+
+    return list;
+  });
+
+  constructor(private contactService: ContactService) {
+    addIcons({ add });
+  }
+
+  ngOnInit(): void {
+    this.contactService.loadAll();
+  }
+
+  onSearch(event: CustomEvent): void {
+    this.searchTerm.set((event.detail.value ?? '').toString());
+  }
+
+  onFilterChange(event: CustomEvent): void {
+    this.filter.set(event.detail.value as FilterMode);
+  }
+}
