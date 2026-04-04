@@ -1,0 +1,34 @@
+@import '@ionic/angular/css/core.css';
+@import '@ionic/angular/css/normalize.css';
+@import '@ionic/angular/css/structure.css';
+@import '@ionic/angular/css/typography.css';
+@import '@ionic/angular/css/display.css';
+@import '@ionic/angular/css/padding.css';
+@import '@ionic/angular/css/float-elements.css';
+@import '@ionic/angular/css/text-alignment.css';
+@import '@ionic/angular/css/text-transformation.css';
+@import '@ionic/angular/css/flex-utils.css';
+
+:root {
+  --ion-color-primary: #ffd600;
+  --ion-color-primary-rgb: 255,214,0;
+  --ion-color-primary-contrast: #000000;
+  --ion-color-primary-shade: #e0bc00;
+  --ion-color-primary-tint: #ffda1a;
+
+  --ion-color-success: #4cd964;
+  --ion-color-danger: #ff3b30;
+  --ion-color-warning: #ff9500;
+
+  --ion-background-color: #1a1a1a;
+  --ion-background-color-rgb: 26,26,26;
+  --ion-text-color: #ffffff;
+  --ion-card-background: #222222;
+  --ion-item-background: #222222;
+  --ion-toolbar-background: #1a1a1a;
+  --ion-tab-bar-background: #1a1a1a;
+}
+
+ion-card {
+  border-radius: 12px;
+}
