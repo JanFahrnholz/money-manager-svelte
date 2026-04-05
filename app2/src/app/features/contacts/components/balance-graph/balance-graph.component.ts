@@ -55,7 +55,11 @@ export class BalanceGraphComponent {
 
     const color = balances[balances.length - 1] >= 0 ? '#4cd964' : '#ff3b30';
 
-    const toX = (i: number) => PAD_LEFT + (i / (points.length - 1)) * CHART_W;
+    const times = points.map((p) => new Date(p.date).getTime());
+    const minTime = times[0];
+    const maxTime = times[times.length - 1];
+    const timeRange = maxTime - minTime || 1;
+    const toX = (i: number) => PAD_LEFT + ((times[i] - minTime) / timeRange) * CHART_W;
     const toY = (v: number) => PAD_TOP + CHART_H - ((v - min) / range) * CHART_H;
 
     const mid = min + range / 2;
