@@ -1,7 +1,7 @@
 import { Component, computed, input } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { EuroPipe } from '../../../../shared/pipes/euro.pipe';
-import { IonGrid, IonRow, IonCol, IonCard, IonCardHeader, IonCardTitle, IonCardContent } from '@ionic/angular/standalone';
+import { IonCard, IonCardHeader, IonCardTitle, IonCardContent } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Transaction } from '../../../../core/models/transaction.model';
 import { TransactionType } from '../../../../core/models/transaction.model';
@@ -9,78 +9,65 @@ import { TransactionType } from '../../../../core/models/transaction.model';
 @Component({
   selector: 'app-stats-cards',
   standalone: true,
-  imports: [DecimalPipe, EuroPipe, IonGrid, IonRow, IonCol, IonCard, IonCardHeader, IonCardTitle, IonCardContent, TranslateModule],
+  imports: [DecimalPipe, EuroPipe, IonCard, IonCardHeader, IonCardTitle, IonCardContent, TranslateModule],
   template: `
-    <ion-grid>
-      <ion-row>
-        <ion-col size="6">
-          <ion-card class="stat-card" style="border-left: 3px solid #4cd964;">
-            <ion-card-header>
-              <ion-card-title style="color: #2dd36f; font-size: 14px;">
-                {{ 'transaction.income' | translate }}
-              </ion-card-title>
-            </ion-card-header>
-            <ion-card-content>
-              <div class="stat-value" style="color: #2dd36f;">{{ incomeSum() | euro }}</div>
-              <div class="stat-count">{{ incomeCount() }}x</div>
-            </ion-card-content>
-          </ion-card>
-        </ion-col>
-        <ion-col size="6">
-          <ion-card class="stat-card" style="border-left: 3px solid #ff3b30;">
-            <ion-card-header>
-              <ion-card-title style="color: #eb445a; font-size: 14px;">
-                {{ 'transaction.expense' | translate }}
-              </ion-card-title>
-            </ion-card-header>
-            <ion-card-content>
-              <div class="stat-value" style="color: #eb445a;">{{ expenseSum() | euro }}</div>
-              <div class="stat-count">{{ expenseCount() }}x</div>
-            </ion-card-content>
-          </ion-card>
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col size="6">
-          <ion-card class="stat-card" style="border-left: 3px solid #ff9500;">
-            <ion-card-header>
-              <ion-card-title style="color: #e0ac08; font-size: 14px;">
-                {{ 'transaction.invoice' | translate }}
-              </ion-card-title>
-            </ion-card-header>
-            <ion-card-content>
-              <div class="stat-value" style="color: #e0ac08;">{{ invoiceSum() | euro }}</div>
-              <div class="stat-count">{{ invoiceCount() }}x</div>
-            </ion-card-content>
-          </ion-card>
-        </ion-col>
-        <ion-col size="6">
-          <ion-card class="stat-card" style="border-left: 3px solid #ffd600;">
-            <ion-card-header>
-              <ion-card-title style="color: #c9a81e; font-size: 14px;">
-                {{ 'score' | translate }}
-              </ion-card-title>
-            </ion-card-header>
-            <ion-card-content>
-              <div class="stat-value" [style.color]="score() > 0 ? '#4cd964' : score() < 0 ? '#ff3b30' : '#ffd600'">{{ score() | number:'1.0-0' }}</div>
-            </ion-card-content>
-          </ion-card>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
+    <div class="stats-grid">
+      <ion-card style="border-left: 3px solid #4cd964;">
+        <ion-card-content>
+          <div class="stat-label" style="color: #4cd964;">{{ 'transaction.income' | translate }}</div>
+          <div class="stat-value" style="color: #4cd964;">{{ incomeSum() | euro }}</div>
+          <div class="stat-count">{{ incomeCount() }}x</div>
+        </ion-card-content>
+      </ion-card>
+      <ion-card style="border-left: 3px solid #ff3b30;">
+        <ion-card-content>
+          <div class="stat-label" style="color: #ff3b30;">{{ 'transaction.expense' | translate }}</div>
+          <div class="stat-value" style="color: #ff3b30;">{{ expenseSum() | euro }}</div>
+          <div class="stat-count">{{ expenseCount() }}x</div>
+        </ion-card-content>
+      </ion-card>
+      <ion-card style="border-left: 3px solid #ff9500;">
+        <ion-card-content>
+          <div class="stat-label" style="color: #ff9500;">{{ 'transaction.invoice' | translate }}</div>
+          <div class="stat-value" style="color: #ff9500;">{{ invoiceSum() | euro }}</div>
+          <div class="stat-count">{{ invoiceCount() }}x</div>
+        </ion-card-content>
+      </ion-card>
+      <ion-card style="border-left: 3px solid #ffd600;">
+        <ion-card-content>
+          <div class="stat-label" style="color: #ffd600;">{{ 'score' | translate }}</div>
+          <div class="stat-value" [style.color]="score() > 0 ? '#4cd964' : score() < 0 ? '#ff3b30' : '#ffd600'">{{ score() | number:'1.0-0' }}</div>
+        </ion-card-content>
+      </ion-card>
+    </div>
   `,
   styles: `
-    .stat-card {
-      margin: 4px;
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 0 16px;
+    }
+    .stats-grid ion-card {
+      margin: 0;
+      min-height: 90px;
+      display: flex;
+    }
+    .stats-grid ion-card-content {
+      flex: 1;
+    }
+    .stat-label {
+      font-size: 11px;
+      font-weight: 600;
     }
     .stat-value {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 700;
+      margin: 4px 0;
     }
     .stat-count {
-      font-size: 12px;
-      color: var(--ion-color-medium);
-      margin-top: 2px;
+      font-size: 11px;
+      color: #555;
     }
   `,
 })
