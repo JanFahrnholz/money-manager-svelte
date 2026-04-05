@@ -13,8 +13,8 @@ import { IonGrid, IonRow, IonCol, IonButton } from '@ionic/angular/standalone';
             <ion-col>
               <ion-button
                 expand="block"
-                [fill]="key === '\u232B' ? 'solid' : 'clear'"
-                [color]="key === '\u232B' ? 'danger' : 'light'"
+                [fill]="key === '\u232B' ? 'solid' : 'outline'"
+                [color]="key === '\u232B' ? 'danger' : 'medium'"
                 (click)="press(key)"
                 class="numpad-btn"
               >
@@ -29,8 +29,8 @@ import { IonGrid, IonRow, IonCol, IonButton } from '@ionic/angular/standalone';
   styles: `
     .numpad-btn {
       --height: 52px;
-      --background: rgba(255, 255, 255, 0.08);
       --border-radius: 12px;
+      --border-color: #555;
       font-size: 20px;
     }
   `,
