@@ -16,14 +16,35 @@ export class AuthService {
   ) {}
 
   async init(): Promise<void> {
-    if (!this.pb.isAuthenticated) return;
+    // If PocketBase has a valid session, use that user
+    if (this.pb.isAuthenticated) {
+      const record = this.pb.client.authStore.record;
+      if (record) {
+        const user = this.mapRecordToUser(record);
+        await this.sqlite.upsert('users', user as unknown as Record<string, any>);
+        this.user.set(user);
+        return;
+      }
+    }
 
-    const record = this.pb.client.authStore.record;
-    if (!record) return;
-
-    const user = this.mapRecordToUser(record);
-    await this.sqlite.upsert('users', user as unknown as Record<string, any>);
-    this.user.set(user);
+    // Otherwise, load or create a local-only user
+    const existing = await this.sqlite.query<User>('SELECT * FROM users LIMIT 1');
+    if (existing.length > 0) {
+      this.user.set(existing[0]);
+    } else {
+      const now = new Date().toISOString();
+      const localUser: User = {
+        id: crypto.randomUUID().replace(/-/g, '').slice(0, 15),
+        username: 'local',
+        balance: 0,
+        settings: {},
+        language: localStorage.getItem('language') || 'de',
+        created: now,
+        updated: now,
+      };
+      await this.sqlite.upsert('users', localUser as unknown as Record<string, any>);
+      this.user.set(localUser);
+    }
   }
 
   async login(username: string, password: string): Promise<void> {
@@ -44,8 +65,11 @@ export class AuthService {
 
   logout(): void {
     this.pb.logout();
-    this.user.set(null);
-    this.router.navigate(['/auth/login']);
+    // Don't clear user — local user persists. Just disconnect sync.
+  }
+
+  get isSynced(): boolean {
+    return this.pb.isAuthenticated;
   }
 
   async updateBalance(delta: number): Promise<void> {

@@ -66,11 +66,11 @@ import { CourierService } from '../../../couriers/services/courier.service';
             <ion-select-option value="en">English</ion-select-option>
           </ion-select>
         </ion-item>
-        <ion-item>
+        <ion-item [routerLink]="auth.isSynced ? null : ['/auth/login']" [detail]="!auth.isSynced" [button]="!auth.isSynced">
           <ion-icon name="sync-circle" slot="start" />
           <ion-label>{{ 'profile.sync' | translate }}</ion-label>
-          <ion-note slot="end" [color]="pb.online() ? 'success' : 'danger'">
-            {{ (pb.online() ? 'online' : 'offline') | translate }}
+          <ion-note slot="end" [color]="auth.isSynced ? 'success' : 'medium'">
+            {{ auth.isSynced ? 'Verbunden' : 'Nicht eingerichtet' }}
           </ion-note>
         </ion-item>
         <ion-item [routerLink]="['/tabs/profile/network']" detail>
@@ -85,11 +85,12 @@ import { CourierService } from '../../../couriers/services/courier.service';
         }
       </ion-list>
 
-      <!-- Logout button -->
-      <ion-button expand="block" color="danger" fill="outline" (click)="auth.logout()">
-        <ion-icon name="log-out" slot="start" />
-        {{ 'profile.logout' | translate }}
-      </ion-button>
+      @if (auth.isSynced) {
+        <ion-button expand="block" color="medium" fill="outline" (click)="auth.logout()">
+          <ion-icon name="log-out" slot="start" />
+          Sync trennen
+        </ion-button>
+      }
     </ion-content>
   `,
   styles: [

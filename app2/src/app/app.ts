@@ -26,7 +26,10 @@ export class AppComponent implements OnInit {
   async ngOnInit() {
     await this.sqlite.init();
     await this.auth.init();
-    await this.sync.syncAll();
-    this.sync.startPeriodicSync();
+    // Sync only if PocketBase is connected (optional feature)
+    if (this.auth.isSynced) {
+      await this.sync.syncAll();
+      this.sync.startPeriodicSync();
+    }
   }
 }
