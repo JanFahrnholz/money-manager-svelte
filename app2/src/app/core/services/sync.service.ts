@@ -2,7 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { SqliteService } from './sqlite.service';
 import { PocketbaseService } from './pocketbase.service';
 
-const SYNC_COLLECTIONS = ['contacts', 'transactions'];
+const SYNC_COLLECTIONS = ['contacts', 'transactions', 'courier_links'];
 
 @Injectable({ providedIn: 'root' })
 export class SyncService {
