@@ -341,8 +341,22 @@ export class ContactDetailPage implements OnInit {
   });
 
   readonly graphData = computed<BalancePoint[]>(() => {
-    const txs = this.filteredTransactions().slice().reverse(); // chronological order
+    const all = this.allTransactions().slice().reverse(); // all txs chronological
+    const filtered = this.filteredTransactions();
+    const start = getStartDate(this.timeframe());
+
+    // Calculate starting balance from transactions BEFORE the timeframe
     let balance = 0;
+    if (start) {
+      const startStr = start.toISOString();
+      for (const t of all) {
+        if (t.date >= startStr) break;
+        if (t.type === TransactionType.Invoice) balance -= t.amount;
+        if (t.type === TransactionType.Refund) balance += t.amount;
+      }
+    }
+
+    const txs = filtered.slice().reverse(); // filtered txs chronological
     return txs.map((t) => {
       if (t.type === TransactionType.Invoice) balance -= t.amount;
       if (t.type === TransactionType.Refund) balance += t.amount;
