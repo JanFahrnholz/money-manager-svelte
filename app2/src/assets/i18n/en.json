@@ -20,7 +20,9 @@
     "refund": "Refund",
     "info": "Info",
     "planned": "Planned",
-    "type": "Transaction Type"
+    "type": "Transaction Type",
+    "delete": "Delete Transaction",
+    "deleteConfirm": "Are you sure?"
   },
   "contact": {
     "create": "New Contact",

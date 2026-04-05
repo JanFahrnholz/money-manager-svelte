@@ -20,7 +20,9 @@
     "refund": "Rückzahlung",
     "info": "Info",
     "planned": "Geplant",
-    "type": "Transaktionstyp"
+    "type": "Transaktionstyp",
+    "delete": "Transaktion löschen",
+    "deleteConfirm": "Bist du sicher?"
   },
   "contact": {
     "create": "Neuer Kontakt",

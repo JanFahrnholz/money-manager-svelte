@@ -131,7 +131,7 @@ import { StatsCardsComponent } from '../../components/stats-cards/stats-cards.co
           <h3 class="section-title">{{ 'contact.transactions' | translate }}</h3>
           <ion-list>
             @for (tx of filteredTransactions(); track tx.id) {
-              <ion-item>
+              <ion-item button (click)="showTransactionActions(tx)">
                 <ion-label>
                   <h3>{{ 'transaction.' + txTypeKey(tx.type) | translate }}</h3>
                   <p>{{ tx.date | date: 'dd.MM.yyyy' }}@if (tx.info) { &mdash; {{ tx.info }} }</p>
@@ -153,6 +153,13 @@ import { StatsCardsComponent } from '../../components/stats-cards/stats-cards.co
         [header]="contact()?.name ?? ''"
         [buttons]="actionButtons()"
         (didDismiss)="showActions.set(false)"
+      />
+
+      <ion-action-sheet
+        [isOpen]="showTxActions()"
+        [header]="txActionHeader()"
+        [buttons]="txActionButtons()"
+        (didDismiss)="showTxActions.set(false)"
       />
     </ion-content>
   `,
@@ -212,6 +219,8 @@ export class ContactDetailPage implements OnInit {
   readonly allTransactions = signal<Transaction[]>([]);
   readonly timeframe = signal<Timeframe>('1m');
   readonly showActions = signal(false);
+  readonly selectedTransaction = signal<Transaction | null>(null);
+  readonly showTxActions = signal(false);
 
   readonly filteredTransactions = computed(() => {
     const txs = this.allTransactions();
@@ -275,6 +284,32 @@ export class ContactDetailPage implements OnInit {
       role: 'cancel' as const,
     },
   ]);
+
+  readonly txActionButtons = computed(() => {
+    const tx = this.selectedTransaction();
+    if (!tx) return [];
+    return [
+      {
+        text: this.translate.instant('transaction.delete'),
+        role: 'destructive' as const,
+        handler: () => {
+          this.confirmDeleteTransaction();
+        },
+      },
+      {
+        text: this.translate.instant('cancel'),
+        role: 'cancel' as const,
+      },
+    ];
+  });
+
+  readonly txActionHeader = computed(() => {
+    const tx = this.selectedTransaction();
+    if (!tx) return '';
+    const typeKey = this.txTypeKey(tx.type);
+    const typeLabel = this.translate.instant('transaction.' + typeKey);
+    return `${tx.amount}€ ${typeLabel}`;
+  });
 
   constructor(
     private route: ActivatedRoute,
@@ -408,5 +443,44 @@ export class ContactDetailPage implements OnInit {
     if (!c) return;
     await this.contactService.remove(c.id);
     this.navCtrl.back();
+  }
+
+  showTransactionActions(tx: Transaction): void {
+    this.selectedTransaction.set(tx);
+    this.showTxActions.set(true);
+  }
+
+  private async confirmDeleteTransaction(): Promise<void> {
+    const tx = this.selectedTransaction();
+    if (!tx) return;
+    const alert = await this.alertCtrl.create({
+      header: this.translate.instant('transaction.delete'),
+      message: this.translate.instant('transaction.deleteConfirm'),
+      buttons: [
+        { text: this.translate.instant('cancel'), role: 'cancel' },
+        {
+          text: this.translate.instant('delete'),
+          role: 'destructive',
+          handler: () => {
+            this.deleteTransaction(tx);
+          },
+        },
+      ],
+    });
+    await alert.present();
+  }
+
+  private async deleteTransaction(tx: Transaction): Promise<void> {
+    const c = this.contact();
+    if (!c) return;
+    await this.txService.remove(tx.id);
+
+    // Reload transactions
+    const txs = await this.txService.loadByContact(c.id, 200);
+    this.allTransactions.set(txs);
+
+    // Reload contact to get updated balance
+    const updated = await this.contactService.getById(c.id);
+    if (updated) this.contact.set(updated);
   }
 }
