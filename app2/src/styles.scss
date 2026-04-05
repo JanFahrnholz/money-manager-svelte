@@ -32,3 +32,29 @@
 ion-card {
   border-radius: 12px;
 }
+
+// Force dark mode on Ionic overlays
+ion-alert {
+  --background: #2a2a2a;
+  .alert-wrapper { background: #2a2a2a !important; color: #fff !important; }
+  .alert-head h2 { color: #fff !important; }
+  .alert-message { color: #ccc !important; }
+  .alert-input { background: #333 !important; color: #fff !important; border-color: #555 !important; }
+  .alert-button { color: var(--ion-color-primary) !important; }
+  .alert-button.alert-button-role-destructive { color: var(--ion-color-danger) !important; }
+}
+
+ion-action-sheet {
+  --background: #2a2a2a;
+  .action-sheet-group { background: #2a2a2a !important; }
+  .action-sheet-title { color: #999 !important; }
+  .action-sheet-button { color: var(--ion-color-primary) !important; }
+  .action-sheet-button.action-sheet-destructive { color: var(--ion-color-danger) !important; }
+}
+
+ion-item-divider {
+  --background: #2a2a2a;
+  --color: #fff;
+  font-weight: 600;
+  font-size: 13px;
+}
