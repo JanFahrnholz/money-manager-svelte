@@ -73,6 +73,13 @@ export class BalanceGraphComponent {
     html += `<text x="${PAD_LEFT - 4}" y="${PAD_TOP + CHART_H / 2 + 3}" text-anchor="end" fill="#999" font-size="8">${fmt(mid)}\u20AC</text>`;
     html += `<text x="${PAD_LEFT - 4}" y="${PAD_TOP + CHART_H + 3}" text-anchor="end" fill="#999" font-size="8">${fmt(min)}\u20AC</text>`;
 
+    // Zero line (always visible when range crosses 0)
+    if (min <= 0 && max >= 0) {
+      const zeroY = toY(0);
+      html += `<line x1="${PAD_LEFT}" y1="${zeroY}" x2="${PAD_LEFT + CHART_W}" y2="${zeroY}" stroke="#ffd600" stroke-width="1" stroke-dasharray="4,3" opacity="0.6"/>`;
+      html += `<text x="${PAD_LEFT - 4}" y="${zeroY + 3}" text-anchor="end" fill="#ffd600" font-size="8" opacity="0.8">0\u20AC</text>`;
+    }
+
     // Gradient definition
     const gradId = 'balGrad';
     html += `<defs><linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">`;
