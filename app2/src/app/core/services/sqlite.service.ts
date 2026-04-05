@@ -8,13 +8,14 @@ const DB_NAME = 'moneymanager';
 export class SqliteService {
   private sqlite = new SQLiteConnection(CapacitorSQLite);
   private db!: SQLiteDBConnection;
+  private isWeb = false;
 
   readonly ready = signal(false);
 
   async init(): Promise<void> {
-    const platform = Capacitor.getPlatform();
+    this.isWeb = Capacitor.getPlatform() === 'web';
 
-    if (platform === 'web') {
+    if (this.isWeb) {
       await customElements.whenDefined('jeep-sqlite');
       await this.sqlite.initWebStore();
     }
@@ -127,6 +128,13 @@ export class SqliteService {
 
   async run(sql: string, params: any[] = []): Promise<void> {
     await this.db.run(sql, params);
+    await this.persist();
+  }
+
+  private async persist(): Promise<void> {
+    if (this.isWeb) {
+      await this.sqlite.saveToStore(DB_NAME);
+    }
   }
 
   async getById<T>(table: string, id: string): Promise<T | null> {
@@ -155,9 +163,11 @@ export class SqliteService {
       ON CONFLICT(id) DO UPDATE SET ${updates}`;
 
     await this.db.run(sql, values);
+    await this.persist();
   }
 
   async delete(table: string, id: string): Promise<void> {
     await this.db.run(`DELETE FROM ${table} WHERE id = ?`, [id]);
+    await this.persist();
   }
 }
