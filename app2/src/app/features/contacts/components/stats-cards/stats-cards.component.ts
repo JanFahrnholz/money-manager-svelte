@@ -61,7 +61,7 @@ import { TransactionType } from '../../../../core/models/transaction.model';
               </ion-card-title>
             </ion-card-header>
             <ion-card-content>
-              <div class="stat-value" style="color: #c9a81e;">{{ score() }}</div>
+              <div class="stat-value" [style.color]="score() > 0 ? '#4cd964' : score() < 0 ? '#ff3b30' : '#ffd600'">{{ score() }}</div>
             </ion-card-content>
           </ion-card>
         </ion-col>

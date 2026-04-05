@@ -187,6 +187,11 @@ import { TransactionTypeIconPipe } from '../../../../shared/pipes/transaction-ty
               }
             }
           </ion-list>
+          @if (filteredTransactions().length > displayLimit()) {
+            <ion-button expand="block" fill="clear" (click)="loadMore()">
+              {{ 'loadMore' | translate }} ({{ filteredTransactions().length - displayLimit() }})
+            </ion-button>
+          }
         </div>
       }
 
@@ -302,6 +307,7 @@ export class ContactDetailPage implements OnInit {
   readonly showQrModal = signal(false);
   readonly showScanModal = signal(false);
   readonly qrPayload = signal('');
+  readonly displayLimit = signal(50);
 
   readonly canMakeCourier = computed(() => {
     const c = this.contact();
@@ -320,7 +326,7 @@ export class ContactDetailPage implements OnInit {
   private readonly dateGroupPipe = new DateGroupPipe();
 
   readonly groupedTransactions = computed(() => {
-    const txs = this.filteredTransactions();
+    const txs = this.filteredTransactions().slice(0, this.displayLimit());
     const groups: { label: string; transactions: Transaction[] }[] = [];
     let currentLabel = '';
     for (const tx of txs) {
@@ -509,8 +515,28 @@ export class ContactDetailPage implements OnInit {
       this.contactService.getById(id),
       this.txService.loadByContact(id, 200),
     ]);
-    if (c) this.contact.set(c);
     this.allTransactions.set(txs);
+
+    // Calculate score inline (getById doesn't run calculateScores)
+    if (c) {
+      let totalIncome = 0, totalExpense = 0, totalInvoice = 0, totalRefund = 0;
+      for (const tx of txs) {
+        if (tx.type === TransactionType.Income) totalIncome += tx.amount;
+        if (tx.type === TransactionType.Expense) totalExpense += tx.amount;
+        if (tx.type === TransactionType.Invoice) totalInvoice += tx.amount;
+        if (tx.type === TransactionType.Refund) totalRefund += tx.amount;
+      }
+      const normalize = (val: number, min: number, max: number) =>
+        max === min ? 0 : (val - min) / (max - min) - 0.5;
+      const score =
+        (normalize(c.balance, -1000, 1000) * 0.25 +
+          normalize(totalIncome - totalExpense, -2000, 2000) * 0.25 +
+          normalize(-totalInvoice, -1000, 0) * 0.25 +
+          normalize(totalRefund, 0, 500) * 0.25) *
+        100;
+      c.score = Math.round(score * 100) / 100;
+      this.contact.set({ ...c });
+    }
 
     // Check for existing QR pair
     if (c) {
@@ -535,6 +561,11 @@ export class ContactDetailPage implements OnInit {
 
   onTimeframeChange(tf: Timeframe): void {
     this.timeframe.set(tf);
+    this.displayLimit.set(50);
+  }
+
+  loadMore(): void {
+    this.displayLimit.update((v) => v + 50);
   }
 
   txTypeKey(type: TransactionType): string {
