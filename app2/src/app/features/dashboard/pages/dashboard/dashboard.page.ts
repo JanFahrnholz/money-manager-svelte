@@ -220,7 +220,7 @@ import { EuroPipe } from '../../../../shared/pipes/euro.pipe';
       margin-top: 4px;
     }
     .section {
-      margin-top: 20px;
+      margin-top: 16px;
     }
     .section-header {
       display: flex;
@@ -237,10 +237,12 @@ import { EuroPipe } from '../../../../shared/pipes/euro.pipe';
       text-decoration: none;
     }
     .section-title {
-      font-size: 14px;
+      font-size: 11px;
       font-weight: 600;
+      color: #666;
       text-transform: uppercase;
-      color: var(--ion-color-medium);
+      letter-spacing: 1px;
+      padding: 0 16px;
       margin: 0 0 8px;
     }
   `,

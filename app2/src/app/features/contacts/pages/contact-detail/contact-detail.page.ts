@@ -1,4 +1,5 @@
 import { Component, computed, OnInit, signal } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import { EuroPipe } from '../../../../shared/pipes/euro.pipe';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
@@ -69,6 +70,7 @@ import { TransactionTypeIconPipe } from '../../../../shared/pipes/transaction-ty
   selector: 'app-contact-detail',
   standalone: true,
   imports: [
+    DecimalPipe,
     EuroPipe,
     RouterLink,
     IonHeader,
@@ -134,7 +136,7 @@ import { TransactionTypeIconPipe } from '../../../../shared/pipes/transaction-ty
           <h1 class="contact-balance" [style.color]="balanceTextColor()">
             {{ c.balance | euro }}
           </h1>
-          <p class="contact-score">{{ 'score' | translate }}: {{ c.score }}</p>
+          <p class="contact-score">{{ 'score' | translate }}: {{ c.score | number:'1.0-0' }}</p>
         </div>
 
         <!-- New Transaction button -->

@@ -18,12 +18,14 @@ const CHART_H = VIEW_H - PAD_TOP - PAD_BOTTOM;
   selector: 'app-balance-graph',
   standalone: true,
   template: `
-    <svg
-      #svgEl
-      [attr.viewBox]="'0 0 ' + viewW + ' ' + viewH"
-      style="width: 100%; height: auto; display: block;"
-      preserveAspectRatio="xMidYMid meet"
-    ></svg>
+    <div style="background: var(--ion-card-background, #222); border-radius: 12px; padding: 12px 8px 4px;">
+      <svg
+        #svgEl
+        [attr.viewBox]="'0 0 ' + viewW + ' ' + viewH"
+        style="width: 100%; height: auto; display: block;"
+        preserveAspectRatio="xMidYMid meet"
+      ></svg>
+    </div>
   `,
 })
 export class BalanceGraphComponent {
@@ -69,7 +71,7 @@ export class BalanceGraphComponent {
     let html = '';
     const gridYs = [PAD_TOP, PAD_TOP + CHART_H / 2, PAD_TOP + CHART_H];
     for (const gy of gridYs) {
-      html += `<line x1="${PAD_LEFT}" y1="${gy}" x2="${PAD_LEFT + CHART_W}" y2="${gy}" stroke="#e0e0e0" stroke-width="0.5"/>`;
+      html += `<line x1="${PAD_LEFT}" y1="${gy}" x2="${PAD_LEFT + CHART_W}" y2="${gy}" stroke="#444" stroke-width="0.5"/>`;
     }
 
     // Y-axis labels

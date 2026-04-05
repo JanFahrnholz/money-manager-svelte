@@ -1,4 +1,5 @@
 import { Component, computed, input } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import { EuroPipe } from '../../../../shared/pipes/euro.pipe';
 import { IonGrid, IonRow, IonCol, IonCard, IonCardHeader, IonCardTitle, IonCardContent } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
@@ -8,7 +9,7 @@ import { TransactionType } from '../../../../core/models/transaction.model';
 @Component({
   selector: 'app-stats-cards',
   standalone: true,
-  imports: [EuroPipe, IonGrid, IonRow, IonCol, IonCard, IonCardHeader, IonCardTitle, IonCardContent, TranslateModule],
+  imports: [DecimalPipe, EuroPipe, IonGrid, IonRow, IonCol, IonCard, IonCardHeader, IonCardTitle, IonCardContent, TranslateModule],
   template: `
     <ion-grid>
       <ion-row>
@@ -61,7 +62,7 @@ import { TransactionType } from '../../../../core/models/transaction.model';
               </ion-card-title>
             </ion-card-header>
             <ion-card-content>
-              <div class="stat-value" [style.color]="score() > 0 ? '#4cd964' : score() < 0 ? '#ff3b30' : '#ffd600'">{{ score() }}</div>
+              <div class="stat-value" [style.color]="score() > 0 ? '#4cd964' : score() < 0 ? '#ff3b30' : '#ffd600'">{{ score() | number:'1.0-0' }}</div>
             </ion-card-content>
           </ion-card>
         </ion-col>
