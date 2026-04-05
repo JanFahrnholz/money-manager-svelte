@@ -21,6 +21,13 @@ export class TransactionService {
     );
   }
 
+  async loadAllByContact(contactId: string): Promise<Transaction[]> {
+    return this.sqlite.query<Transaction>(
+      'SELECT * FROM transactions WHERE contact = ? AND planned = 0 ORDER BY date DESC',
+      [contactId],
+    );
+  }
+
   async loadRecent(limit = 20): Promise<Transaction[]> {
     const userId = this.auth.user()?.id ?? '';
     return this.sqlite.query<Transaction>(

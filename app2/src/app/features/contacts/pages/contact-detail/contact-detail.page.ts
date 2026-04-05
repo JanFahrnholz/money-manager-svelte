@@ -513,7 +513,7 @@ export class ContactDetailPage implements OnInit {
   private async loadData(id: string): Promise<void> {
     const [c, txs] = await Promise.all([
       this.contactService.getById(id),
-      this.txService.loadByContact(id, 200),
+      this.txService.loadAllByContact(id),
     ]);
     this.allTransactions.set(txs);
 
@@ -740,7 +740,7 @@ export class ContactDetailPage implements OnInit {
     await this.txService.remove(tx.id);
 
     // Reload transactions
-    const txs = await this.txService.loadByContact(c.id, 200);
+    const txs = await this.txService.loadAllByContact(c.id);
     this.allTransactions.set(txs);
 
     // Reload contact to get updated balance
