@@ -1,4 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import {
   IonHeader,
   IonToolbar,
@@ -35,6 +36,7 @@ import { PocketbaseService } from '../../../../core/services/pocketbase.service'
     IonNote,
     IonButton,
     IonIcon,
+    RouterLink,
     TranslateModule,
   ],
   template: `
@@ -70,10 +72,9 @@ import { PocketbaseService } from '../../../../core/services/pocketbase.service'
             {{ (pb.online() ? 'online' : 'offline') | translate }}
           </ion-note>
         </ion-item>
-        <ion-item>
+        <ion-item [routerLink]="['/tabs/profile/network']" detail>
           <ion-icon name="people-circle" slot="start" />
           <ion-label>{{ 'profile.network' | translate }}</ion-label>
-          <ion-note slot="end">Phase 2</ion-note>
         </ion-item>
       </ion-list>
 

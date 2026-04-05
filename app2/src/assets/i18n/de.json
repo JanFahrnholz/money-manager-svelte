@@ -59,5 +59,14 @@
   "today": "Heute",
   "yesterday": "Gestern",
   "online": "Online",
-  "offline": "Offline"
+  "offline": "Offline",
+  "network": {
+    "title": "Mein Netzwerk",
+    "invite": "Kurier einladen",
+    "comingSoon": "Bald verfügbar",
+    "courierCount": "Kuriere",
+    "totalInventory": "Gesamt Inventar",
+    "openRevenue": "Offener Umsatz",
+    "empty": "Noch keine Kuriere"
+  }
 }

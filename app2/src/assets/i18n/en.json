@@ -59,5 +59,14 @@
   "today": "Today",
   "yesterday": "Yesterday",
   "online": "Online",
-  "offline": "Offline"
+  "offline": "Offline",
+  "network": {
+    "title": "My Network",
+    "invite": "Invite Courier",
+    "comingSoon": "Coming soon",
+    "courierCount": "Couriers",
+    "totalInventory": "Total Inventory",
+    "openRevenue": "Open Revenue",
+    "empty": "No couriers yet"
+  }
 }
