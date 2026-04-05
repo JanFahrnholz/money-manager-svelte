@@ -2,6 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { SqliteService } from '../../../core/services/sqlite.service';
 import { UserService } from '../../../core/services/user.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { EncryptedSyncService } from '../../../core/services/encrypted-sync.service';
 import type { CourierLink } from '../../../core/models/courier-link.model';
 import type { Contact } from '../../../core/models/contact.model';
 import type { User } from '../../../core/models/user.model';
@@ -21,6 +22,7 @@ export class CourierService {
     private sqlite: SqliteService,
     private auth: UserService,
     private toast: ToastService,
+    private sync: EncryptedSyncService,
   ) {}
 
   async loadMyLinks(): Promise<void> {
@@ -98,6 +100,7 @@ export class CourierService {
 
     await this.sqlite.upsert('courier_links', { ...link, synced: 0 });
     this.myLinks.update((list) => [...list, link]);
+    await this.sync.notifyChange('courier_links', link.id, 'upsert', link);
     this.toast.success('Courier link created');
     return link;
   }
@@ -114,6 +117,7 @@ export class CourierService {
     await this.sqlite.delete('courier_links', id);
     this.myLinks.update((list) => list.filter((l) => l.id !== id));
     this.managedBy.update((list) => list.filter((l) => l.id !== id));
+    await this.sync.notifyChange('courier_links', id, 'delete', { id });
     this.toast.success('Courier link removed');
   }
 
@@ -128,6 +132,8 @@ export class CourierService {
         l.id === id ? { ...l, inventoryBalance: l.inventoryBalance + amount, updated: now } : l,
       ),
     );
+    const updatedRestock = await this.sqlite.getById('courier_links', id);
+    if (updatedRestock) await this.sync.notifyChange('courier_links', id, 'upsert', updatedRestock);
     this.toast.success('Inventory restocked');
   }
 
@@ -150,6 +156,8 @@ export class CourierService {
         l.id === id ? { ...l, salesBalance: l.salesBalance - amount, updated: now } : l,
       ),
     );
+    const updatedCollect = await this.sqlite.getById('courier_links', id);
+    if (updatedCollect) await this.sync.notifyChange('courier_links', id, 'upsert', updatedCollect);
     this.toast.success('Sales collected');
   }
 
@@ -172,6 +180,8 @@ export class CourierService {
         l.id === id ? { ...l, bonusBalance: l.bonusBalance - amount, updated: now } : l,
       ),
     );
+    const updatedRedeem = await this.sqlite.getById('courier_links', id);
+    if (updatedRedeem) await this.sync.notifyChange('courier_links', id, 'upsert', updatedRedeem);
     this.toast.success('Bonus redeemed');
   }
 
@@ -184,6 +194,8 @@ export class CourierService {
     this.myLinks.update((list) =>
       list.map((l) => (l.id === id ? { ...l, bonusPercentage: pct, updated: now } : l)),
     );
+    const updatedPct = await this.sqlite.getById('courier_links', id);
+    if (updatedPct) await this.sync.notifyChange('courier_links', id, 'upsert', updatedPct);
     this.toast.success('Bonus percentage updated');
   }
 

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { SqliteService } from '../../../core/services/sqlite.service';
 import { UserService } from '../../../core/services/user.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { EncryptedSyncService } from '../../../core/services/encrypted-sync.service';
 import { Transaction, TransactionType } from '../../../core/models/transaction.model';
 
 @Injectable({ providedIn: 'root' })
@@ -10,6 +11,7 @@ export class TransactionService {
     private sqlite: SqliteService,
     private auth: UserService,
     private toast: ToastService,
+    private sync: EncryptedSyncService,
   ) {}
 
   async loadByContact(contactId: string, limit = 50): Promise<Transaction[]> {
@@ -93,6 +95,8 @@ export class TransactionService {
         if (tx.courierLink) {
           await this.updateCourierBalance(tx);
         }
+
+        await this.sync.notifyChange('transactions', tx.id, 'upsert', tx);
       }
 
       this.toast.success('Transaktion erstellt');
@@ -125,6 +129,7 @@ export class TransactionService {
           await this.auth.updateBalance(tx.amount);
         }
       }
+      if (tx) await this.sync.notifyChange('transactions', id, 'upsert', { ...tx, planned: false });
       this.toast.success('Transaktion bestätigt');
     } catch (e: any) {
       this.toast.error('Fehler: ' + e.message);
@@ -156,6 +161,7 @@ export class TransactionService {
       }
 
       await this.sqlite.delete('transactions', id);
+      if (tx) await this.sync.notifyChange('transactions', id, 'delete', { id, contact: tx.contact });
       this.toast.success('Transaktion gelöscht');
     } catch (e: any) {
       this.toast.error('Fehler: ' + e.message);

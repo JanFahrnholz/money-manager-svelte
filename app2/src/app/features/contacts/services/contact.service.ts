@@ -2,6 +2,7 @@ import { Injectable, computed, signal } from '@angular/core';
 import { SqliteService } from '../../../core/services/sqlite.service';
 import { UserService } from '../../../core/services/user.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { EncryptedSyncService } from '../../../core/services/encrypted-sync.service';
 import type { Contact } from '../../../core/models/contact.model';
 
 @Injectable({ providedIn: 'root' })
@@ -24,6 +25,7 @@ export class ContactService {
     private sqlite: SqliteService,
     private auth: UserService,
     private toast: ToastService,
+    private sync: EncryptedSyncService,
   ) {}
 
   async loadAll(): Promise<void> {
@@ -61,6 +63,7 @@ export class ContactService {
       });
 
       this.contacts.update((list) => [...list, contact]);
+      await this.sync.notifyChange('contacts', contact.id, 'upsert', contact);
       this.toast.success('Kontakt erstellt');
       return contact;
     } catch (e: any) {
@@ -82,6 +85,8 @@ export class ContactService {
       this.contacts.update((list) =>
         list.map((c) => (c.id === id ? { ...c, ...data, updated: now } : c)),
       );
+      const full = await this.sqlite.getById('contacts', id);
+      if (full) await this.sync.notifyChange('contacts', id, 'upsert', full);
       this.toast.success('Kontakt aktualisiert');
     } catch (e: any) {
       this.toast.error('Fehler: ' + e.message);
@@ -93,6 +98,7 @@ export class ContactService {
     try {
       await this.sqlite.delete('contacts', id);
       this.contacts.update((list) => list.filter((c) => c.id !== id));
+      await this.sync.notifyChange('contacts', id, 'delete', { id });
       this.toast.success('Kontakt gelöscht');
     } catch (e: any) {
       this.toast.error('Fehler: ' + e.message);
