@@ -187,6 +187,7 @@ export class ProfilePage implements OnInit {
 
   async ngOnInit(): Promise<void> {
     await this.contactService.loadAll();
+    this.imported.set(this.contactService.contacts().length > 0);
     await this.courierService.loadManagedBy();
     this.isCourier.set(this.courierService.managedBy().length > 0);
   }

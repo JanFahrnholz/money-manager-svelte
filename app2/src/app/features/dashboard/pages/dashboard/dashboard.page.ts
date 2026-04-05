@@ -172,7 +172,7 @@ import { EuroPipe } from '../../../../shared/pipes/euro.pipe';
                 <ion-icon [name]="tx.type | txIcon" slot="start" />
                 <ion-label>
                   <h3>{{ 'transaction.' + txTypeKey(tx.type) | translate }}</h3>
-                  <p>{{ contactNameMap()[tx.contact] }}@if (tx.info) { &mdash; {{ tx.info }} }</p>
+                  <p>{{ contactNameMap()[tx.contact] || '' }} &middot; {{ tx.date | date:'dd.MM.yy' }}@if (tx.info) { &mdash; {{ tx.info }} }</p>
                 </ion-label>
                 <ion-note
                   slot="end"
@@ -266,9 +266,9 @@ export class DashboardPage implements OnInit {
   readonly recentFiltered = computed(() => {
     const txs = this.recent();
     const start = getStartDate(this.timeframe());
-    if (!start) return txs;
+    if (!start) return txs.slice(0, 20);
     const startStr = start.toISOString();
-    return txs.filter((t) => t.date >= startStr);
+    return txs.filter((t) => t.date >= startStr).slice(0, 20);
   });
 
   readonly contactNameMap = computed(() => {

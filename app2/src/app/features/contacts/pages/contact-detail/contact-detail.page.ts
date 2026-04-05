@@ -28,6 +28,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
 import {
   ellipsisHorizontal,
+  addCircle,
   arrowDownCircle,
   arrowUpCircle,
   documentText,
@@ -137,15 +138,16 @@ import { TransactionTypeIconPipe } from '../../../../shared/pipes/transaction-ty
         </div>
 
         <!-- New Transaction button -->
-        <ion-button
-          expand="block"
-          fill="outline"
-          [routerLink]="['/tabs/transactions/create']"
-          [queryParams]="{ contactId: c.id }"
-          class="new-tx-btn"
-        >
-          {{ 'transaction.create' | translate }}
-        </ion-button>
+        <div style="padding:0 16px;text-align:center;">
+          <ion-button
+            [routerLink]="['/tabs/transactions/create']"
+            [queryParams]="{ contactId: c.id }"
+            shape="round"
+          >
+            <ion-icon name="add-circle" slot="start" />
+            {{ 'transaction.create' | translate }}
+          </ion-button>
+        </div>
 
         <!-- Timeframe Selector -->
         <app-timeframe-selector (change)="onTimeframeChange($event)" />
@@ -516,7 +518,7 @@ export class ContactDetailPage implements OnInit {
     private encryptedSync: EncryptedSyncService,
     private toast: ToastService,
   ) {
-    addIcons({ ellipsisHorizontal, arrowDownCircle, arrowUpCircle, documentText, returnDownBack, cube, cashOutline, gift, swapHorizontal });
+    addIcons({ ellipsisHorizontal, addCircle, arrowDownCircle, arrowUpCircle, documentText, returnDownBack, cube, cashOutline, gift, swapHorizontal });
   }
 
   async ngOnInit(): Promise<void> {

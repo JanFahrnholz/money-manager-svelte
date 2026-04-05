@@ -16,7 +16,7 @@ export class UserService {
       const now = new Date().toISOString();
       const localUser: User = {
         id: crypto.randomUUID().replace(/-/g, '').slice(0, 15),
-        username: 'local',
+        username: 'Benutzer',
         balance: 0,
         settings: {},
         language: localStorage.getItem('language') || 'de',

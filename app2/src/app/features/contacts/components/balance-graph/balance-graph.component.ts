@@ -6,7 +6,7 @@ export interface BalancePoint {
 }
 
 const PAD_LEFT = 40;
-const PAD_RIGHT = 10;
+const PAD_RIGHT = 30;
 const PAD_TOP = 10;
 const PAD_BOTTOM = 28;
 const VIEW_W = 320;
