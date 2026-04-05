@@ -153,7 +153,7 @@ import { EuroPipe } from '../../../../shared/pipes/euro.pipe';
                     fill="clear"
                     size="small"
                     color="success"
-                    (click)="confirmPlanned(tx.id)"
+                    (click)="$event.stopPropagation(); confirmPlanned(tx.id)"
                   >
                     <ion-icon slot="icon-only" name="checkmark-circle" />
                   </ion-button>
