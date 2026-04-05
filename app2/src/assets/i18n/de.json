@@ -73,7 +73,7 @@
     "qrScanPrompt": "Lass deinen Partner diesen Code scannen"
   },
   "timeframe": { "1w": "1W", "1m": "1M", "3m": "3M", "6m": "6M", "1y": "1J", "max": "Max" },
-  "profile": { "settings": "Einstellungen", "language": "Sprache", "logout": "Abmelden", "network": "Mein Netzwerk", "sync": "Synchronisierung" },
+  "profile": { "settings": "Einstellungen", "language": "Sprache", "logout": "Abmelden", "network": "Mein Netzwerk", "sync": "Synchronisierung", "deviceId": "Geräte-ID", "pairs": "Aktive Verlinkungen", "noPairs": "Keine Verlinkungen" },
   "auth": { "login": "Anmelden", "register": "Registrieren", "username": "Benutzername", "password": "Passwort" },
   "save": "Speichern",
   "cancel": "Abbrechen",

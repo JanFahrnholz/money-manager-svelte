@@ -12,12 +12,15 @@ import {
   IonSelectOption,
   IonNote,
   IonIcon,
+  IonButton,
 } from '@ionic/angular/standalone';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
 import { language, syncCircle, peopleCircle, briefcase } from 'ionicons/icons';
 import { UserService } from '../../../../core/services/user.service';
 import { RelayService } from '../../../../core/services/relay.service';
+import { DeviceService } from '../../../../core/services/device.service';
+import { ContactService } from '../../../contacts/services/contact.service';
 import { CourierService } from '../../../couriers/services/courier.service';
 
 @Component({
@@ -35,6 +38,7 @@ import { CourierService } from '../../../couriers/services/courier.service';
     IonSelectOption,
     IonNote,
     IonIcon,
+    IonButton,
     RouterLink,
     TranslateModule,
   ],
@@ -82,6 +86,38 @@ import { CourierService } from '../../../couriers/services/courier.service';
           </ion-item>
         }
       </ion-list>
+
+      <!-- Device Info -->
+      <ion-list [inset]="true">
+        <ion-item>
+          <ion-label>{{ 'profile.deviceId' | translate }}</ion-label>
+          <ion-note slot="end">{{ deviceService.deviceId().slice(0, 8) }}...</ion-note>
+        </ion-item>
+      </ion-list>
+
+      <!-- Active Pairs -->
+      <div style="padding:0 16px;">
+        <div style="font-size:12px;font-weight:600;color:#666;margin-bottom:8px;">{{ 'profile.pairs' | translate }}</div>
+      </div>
+      @if (deviceService.pairs().length === 0) {
+        <ion-list [inset]="true">
+          <ion-item><ion-label color="medium">{{ 'profile.noPairs' | translate }}</ion-label></ion-item>
+        </ion-list>
+      } @else {
+        <ion-list [inset]="true">
+          @for (pair of deviceService.pairs(); track pair.id) {
+            <ion-item>
+              <ion-label>
+                <h3>{{ pair.label || 'Unknown' }}</h3>
+                <p>{{ getContactName(pair.localContactId) }}</p>
+              </ion-label>
+              <ion-button slot="end" fill="clear" color="danger" (click)="unlinkPair(pair.id)">
+                {{ 'contact.unlink' | translate }}
+              </ion-button>
+            </ion-item>
+          }
+        </ion-list>
+      }
     </ion-content>
   `,
   styles: [
@@ -117,6 +153,8 @@ export class ProfilePage implements OnInit {
   readonly userService = inject(UserService);
   readonly relay = inject(RelayService);
   readonly translate = inject(TranslateService);
+  readonly deviceService = inject(DeviceService);
+  private readonly contactService = inject(ContactService);
   private readonly courierService = inject(CourierService);
 
   readonly initial = computed(() => {
@@ -131,6 +169,7 @@ export class ProfilePage implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
+    await this.contactService.loadAll();
     await this.courierService.loadManagedBy();
     this.isCourier.set(this.courierService.managedBy().length > 0);
   }
@@ -139,5 +178,14 @@ export class ProfilePage implements OnInit {
     const lang = event.detail.value;
     this.translate.use(lang);
     localStorage.setItem('language', lang);
+  }
+
+  getContactName(contactId: string): string {
+    const contact = this.contactService.contacts().find(c => c.id === contactId);
+    return contact?.name ?? contactId;
+  }
+
+  async unlinkPair(pairId: string): Promise<void> {
+    await this.deviceService.removePair(pairId);
   }
 }
