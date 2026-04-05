@@ -48,7 +48,7 @@ import type { Transaction } from '../../../../core/models/transaction.model';
     <ion-header>
       <ion-toolbar>
         <ion-buttons slot="start">
-          <ion-back-button defaultHref="/tabs/dashboard" />
+          <ion-back-button defaultHref="/tabs/dashboard" [text]="'back' | translate" />
         </ion-buttons>
         <ion-title>{{ 'planned.title' | translate }}</ion-title>
       </ion-toolbar>
@@ -66,7 +66,7 @@ import type { Transaction } from '../../../../core/models/transaction.model';
               <ion-label>
                 <h3>{{ 'transaction.' + txTypeKey(tx.type) | translate }}</h3>
                 <p>{{ contactNames()[tx.contact] || '—' }}</p>
-                <p>{{ tx.date | date: 'mediumDate' }}</p>
+                <p>{{ tx.date | date:'dd.MM.yyyy' }}</p>
               </ion-label>
               <ion-note slot="end">
                 {{ tx.amount | euro }}
