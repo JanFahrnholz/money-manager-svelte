@@ -43,6 +43,7 @@ import {
   TimeframeSelectorComponent,
   type Timeframe,
   getStartDate,
+  getMonthRange,
 } from '../../../../shared/components/timeframe-selector/timeframe-selector.component';
 import { BalanceCardComponent } from '../../components/balance-card/balance-card.component';
 import { TransactionTypeIconPipe } from '../../../../shared/pipes/transaction-type-icon.pipe';
@@ -99,7 +100,7 @@ import { EuroPipe } from '../../../../shared/pipes/euro.pipe';
         <div style="display:flex;justify-content:center;padding:40px;"><ion-spinner /></div>
       } @else {
         <!-- Timeframe selector -->
-        <app-timeframe-selector (change)="onTimeframeChange($event)" />
+        <app-timeframe-selector (change)="onTimeframeChange($event)" (monthChange)="onMonthChange($event)" />
 
         <!-- Main balance -->
         <div class="main-balance">
@@ -259,6 +260,7 @@ import { EuroPipe } from '../../../../shared/pipes/euro.pipe';
 export class DashboardPage implements OnInit {
   readonly loading = signal(true);
   readonly timeframe = signal<Timeframe>('max');
+  readonly activeMonthRange = signal<{ start: Date; end: Date } | null>(null);
   readonly recent = signal<Transaction[]>([]);
   readonly planned = signal<Transaction[]>([]);
 
@@ -276,6 +278,12 @@ export class DashboardPage implements OnInit {
 
   readonly recentFiltered = computed(() => {
     const txs = this.recent();
+    const mr = this.activeMonthRange();
+    if (this.timeframe() === 'month' && mr) {
+      const startStr = mr.start.toISOString();
+      const endStr = mr.end.toISOString();
+      return txs.filter((t) => t.date >= startStr && t.date <= endStr).slice(0, 20);
+    }
     const start = getStartDate(this.timeframe());
     if (!start) return txs.slice(0, 20);
     const startStr = start.toISOString();
@@ -320,6 +328,12 @@ export class DashboardPage implements OnInit {
 
   onTimeframeChange(tf: Timeframe): void {
     this.timeframe.set(tf);
+    if (tf !== 'month') this.activeMonthRange.set(null);
+  }
+
+  onMonthChange(event: { month: number; year: number }): void {
+    this.activeMonthRange.set(getMonthRange(event.month, event.year));
+    this.timeframe.set('month');
   }
 
   async confirmPlanned(id: string): Promise<void> {

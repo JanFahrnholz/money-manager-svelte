@@ -57,6 +57,7 @@ import {
   TimeframeSelectorComponent,
   type Timeframe,
   getStartDate,
+  getMonthRange,
 } from '../../../../shared/components/timeframe-selector/timeframe-selector.component';
 import {
   BalanceGraphComponent,
@@ -154,7 +155,7 @@ import { TransactionTypeIconPipe } from '../../../../shared/pipes/transaction-ty
         </div>
 
         <!-- Timeframe Selector -->
-        <app-timeframe-selector (change)="onTimeframeChange($event)" />
+        <app-timeframe-selector (change)="onTimeframeChange($event)" (monthChange)="onMonthChange($event)" />
 
         <!-- Balance Graph -->
         <div class="section graph-section">
@@ -314,6 +315,7 @@ export class ContactDetailPage implements OnInit {
   readonly contact = signal<Contact | null>(null);
   readonly allTransactions = signal<Transaction[]>([]);
   readonly timeframe = signal<Timeframe>('max');
+  readonly activeMonthRange = signal<{ start: Date; end: Date } | null>(null);
   readonly showActions = signal(false);
   readonly selectedTransaction = signal<Transaction | null>(null);
   readonly showTxActions = signal(false);
@@ -332,6 +334,12 @@ export class ContactDetailPage implements OnInit {
 
   readonly filteredTransactions = computed(() => {
     const txs = this.allTransactions();
+    const mr = this.activeMonthRange();
+    if (this.timeframe() === 'month' && mr) {
+      const startStr = mr.start.toISOString();
+      const endStr = mr.end.toISOString();
+      return txs.filter((t) => t.date >= startStr && t.date <= endStr);
+    }
     const start = getStartDate(this.timeframe());
     if (!start) return txs;
     const startStr = start.toISOString();
@@ -358,7 +366,8 @@ export class ContactDetailPage implements OnInit {
   readonly graphData = computed<BalancePoint[]>(() => {
     const all = this.allTransactions().slice().reverse(); // all txs chronological
     const filtered = this.filteredTransactions();
-    const start = getStartDate(this.timeframe());
+    const mr = this.activeMonthRange();
+    const start = this.timeframe() === 'month' && mr ? mr.start : getStartDate(this.timeframe());
 
     // Calculate starting balance from transactions BEFORE the timeframe
     let balance = 0;
@@ -626,6 +635,13 @@ export class ContactDetailPage implements OnInit {
 
   onTimeframeChange(tf: Timeframe): void {
     this.timeframe.set(tf);
+    this.displayLimit.set(50);
+    if (tf !== 'month') this.activeMonthRange.set(null);
+  }
+
+  onMonthChange(event: { month: number; year: number }): void {
+    this.activeMonthRange.set(getMonthRange(event.month, event.year));
+    this.timeframe.set('month');
     this.displayLimit.set(50);
   }
 
