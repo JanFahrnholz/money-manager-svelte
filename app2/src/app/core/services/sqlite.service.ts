@@ -97,6 +97,27 @@ export class SqliteService {
         updated TEXT NOT NULL
       );
     `);
+
+    await this.db.execute(`
+      CREATE TABLE IF NOT EXISTS device (
+        id TEXT PRIMARY KEY,
+        publicKey TEXT NOT NULL,
+        privateKey TEXT NOT NULL,
+        created TEXT NOT NULL
+      );
+    `);
+
+    await this.db.execute(`
+      CREATE TABLE IF NOT EXISTS pairs (
+        id TEXT PRIMARY KEY,
+        localContactId TEXT NOT NULL,
+        remoteDeviceId TEXT NOT NULL,
+        remotePublicKey TEXT NOT NULL,
+        sharedKey TEXT NOT NULL,
+        label TEXT DEFAULT '',
+        created TEXT NOT NULL
+      );
+    `);
   }
 
   async query<T>(sql: string, params: any[] = []): Promise<T[]> {
