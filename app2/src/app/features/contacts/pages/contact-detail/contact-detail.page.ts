@@ -1,5 +1,5 @@
 import { Component, computed, OnInit, signal } from '@angular/core';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DecimalPipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
   IonHeader,
@@ -12,16 +12,30 @@ import {
   IonIcon,
   IonList,
   IonItem,
+  IonItemDivider,
   IonLabel,
   IonNote,
   IonAvatar,
   IonActionSheet,
+  IonRefresher,
+  IonRefresherContent,
+  IonSpinner,
   AlertController,
   NavController,
 } from '@ionic/angular/standalone';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
-import { ellipsisHorizontal } from 'ionicons/icons';
+import {
+  ellipsisHorizontal,
+  arrowDownCircle,
+  arrowUpCircle,
+  documentText,
+  returnDownBack,
+  cube,
+  cashOutline,
+  gift,
+  swapHorizontal,
+} from 'ionicons/icons';
 import { ContactService } from '../../services/contact.service';
 import { TransactionService } from '../../../transactions/services/transaction.service';
 import { PocketbaseService } from '../../../../core/services/pocketbase.service';
@@ -39,12 +53,13 @@ import {
   type BalancePoint,
 } from '../../components/balance-graph/balance-graph.component';
 import { StatsCardsComponent } from '../../components/stats-cards/stats-cards.component';
+import { DateGroupPipe } from '../../../../shared/pipes/date-group.pipe';
+import { TransactionTypeIconPipe } from '../../../../shared/pipes/transaction-type-icon.pipe';
 
 @Component({
   selector: 'app-contact-detail',
   standalone: true,
   imports: [
-    DatePipe,
     DecimalPipe,
     RouterLink,
     IonHeader,
@@ -61,10 +76,15 @@ import { StatsCardsComponent } from '../../components/stats-cards/stats-cards.co
     IonNote,
     IonAvatar,
     IonActionSheet,
+    IonRefresher,
+    IonRefresherContent,
+    IonSpinner,
+    IonItemDivider,
     TranslateModule,
     TimeframeSelectorComponent,
     BalanceGraphComponent,
     StatsCardsComponent,
+    TransactionTypeIconPipe,
   ],
   template: `
     <ion-header>
@@ -82,7 +102,12 @@ import { StatsCardsComponent } from '../../components/stats-cards/stats-cards.co
     </ion-header>
 
     <ion-content class="ion-padding">
-      @if (contact(); as c) {
+      <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+        <ion-refresher-content />
+      </ion-refresher>
+      @if (loading()) {
+        <div style="display:flex;justify-content:center;padding:40px;"><ion-spinner /></div>
+      } @else if (contact(); as c) {
         <!-- Avatar + Name + Balance -->
         <div class="contact-header">
           <ion-avatar class="avatar-lg">
@@ -130,19 +155,25 @@ import { StatsCardsComponent } from '../../components/stats-cards/stats-cards.co
         <div class="section">
           <h3 class="section-title">{{ 'contact.transactions' | translate }}</h3>
           <ion-list>
-            @for (tx of filteredTransactions(); track tx.id) {
-              <ion-item button (click)="showTransactionActions(tx)">
-                <ion-label>
-                  <h3>{{ 'transaction.' + txTypeKey(tx.type) | translate }}</h3>
-                  <p>{{ tx.date | date: 'dd.MM.yyyy' }}@if (tx.info) { &mdash; {{ tx.info }} }</p>
-                </ion-label>
-                <ion-note
-                  slot="end"
-                  [color]="txColor(tx.type)"
-                >
-                  {{ txSign(tx.type) }}{{ tx.amount | number: '1.2-2' }}
-                </ion-note>
-              </ion-item>
+            @for (group of groupedTransactions(); track group.label) {
+              <ion-item-divider>
+                <ion-label>{{ group.label }}</ion-label>
+              </ion-item-divider>
+              @for (tx of group.transactions; track tx.id) {
+                <ion-item button (click)="showTransactionActions(tx)">
+                  <ion-icon [name]="tx.type | txIcon" slot="start" />
+                  <ion-label>
+                    <h3>{{ 'transaction.' + txTypeKey(tx.type) | translate }}</h3>
+                    <p>@if (tx.info) { {{ tx.info }} }</p>
+                  </ion-label>
+                  <ion-note
+                    slot="end"
+                    [color]="txColor(tx.type)"
+                  >
+                    {{ txSign(tx.type) }}{{ tx.amount | number: '1.2-2' }}
+                  </ion-note>
+                </ion-item>
+              }
             }
           </ion-list>
         </div>
@@ -215,6 +246,7 @@ import { StatsCardsComponent } from '../../components/stats-cards/stats-cards.co
   `,
 })
 export class ContactDetailPage implements OnInit {
+  readonly loading = signal(true);
   readonly contact = signal<Contact | null>(null);
   readonly allTransactions = signal<Transaction[]>([]);
   readonly timeframe = signal<Timeframe>('1m');
@@ -228,6 +260,23 @@ export class ContactDetailPage implements OnInit {
     if (!start) return txs;
     const startStr = start.toISOString();
     return txs.filter((t) => t.date >= startStr);
+  });
+
+  private readonly dateGroupPipe = new DateGroupPipe();
+
+  readonly groupedTransactions = computed(() => {
+    const txs = this.filteredTransactions();
+    const groups: { label: string; transactions: Transaction[] }[] = [];
+    let currentLabel = '';
+    for (const tx of txs) {
+      const label = this.dateGroupPipe.transform(tx.date);
+      if (label !== currentLabel) {
+        groups.push({ label, transactions: [] });
+        currentLabel = label;
+      }
+      groups[groups.length - 1].transactions.push(tx);
+    }
+    return groups;
   });
 
   readonly graphData = computed<BalancePoint[]>(() => {
@@ -321,20 +370,33 @@ export class ContactDetailPage implements OnInit {
     private pb: PocketbaseService,
     private toast: ToastService,
   ) {
-    addIcons({ ellipsisHorizontal });
+    addIcons({ ellipsisHorizontal, arrowDownCircle, arrowUpCircle, documentText, returnDownBack, cube, cashOutline, gift, swapHorizontal });
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     const id = this.route.snapshot.paramMap.get('id') ?? '';
     if (!id) return;
 
-    this.contactService.getById(id).then((c) => {
-      if (c) this.contact.set(c);
-    });
+    this.loading.set(true);
+    await this.loadData(id);
+    this.loading.set(false);
+  }
 
-    this.txService.loadByContact(id, 200).then((txs) => {
-      this.allTransactions.set(txs);
-    });
+  async doRefresh(event: any): Promise<void> {
+    const id = this.contact()?.id ?? this.route.snapshot.paramMap.get('id') ?? '';
+    if (id) {
+      await this.loadData(id);
+    }
+    event.target.complete();
+  }
+
+  private async loadData(id: string): Promise<void> {
+    const [c, txs] = await Promise.all([
+      this.contactService.getById(id),
+      this.txService.loadByContact(id, 200),
+    ]);
+    if (c) this.contact.set(c);
+    this.allTransactions.set(txs);
   }
 
   onTimeframeChange(tf: Timeframe): void {

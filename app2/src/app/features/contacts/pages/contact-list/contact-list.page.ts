@@ -13,6 +13,9 @@ import {
   IonFabButton,
   IonIcon,
   IonAlert,
+  IonRefresher,
+  IonRefresherContent,
+  IonSpinner,
 } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
@@ -39,6 +42,9 @@ type FilterMode = 'all' | 'owned' | 'linked';
     IonFabButton,
     IonIcon,
     IonAlert,
+    IonRefresher,
+    IonRefresherContent,
+    IonSpinner,
     TranslateModule,
     ContactListItemComponent,
   ],
@@ -70,11 +76,18 @@ type FilterMode = 'all' | 'owned' | 'linked';
     </ion-header>
 
     <ion-content>
-      <ion-list>
-        @for (contact of filteredContacts(); track contact.id) {
-          <app-contact-list-item [contact]="contact" />
-        }
-      </ion-list>
+      <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+        <ion-refresher-content />
+      </ion-refresher>
+      @if (loading()) {
+        <div style="display:flex;justify-content:center;padding:40px;"><ion-spinner /></div>
+      } @else {
+        <ion-list>
+          @for (contact of filteredContacts(); track contact.id) {
+            <app-contact-list-item [contact]="contact" />
+          }
+        </ion-list>
+      }
 
       <ion-fab slot="fixed" vertical="bottom" horizontal="end">
         <ion-fab-button (click)="alertOpen.set(true)">
@@ -93,6 +106,7 @@ type FilterMode = 'all' | 'owned' | 'linked';
   `,
 })
 export class ContactListPage implements OnInit {
+  readonly loading = signal(true);
   readonly searchTerm = signal('');
   readonly filter = signal<FilterMode>('all');
   readonly alertOpen = signal(false);
@@ -141,8 +155,15 @@ export class ContactListPage implements OnInit {
     addIcons({ add });
   }
 
-  ngOnInit(): void {
-    this.contactService.loadAll();
+  async ngOnInit(): Promise<void> {
+    this.loading.set(true);
+    await this.contactService.loadAll();
+    this.loading.set(false);
+  }
+
+  async doRefresh(event: any): Promise<void> {
+    await this.contactService.loadAll();
+    event.target.complete();
   }
 
   onSearch(event: CustomEvent): void {
