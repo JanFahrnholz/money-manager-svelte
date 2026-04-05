@@ -101,7 +101,7 @@ import { TransactionTypeIconPipe } from '../../../../shared/pipes/transaction-ty
     <ion-header>
       <ion-toolbar>
         <ion-buttons slot="start">
-          <ion-back-button defaultHref="/tabs/contacts" />
+          <ion-back-button defaultHref="/tabs/contacts" [text]="'back' | translate" />
         </ion-buttons>
         <ion-title>{{ contact()?.name ?? '' }}</ion-title>
         <ion-buttons slot="end">
@@ -293,7 +293,7 @@ export class ContactDetailPage implements OnInit {
   readonly loading = signal(true);
   readonly contact = signal<Contact | null>(null);
   readonly allTransactions = signal<Transaction[]>([]);
-  readonly timeframe = signal<Timeframe>('1m');
+  readonly timeframe = signal<Timeframe>('max');
   readonly showActions = signal(false);
   readonly selectedTransaction = signal<Transaction | null>(null);
   readonly showTxActions = signal(false);

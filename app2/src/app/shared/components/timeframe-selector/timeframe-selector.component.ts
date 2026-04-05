@@ -45,7 +45,7 @@ const timeframes: Timeframe[] = ['1w', '1m', '3m', '6m', '1y', 'max'];
   `,
 })
 export class TimeframeSelectorComponent {
-  readonly value = signal<Timeframe>('1m');
+  readonly value = signal<Timeframe>('max');
   readonly change = output<Timeframe>();
   readonly timeframes = timeframes;
 

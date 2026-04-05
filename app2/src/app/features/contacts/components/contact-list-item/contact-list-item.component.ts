@@ -34,7 +34,7 @@ import type { Contact } from '../../../../core/models/contact.model';
         <p>{{ 'score' | translate }}: {{ contact().score }}</p>
       </ion-label>
       <ion-note slot="end" [color]="balanceColor()">
-        {{ contact().balance | number: '1.2-2' }}
+        {{ contact().balance | number: '1.2-2' }}€
       </ion-note>
     </ion-item>
   `,

@@ -246,7 +246,7 @@ import { TransactionTypeIconPipe } from '../../../../shared/pipes/transaction-ty
 })
 export class DashboardPage implements OnInit {
   readonly loading = signal(true);
-  readonly timeframe = signal<Timeframe>('1m');
+  readonly timeframe = signal<Timeframe>('max');
   readonly recent = signal<Transaction[]>([]);
   readonly planned = signal<Transaction[]>([]);
 
