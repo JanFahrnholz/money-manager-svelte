@@ -456,7 +456,7 @@ export class ContactDetailPage implements OnInit {
       buttons.push({
         text: this.translate.instant('contact.scanQr'),
         handler: () => {
-          this.showScanModal.set(true);
+          this.openScanner();
         },
       });
     } else {
@@ -759,6 +759,29 @@ export class ContactDetailPage implements OnInit {
     if (!c) return;
     this.qrPayload.set(this.deviceService.generateQrPayload(c.id, c.name));
     this.showQrModal.set(true);
+  }
+
+  async openScanner(): Promise<void> {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      stream.getTracks().forEach(t => t.stop());
+      this.showScanModal.set(true);
+    } catch {
+      this.showManualLinkInput();
+    }
+  }
+
+  async showManualLinkInput(): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: 'QR-Daten einfügen',
+      message: 'Kamera nicht verfügbar. Füge die QR-Daten manuell ein:',
+      inputs: [{ name: 'data', type: 'textarea', placeholder: '{"deviceId":"...","publicKey":...}' }],
+      buttons: [
+        { text: this.translate.instant('cancel'), role: 'cancel' },
+        { text: this.translate.instant('contact.link'), handler: (d: { data: string }) => { if (d.data?.trim()) this.onQrScanned(d.data.trim()); } },
+      ],
+    });
+    await alert.present();
   }
 
   async onQrScanned(data: string): Promise<void> {
