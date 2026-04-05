@@ -27,6 +27,12 @@
     "delete": "Transaktion löschen",
     "deleteConfirm": "Bist du sicher?"
   },
+  "courier": {
+    "make": "Zum Kurier machen",
+    "remove": "Kurier entfernen",
+    "details": "Kurier-Details",
+    "bonusPrompt": "Bonus-Prozent"
+  },
   "contact": {
     "create": "Neuer Kontakt",
     "detail": "Kontaktdetails",

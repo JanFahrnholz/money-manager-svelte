@@ -27,6 +27,12 @@
     "delete": "Delete Transaction",
     "deleteConfirm": "Are you sure?"
   },
+  "courier": {
+    "make": "Make Courier",
+    "remove": "Remove Courier",
+    "details": "Courier Details",
+    "bonusPrompt": "Bonus Percentage"
+  },
   "contact": {
     "create": "New Contact",
     "detail": "Contact Details",

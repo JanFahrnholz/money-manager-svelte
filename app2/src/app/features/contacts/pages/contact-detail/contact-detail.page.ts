@@ -38,9 +38,12 @@ import {
 } from 'ionicons/icons';
 import { ContactService } from '../../services/contact.service';
 import { TransactionService } from '../../../transactions/services/transaction.service';
+import { CourierService } from '../../../couriers/services/courier.service';
 import { PocketbaseService } from '../../../../core/services/pocketbase.service';
+import { AuthService } from '../../../../core/services/auth.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import type { Contact } from '../../../../core/models/contact.model';
+import type { CourierLink } from '../../../../core/models/courier-link.model';
 import type { Transaction } from '../../../../core/models/transaction.model';
 import { TransactionType } from '../../../../core/models/transaction.model';
 import {
@@ -253,6 +256,13 @@ export class ContactDetailPage implements OnInit {
   readonly showActions = signal(false);
   readonly selectedTransaction = signal<Transaction | null>(null);
   readonly showTxActions = signal(false);
+  readonly courierLink = signal<CourierLink | null>(null);
+
+  readonly canMakeCourier = computed(() => {
+    const c = this.contact();
+    if (!c) return false;
+    return c.owner === this.auth.user()?.id && !!c.user;
+  });
 
   readonly filteredTransactions = computed(() => {
     const txs = this.allTransactions();
@@ -308,31 +318,63 @@ export class ContactDetailPage implements OnInit {
     return '#c9a81e';
   });
 
-  readonly actionButtons = computed(() => [
-    {
-      text: this.translate.instant('contact.rename'),
-      handler: () => {
-        this.showRenameAlert();
+  readonly actionButtons = computed(() => {
+    const buttons: any[] = [
+      {
+        text: this.translate.instant('contact.rename'),
+        handler: () => {
+          this.showRenameAlert();
+        },
       },
-    },
-    {
-      text: this.translate.instant('contact.linkUser'),
-      handler: () => {
-        this.showLinkUserAlert();
+      {
+        text: this.translate.instant('contact.linkUser'),
+        handler: () => {
+          this.showLinkUserAlert();
+        },
       },
-    },
-    {
-      text: this.translate.instant('delete'),
-      role: 'destructive' as const,
-      handler: () => {
-        this.confirmDelete();
+    ];
+
+    if (this.canMakeCourier() && !this.courierLink()) {
+      buttons.push({
+        text: this.translate.instant('courier.make'),
+        handler: () => {
+          this.makeCourier();
+        },
+      });
+    }
+
+    if (this.courierLink()) {
+      buttons.push({
+        text: this.translate.instant('courier.details'),
+        handler: () => {
+          this.navCtrl.navigateForward(`/tabs/profile/network/${this.courierLink()!.id}`);
+        },
+      });
+      buttons.push({
+        text: this.translate.instant('courier.remove'),
+        role: 'destructive' as const,
+        handler: () => {
+          this.removeCourier();
+        },
+      });
+    }
+
+    buttons.push(
+      {
+        text: this.translate.instant('delete'),
+        role: 'destructive' as const,
+        handler: () => {
+          this.confirmDelete();
+        },
       },
-    },
-    {
-      text: this.translate.instant('cancel'),
-      role: 'cancel' as const,
-    },
-  ]);
+      {
+        text: this.translate.instant('cancel'),
+        role: 'cancel' as const,
+      },
+    );
+
+    return buttons;
+  });
 
   readonly txActionButtons = computed(() => {
     const tx = this.selectedTransaction();
@@ -365,9 +407,11 @@ export class ContactDetailPage implements OnInit {
     private navCtrl: NavController,
     private contactService: ContactService,
     private txService: TransactionService,
+    private courierService: CourierService,
     private alertCtrl: AlertController,
     private translate: TranslateService,
     private pb: PocketbaseService,
+    private auth: AuthService,
     private toast: ToastService,
   ) {
     addIcons({ ellipsisHorizontal, arrowDownCircle, arrowUpCircle, documentText, returnDownBack, cube, cashOutline, gift, swapHorizontal });
@@ -397,6 +441,20 @@ export class ContactDetailPage implements OnInit {
     ]);
     if (c) this.contact.set(c);
     this.allTransactions.set(txs);
+
+    // Load courier link if contact is linked to a user
+    if (c?.user && c.owner === this.auth.user()?.id) {
+      await this.loadCourierLink(c.user);
+    } else {
+      this.courierLink.set(null);
+    }
+  }
+
+  private async loadCourierLink(courierUserId: string): Promise<void> {
+    const links = await this.courierService.getByCourier(courierUserId);
+    const currentUserId = this.auth.user()?.id;
+    const link = links.find((l) => l.manager === currentUserId) ?? null;
+    this.courierLink.set(link);
   }
 
   onTimeframeChange(tf: Timeframe): void {
@@ -505,6 +563,32 @@ export class ContactDetailPage implements OnInit {
     if (!c) return;
     await this.contactService.remove(c.id);
     this.navCtrl.back();
+  }
+
+  async makeCourier(): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: this.translate.instant('courier.bonusPrompt'),
+      inputs: [{ name: 'pct', type: 'number', value: '5', placeholder: '5' }],
+      buttons: [
+        { text: this.translate.instant('cancel'), role: 'cancel' },
+        {
+          text: this.translate.instant('confirm'),
+          handler: async (data: { pct: string }) => {
+            const pct = parseFloat(data.pct) || 5;
+            const link = await this.courierService.create(this.contact()!.user, pct);
+            this.courierLink.set(link);
+          },
+        },
+      ],
+    });
+    await alert.present();
+  }
+
+  async removeCourier(): Promise<void> {
+    const link = this.courierLink();
+    if (!link) return;
+    await this.courierService.remove(link.id);
+    this.courierLink.set(null);
   }
 
   showTransactionActions(tx: Transaction): void {
