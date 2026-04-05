@@ -32,8 +32,8 @@ import {
   gift,
   swapHorizontal,
 } from 'ionicons/icons';
-import { AuthService } from '../../../../core/services/auth.service';
-import { PocketbaseService } from '../../../../core/services/pocketbase.service';
+import { UserService } from '../../../../core/services/user.service';
+import { RelayService } from '../../../../core/services/relay.service';
 import { ContactService } from '../../../contacts/services/contact.service';
 import { TransactionService } from '../../../transactions/services/transaction.service';
 import { TransactionType } from '../../../../core/models/transaction.model';
@@ -81,8 +81,8 @@ import { TransactionTypeIconPipe } from '../../../../shared/pipes/transaction-ty
         <div slot="end" class="status-dot-wrapper">
           <span
             class="status-dot"
-            [class.online]="pb.online()"
-            [title]="pb.online() ? ('online' | translate) : ('offline' | translate)"
+            [class.online]="relay.online()"
+            [title]="relay.online() ? ('online' | translate) : ('offline' | translate)"
           ></span>
         </div>
       </ion-toolbar>
@@ -279,8 +279,8 @@ export class DashboardPage implements OnInit {
   });
 
   constructor(
-    readonly auth: AuthService,
-    readonly pb: PocketbaseService,
+    readonly auth: UserService,
+    readonly relay: RelayService,
     private contactService: ContactService,
     private txService: TransactionService,
   ) {

@@ -11,14 +11,13 @@ import {
   IonSelect,
   IonSelectOption,
   IonNote,
-  IonButton,
   IonIcon,
 } from '@ionic/angular/standalone';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
-import { logOut, language, syncCircle, peopleCircle, briefcase } from 'ionicons/icons';
-import { AuthService } from '../../../../core/services/auth.service';
-import { PocketbaseService } from '../../../../core/services/pocketbase.service';
+import { language, syncCircle, peopleCircle, briefcase } from 'ionicons/icons';
+import { UserService } from '../../../../core/services/user.service';
+import { RelayService } from '../../../../core/services/relay.service';
 import { CourierService } from '../../../couriers/services/courier.service';
 
 @Component({
@@ -35,7 +34,6 @@ import { CourierService } from '../../../couriers/services/courier.service';
     IonSelect,
     IonSelectOption,
     IonNote,
-    IonButton,
     IonIcon,
     RouterLink,
     TranslateModule,
@@ -50,7 +48,7 @@ import { CourierService } from '../../../couriers/services/courier.service';
       <!-- User info section -->
       <div class="user-info">
         <div class="avatar">{{ initial() }}</div>
-        <div class="username">{{ auth.user()?.username }}</div>
+        <div class="username">{{ userService.user()?.username }}</div>
       </div>
 
       <!-- Settings list -->
@@ -66,11 +64,11 @@ import { CourierService } from '../../../couriers/services/courier.service';
             <ion-select-option value="en">English</ion-select-option>
           </ion-select>
         </ion-item>
-        <ion-item [routerLink]="auth.isSynced ? null : ['/auth/login']" [detail]="!auth.isSynced" [button]="!auth.isSynced">
+        <ion-item>
           <ion-icon name="sync-circle" slot="start" />
           <ion-label>{{ 'profile.sync' | translate }}</ion-label>
-          <ion-note slot="end" [color]="auth.isSynced ? 'success' : 'medium'">
-            {{ auth.isSynced ? 'Verbunden' : 'Nicht eingerichtet' }}
+          <ion-note slot="end" [color]="relay.online() ? 'success' : 'medium'">
+            {{ relay.online() ? ('online' | translate) : ('offline' | translate) }}
           </ion-note>
         </ion-item>
         <ion-item [routerLink]="['/tabs/profile/network']" detail>
@@ -84,13 +82,6 @@ import { CourierService } from '../../../couriers/services/courier.service';
           </ion-item>
         }
       </ion-list>
-
-      @if (auth.isSynced) {
-        <ion-button expand="block" color="medium" fill="outline" (click)="auth.logout()">
-          <ion-icon name="log-out" slot="start" />
-          Sync trennen
-        </ion-button>
-      }
     </ion-content>
   `,
   styles: [
@@ -123,20 +114,20 @@ import { CourierService } from '../../../couriers/services/courier.service';
   ],
 })
 export class ProfilePage implements OnInit {
-  readonly auth = inject(AuthService);
-  readonly pb = inject(PocketbaseService);
+  readonly userService = inject(UserService);
+  readonly relay = inject(RelayService);
   readonly translate = inject(TranslateService);
   private readonly courierService = inject(CourierService);
 
   readonly initial = computed(() => {
-    const name = this.auth.user()?.username;
+    const name = this.userService.user()?.username;
     return name ? name.charAt(0) : '?';
   });
 
   readonly isCourier = signal(false);
 
   constructor() {
-    addIcons({ logOut, language, syncCircle, peopleCircle, briefcase });
+    addIcons({ language, syncCircle, peopleCircle, briefcase });
   }
 
   async ngOnInit(): Promise<void> {

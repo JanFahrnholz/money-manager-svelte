@@ -3,10 +3,6 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   { path: '', redirectTo: 'tabs/dashboard', pathMatch: 'full' },
   {
-    path: 'auth/login',
-    loadComponent: () => import('./features/auth/pages/login/login.page').then(m => m.LoginPage),
-  },
-  {
     path: 'tabs',
     loadComponent: () => import('./features/tabs/tabs.component').then(m => m.TabsComponent),
     children: [

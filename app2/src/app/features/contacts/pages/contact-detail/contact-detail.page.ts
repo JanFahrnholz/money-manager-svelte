@@ -39,9 +39,7 @@ import {
 import { ContactService } from '../../services/contact.service';
 import { TransactionService } from '../../../transactions/services/transaction.service';
 import { CourierService } from '../../../couriers/services/courier.service';
-import { PocketbaseService } from '../../../../core/services/pocketbase.service';
-import { AuthService } from '../../../../core/services/auth.service';
-import { ToastService } from '../../../../core/services/toast.service';
+import { UserService } from '../../../../core/services/user.service';
 import type { Contact } from '../../../../core/models/contact.model';
 import type { CourierLink } from '../../../../core/models/courier-link.model';
 import type { Transaction } from '../../../../core/models/transaction.model';
@@ -326,12 +324,6 @@ export class ContactDetailPage implements OnInit {
           this.showRenameAlert();
         },
       },
-      {
-        text: this.translate.instant('contact.linkUser'),
-        handler: () => {
-          this.showLinkUserAlert();
-        },
-      },
     ];
 
     if (this.canMakeCourier() && !this.courierLink()) {
@@ -410,9 +402,7 @@ export class ContactDetailPage implements OnInit {
     private courierService: CourierService,
     private alertCtrl: AlertController,
     private translate: TranslateService,
-    private pb: PocketbaseService,
-    private auth: AuthService,
-    private toast: ToastService,
+    private auth: UserService,
   ) {
     addIcons({ ellipsisHorizontal, arrowDownCircle, arrowUpCircle, documentText, returnDownBack, cube, cashOutline, gift, swapHorizontal });
   }
@@ -513,31 +503,6 @@ export class ContactDetailPage implements OnInit {
     if (!c || !name.trim()) return;
     await this.contactService.update(c.id, { name: name.trim() });
     this.contact.set({ ...c, name: name.trim() });
-  }
-
-  private async showLinkUserAlert(): Promise<void> {
-    const alert = await this.alertCtrl.create({
-      header: this.translate.instant('contact.linkUser'),
-      message: this.translate.instant('contact.linkUserPrompt'),
-      inputs: [{ name: 'username', type: 'text', placeholder: this.translate.instant('auth.username') }],
-      buttons: [
-        { text: this.translate.instant('cancel'), role: 'cancel' },
-        { text: this.translate.instant('contact.link'), handler: (data: { username: string }) => this.linkUser(data.username) },
-      ],
-    });
-    await alert.present();
-  }
-
-  private async linkUser(username: string): Promise<void> {
-    const c = this.contact();
-    if (!c || !username.trim()) return;
-    try {
-      const user = await this.pb.client.collection('users').getFirstListItem(`username="${username.trim()}"`);
-      await this.contactService.update(c.id, { user: user['id'], linkedName: username.trim() });
-      this.contact.set({ ...c, user: user['id'], linkedName: username.trim() });
-    } catch {
-      this.toast.error(this.translate.instant('contact.userNotFound'));
-    }
   }
 
   private async confirmDelete(): Promise<void> {

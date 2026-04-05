@@ -26,7 +26,7 @@ import { addIcons } from 'ionicons';
 import { arrowForward } from 'ionicons/icons';
 import { CourierService } from '../../services/courier.service';
 import { SqliteService } from '../../../../core/services/sqlite.service';
-import { AuthService } from '../../../../core/services/auth.service';
+import { UserService } from '../../../../core/services/user.service';
 import type { CourierLink } from '../../../../core/models/courier-link.model';
 import type { Contact } from '../../../../core/models/contact.model';
 import type { User } from '../../../../core/models/user.model';
@@ -274,7 +274,7 @@ import type { User } from '../../../../core/models/user.model';
 export class CourierDashboardPage implements OnInit {
   private readonly courierService = inject(CourierService);
   private readonly sqlite = inject(SqliteService);
-  private readonly auth = inject(AuthService);
+  private readonly auth = inject(UserService);
 
   readonly link = signal<CourierLink | null>(null);
   readonly managerName = signal<string>('');

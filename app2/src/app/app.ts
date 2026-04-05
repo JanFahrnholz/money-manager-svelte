@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 import { SqliteService } from './core/services/sqlite.service';
-import { AuthService } from './core/services/auth.service';
-import { SyncService } from './core/services/sync.service';
+import { UserService } from './core/services/user.service';
+import { DeviceService } from './core/services/device.service';
+import { EncryptedSyncService } from './core/services/encrypted-sync.service';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
@@ -14,8 +15,9 @@ import { TranslateService } from '@ngx-translate/core';
 export class AppComponent implements OnInit {
   constructor(
     private sqlite: SqliteService,
-    private auth: AuthService,
-    private sync: SyncService,
+    private user: UserService,
+    private device: DeviceService,
+    private sync: EncryptedSyncService,
     private translate: TranslateService,
   ) {
     const lang = localStorage.getItem('language') || 'de';
@@ -25,11 +27,9 @@ export class AppComponent implements OnInit {
 
   async ngOnInit() {
     await this.sqlite.init();
-    await this.auth.init();
-    // Sync only if PocketBase is connected (optional feature)
-    if (this.auth.isSynced) {
-      await this.sync.syncAll();
-      this.sync.startPeriodicSync();
-    }
+    await this.user.init();
+    await this.device.init();
+    await this.sync.pollAll();
+    this.sync.startPolling();
   }
 }

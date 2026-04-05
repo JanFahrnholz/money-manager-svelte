@@ -1,6 +1,6 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { SqliteService } from '../../../core/services/sqlite.service';
-import { AuthService } from '../../../core/services/auth.service';
+import { UserService } from '../../../core/services/user.service';
 import { ToastService } from '../../../core/services/toast.service';
 import type { Contact } from '../../../core/models/contact.model';
 
@@ -22,7 +22,7 @@ export class ContactService {
 
   constructor(
     private sqlite: SqliteService,
-    private auth: AuthService,
+    private auth: UserService,
     private toast: ToastService,
   ) {}
 

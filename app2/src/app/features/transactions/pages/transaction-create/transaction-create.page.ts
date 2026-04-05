@@ -24,7 +24,7 @@ import { NumpadComponent } from '../../../../shared/components/numpad/numpad.com
 import { TransactionService } from '../../services/transaction.service';
 import { ContactService } from '../../../contacts/services/contact.service';
 import { CourierService } from '../../../couriers/services/courier.service';
-import { AuthService } from '../../../../core/services/auth.service';
+import { UserService } from '../../../../core/services/user.service';
 import { TransactionType } from '../../../../core/models/transaction.model';
 import type { CourierLink } from '../../../../core/models/courier-link.model';
 
@@ -155,7 +155,7 @@ export class TransactionCreatePage implements OnInit {
     private txService: TransactionService,
     private contactService: ContactService,
     private courierService: CourierService,
-    private auth: AuthService,
+    private auth: UserService,
   ) {}
 
   ngOnInit(): void {

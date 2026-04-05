@@ -22,7 +22,7 @@ import {
 } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
 import { CourierService, NetworkNode } from '../../services/courier.service';
-import { AuthService } from '../../../../core/services/auth.service';
+import { UserService } from '../../../../core/services/user.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import type { CourierLink } from '../../../../core/models/courier-link.model';
 
@@ -161,7 +161,7 @@ interface FlatNode {
 })
 export class NetworkOverviewPage implements OnInit {
   private readonly courierService = inject(CourierService);
-  private readonly auth = inject(AuthService);
+  private readonly auth = inject(UserService);
   private readonly toast = inject(ToastService);
 
   readonly tree = signal<NetworkNode[]>([]);
