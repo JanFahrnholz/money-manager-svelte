@@ -39,6 +39,16 @@ export class UserService {
     this.user.set({ ...user, balance: newBalance });
   }
 
+  async setBalance(amount: number): Promise<void> {
+    const user = this.user();
+    if (!user) return;
+    await this.sqlite.run(
+      'UPDATE users SET balance = ?, updated = ? WHERE id = ?',
+      [amount, new Date().toISOString(), user.id],
+    );
+    this.user.set({ ...user, balance: amount });
+  }
+
   async updateSettings(settings: Record<string, any>): Promise<void> {
     const user = this.user();
     if (!user) return;

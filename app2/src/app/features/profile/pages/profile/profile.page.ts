@@ -16,10 +16,13 @@ import {
 } from '@ionic/angular/standalone';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
-import { language, syncCircle, peopleCircle, briefcase } from 'ionicons/icons';
+import { language, syncCircle, peopleCircle, briefcase, cloudDownload } from 'ionicons/icons';
+import { HttpClient } from '@angular/common/http';
 import { UserService } from '../../../../core/services/user.service';
 import { RelayService } from '../../../../core/services/relay.service';
 import { DeviceService } from '../../../../core/services/device.service';
+import { SqliteService } from '../../../../core/services/sqlite.service';
+import { ToastService } from '../../../../core/services/toast.service';
 import { ContactService } from '../../../contacts/services/contact.service';
 import { CourierService } from '../../../couriers/services/courier.service';
 
@@ -86,6 +89,16 @@ import { CourierService } from '../../../couriers/services/courier.service';
           </ion-item>
         }
       </ion-list>
+
+      <!-- Import -->
+      @if (!imported()) {
+        <div style="padding:16px;">
+          <ion-button expand="block" color="warning" (click)="importData()">
+            <ion-icon name="cloud-download" slot="start" />
+            Daten importieren (PB Backup)
+          </ion-button>
+        </div>
+      }
 
       <!-- Device Info -->
       <ion-list [inset]="true">
@@ -156,6 +169,9 @@ export class ProfilePage implements OnInit {
   readonly deviceService = inject(DeviceService);
   private readonly contactService = inject(ContactService);
   private readonly courierService = inject(CourierService);
+  private readonly sqlite = inject(SqliteService);
+  private readonly toast = inject(ToastService);
+  private readonly http = inject(HttpClient);
 
   readonly initial = computed(() => {
     const name = this.userService.user()?.username;
@@ -163,9 +179,10 @@ export class ProfilePage implements OnInit {
   });
 
   readonly isCourier = signal(false);
+  readonly imported = signal(false);
 
   constructor() {
-    addIcons({ language, syncCircle, peopleCircle, briefcase });
+    addIcons({ language, syncCircle, peopleCircle, briefcase, cloudDownload });
   }
 
   async ngOnInit(): Promise<void> {
@@ -187,5 +204,34 @@ export class ProfilePage implements OnInit {
 
   async unlinkPair(pairId: string): Promise<void> {
     await this.deviceService.removePair(pairId);
+  }
+
+  async importData(): Promise<void> {
+    try {
+      const data: any = await this.http.get('./assets/migration-data.json').toPromise();
+      const userId = this.userService.user()?.id;
+      if (!userId || !data) return;
+
+      let contactCount = 0;
+      let txCount = 0;
+
+      for (const c of data.contacts) {
+        await this.sqlite.upsert('contacts', { ...c, owner: userId, synced: 0 });
+        contactCount++;
+      }
+
+      for (const t of data.transactions) {
+        await this.sqlite.upsert('transactions', { ...t, owner: userId, synced: 0 });
+        txCount++;
+      }
+
+      await this.userService.setBalance(data.userBalance);
+      await this.contactService.loadAll();
+
+      this.imported.set(true);
+      this.toast.success(`Importiert: ${contactCount} Kontakte, ${txCount} Transaktionen`);
+    } catch (e: any) {
+      this.toast.error('Import fehlgeschlagen: ' + e.message);
+    }
   }
 }
