@@ -20,6 +20,7 @@ import {
   IonRefresher,
   IonRefresherContent,
   IonSpinner,
+  IonModal,
   AlertController,
   NavController,
 } from '@ionic/angular/standalone';
@@ -40,8 +41,14 @@ import { ContactService } from '../../services/contact.service';
 import { TransactionService } from '../../../transactions/services/transaction.service';
 import { CourierService } from '../../../couriers/services/courier.service';
 import { UserService } from '../../../../core/services/user.service';
+import { DeviceService } from '../../../../core/services/device.service';
+import { EncryptedSyncService } from '../../../../core/services/encrypted-sync.service';
+import { ToastService } from '../../../../core/services/toast.service';
+import { QrDisplayComponent } from '../../../../shared/components/qr-display/qr-display.component';
+import { QrScannerComponent } from '../../../../shared/components/qr-scanner/qr-scanner.component';
 import type { Contact } from '../../../../core/models/contact.model';
 import type { CourierLink } from '../../../../core/models/courier-link.model';
+import type { Pair } from '../../../../core/models/pair.model';
 import type { Transaction } from '../../../../core/models/transaction.model';
 import { TransactionType } from '../../../../core/models/transaction.model';
 import {
@@ -80,12 +87,15 @@ import { TransactionTypeIconPipe } from '../../../../shared/pipes/transaction-ty
     IonRefresher,
     IonRefresherContent,
     IonSpinner,
+    IonModal,
     IonItemDivider,
     TranslateModule,
     TimeframeSelectorComponent,
     BalanceGraphComponent,
     StatsCardsComponent,
     TransactionTypeIconPipe,
+    QrDisplayComponent,
+    QrScannerComponent,
   ],
   template: `
     <ion-header>
@@ -193,6 +203,39 @@ import { TransactionTypeIconPipe } from '../../../../shared/pipes/transaction-ty
         [buttons]="txActionButtons()"
         (didDismiss)="showTxActions.set(false)"
       />
+
+      <ion-modal [isOpen]="showQrModal()" (didDismiss)="showQrModal.set(false)">
+        <ng-template>
+          <ion-header>
+            <ion-toolbar>
+              <ion-title>QR-Code</ion-title>
+              <ion-buttons slot="end">
+                <ion-button (click)="showQrModal.set(false)">Fertig</ion-button>
+              </ion-buttons>
+            </ion-toolbar>
+          </ion-header>
+          <ion-content class="ion-padding" style="text-align:center;">
+            <p>{{ 'contact.qrScanPrompt' | translate }}</p>
+            <app-qr-display [data]="qrPayload()" />
+          </ion-content>
+        </ng-template>
+      </ion-modal>
+
+      <ion-modal [isOpen]="showScanModal()" (didDismiss)="showScanModal.set(false)">
+        <ng-template>
+          <ion-header>
+            <ion-toolbar>
+              <ion-title>Scannen</ion-title>
+              <ion-buttons slot="end">
+                <ion-button (click)="showScanModal.set(false)">{{ 'cancel' | translate }}</ion-button>
+              </ion-buttons>
+            </ion-toolbar>
+          </ion-header>
+          <ion-content class="ion-padding">
+            <app-qr-scanner (scanned)="onQrScanned($event)" />
+          </ion-content>
+        </ng-template>
+      </ion-modal>
     </ion-content>
   `,
   styles: `
@@ -255,6 +298,10 @@ export class ContactDetailPage implements OnInit {
   readonly selectedTransaction = signal<Transaction | null>(null);
   readonly showTxActions = signal(false);
   readonly courierLink = signal<CourierLink | null>(null);
+  readonly pair = signal<Pair | null>(null);
+  readonly showQrModal = signal(false);
+  readonly showScanModal = signal(false);
+  readonly qrPayload = signal('');
 
   readonly canMakeCourier = computed(() => {
     const c = this.contact();
@@ -325,6 +372,36 @@ export class ContactDetailPage implements OnInit {
         },
       },
     ];
+
+    // QR pairing actions
+    const existingPair = this.pair();
+    if (!existingPair) {
+      buttons.push({
+        text: this.translate.instant('contact.showQr'),
+        handler: () => {
+          this.showLinkQr();
+        },
+      });
+      buttons.push({
+        text: this.translate.instant('contact.scanQr'),
+        handler: () => {
+          this.showScanModal.set(true);
+        },
+      });
+    } else {
+      buttons.push({
+        text: this.translate.instant('contact.linked') + ' ' + existingPair.label,
+        cssClass: 'action-sheet-info',
+        handler: () => {},
+      });
+      buttons.push({
+        text: this.translate.instant('contact.unlink'),
+        role: 'destructive' as const,
+        handler: () => {
+          this.unlinkContact();
+        },
+      });
+    }
 
     if (this.canMakeCourier() && !this.courierLink()) {
       buttons.push({
@@ -403,6 +480,9 @@ export class ContactDetailPage implements OnInit {
     private alertCtrl: AlertController,
     private translate: TranslateService,
     private auth: UserService,
+    private deviceService: DeviceService,
+    private encryptedSync: EncryptedSyncService,
+    private toast: ToastService,
   ) {
     addIcons({ ellipsisHorizontal, arrowDownCircle, arrowUpCircle, documentText, returnDownBack, cube, cashOutline, gift, swapHorizontal });
   }
@@ -431,6 +511,12 @@ export class ContactDetailPage implements OnInit {
     ]);
     if (c) this.contact.set(c);
     this.allTransactions.set(txs);
+
+    // Check for existing QR pair
+    if (c) {
+      const existingPair = this.deviceService.getPairForContact(c.id);
+      this.pair.set(existingPair ?? null);
+    }
 
     // Load courier link if contact is linked to a user
     if (c?.user && c.owner === this.auth.user()?.id) {
@@ -554,6 +640,42 @@ export class ContactDetailPage implements OnInit {
     if (!link) return;
     await this.courierService.remove(link.id);
     this.courierLink.set(null);
+  }
+
+  showLinkQr(): void {
+    const c = this.contact();
+    if (!c) return;
+    this.qrPayload.set(this.deviceService.generateQrPayload(c.id, c.name));
+    this.showQrModal.set(true);
+  }
+
+  async onQrScanned(data: string): Promise<void> {
+    this.showScanModal.set(false);
+    try {
+      const parsed = JSON.parse(data);
+      const { deviceId, publicKey, contactId, contactName } = parsed;
+      const c = this.contact();
+      if (!c) return;
+      const pair = await this.deviceService.createPair(c.id, deviceId, publicKey, contactName);
+      this.pair.set(pair);
+      await this.contactService.update(c.id, { user: deviceId, linkedName: contactName });
+      this.contact.set({ ...c, user: deviceId, linkedName: contactName });
+      await this.encryptedSync.notifyChange('contacts', c.id, 'upsert', { ...c, user: deviceId, linkedName: contactName });
+      this.toast.success('Verlinkt mit ' + contactName);
+    } catch (e) {
+      this.toast.error('QR-Code ungültig');
+    }
+  }
+
+  async unlinkContact(): Promise<void> {
+    const p = this.pair();
+    const c = this.contact();
+    if (!p || !c) return;
+    await this.deviceService.removePair(p.id);
+    await this.contactService.update(c.id, { user: '', linkedName: '' });
+    this.contact.set({ ...c, user: '', linkedName: '' });
+    this.pair.set(null);
+    this.toast.success('Verlinkung aufgehoben');
   }
 
   showTransactionActions(tx: Transaction): void {

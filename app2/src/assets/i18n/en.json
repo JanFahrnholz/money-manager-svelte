@@ -64,7 +64,13 @@
     "linkUser": "Link User",
     "linkUserPrompt": "Enter the user's username",
     "link": "Link",
-    "userNotFound": "User not found"
+    "userNotFound": "User not found",
+    "showQr": "Show QR Code",
+    "scanQr": "Scan QR Code",
+    "linked": "Linked with",
+    "unlink": "Unlink",
+    "qrInvalid": "Invalid QR code",
+    "qrScanPrompt": "Have your partner scan this code"
   },
   "timeframe": { "1w": "1W", "1m": "1M", "3m": "3M", "6m": "6M", "1y": "1Y", "max": "Max" },
   "profile": { "settings": "Settings", "language": "Language", "logout": "Logout", "network": "My Network", "sync": "Sync" },
