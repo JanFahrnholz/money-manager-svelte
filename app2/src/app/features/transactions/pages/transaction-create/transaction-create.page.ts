@@ -66,73 +66,96 @@ import type { CourierLink } from '../../../../core/models/courier-link.model';
       </ion-toolbar>
     </ion-header>
 
-    <ion-content class="ion-padding">
-      <div class="amount-display">
-        <ion-text color="dark">
-          <h1 class="amount-value">{{ amount() | euro }}</h1>
-        </ion-text>
-        <ion-text color="medium">
-          <p class="contact-name">{{ contactName() }}</p>
-        </ion-text>
+    <ion-content>
+      <div class="create-layout">
+        <div class="top-section">
+          <div class="amount-display">
+            <ion-text color="dark">
+              <h1 class="amount-value">{{ amount() | euro }}</h1>
+            </ion-text>
+            <ion-text color="medium">
+              <p class="contact-name">{{ contactName() }}</p>
+            </ion-text>
+          </div>
+
+          <ion-segment [value]="type()" (ionChange)="onTypeChange($event)">
+            <ion-segment-button [value]="TransactionType.Income">
+              <ion-label>{{ 'transaction.income' | translate }}</ion-label>
+            </ion-segment-button>
+            <ion-segment-button [value]="TransactionType.Expense">
+              <ion-label>{{ 'transaction.expense' | translate }}</ion-label>
+            </ion-segment-button>
+            <ion-segment-button [value]="TransactionType.Invoice">
+              <ion-label>{{ 'transaction.invoice' | translate }}</ion-label>
+            </ion-segment-button>
+            <ion-segment-button [value]="TransactionType.Refund">
+              <ion-label>{{ 'transaction.refund' | translate }}</ion-label>
+            </ion-segment-button>
+          </ion-segment>
+
+          @if (courierLink()) {
+            <ion-segment [value]="type()" (ionChange)="onTypeChange($event)" style="margin-top: 8px;">
+              <ion-segment-button [value]="TransactionType.Restock">
+                <ion-label>{{ 'transaction.restock' | translate }}</ion-label>
+              </ion-segment-button>
+              <ion-segment-button [value]="TransactionType.Collect">
+                <ion-label>{{ 'transaction.collect' | translate }}</ion-label>
+              </ion-segment-button>
+              <ion-segment-button [value]="TransactionType.Redeem">
+                <ion-label>{{ 'transaction.redeem' | translate }}</ion-label>
+              </ion-segment-button>
+            </ion-segment>
+          }
+
+          <ion-list>
+            <ion-item>
+              <ion-input
+                [label]="'transaction.info' | translate"
+                labelPlacement="stacked"
+                [(ngModel)]="info"
+              />
+            </ion-item>
+            <ion-item>
+              <ion-toggle [(ngModel)]="planned">{{ 'transaction.planned' | translate }}</ion-toggle>
+            </ion-item>
+          </ion-list>
+        </div>
+
+        <div class="numpad-section">
+          <app-numpad (valueChange)="amount.set($event)" />
+        </div>
       </div>
-
-      <ion-segment [value]="type()" (ionChange)="onTypeChange($event)">
-        <ion-segment-button [value]="TransactionType.Income">
-          <ion-label>{{ 'transaction.income' | translate }}</ion-label>
-        </ion-segment-button>
-        <ion-segment-button [value]="TransactionType.Expense">
-          <ion-label>{{ 'transaction.expense' | translate }}</ion-label>
-        </ion-segment-button>
-        <ion-segment-button [value]="TransactionType.Invoice">
-          <ion-label>{{ 'transaction.invoice' | translate }}</ion-label>
-        </ion-segment-button>
-        <ion-segment-button [value]="TransactionType.Refund">
-          <ion-label>{{ 'transaction.refund' | translate }}</ion-label>
-        </ion-segment-button>
-      </ion-segment>
-
-      @if (courierLink()) {
-        <ion-segment [value]="type()" (ionChange)="onTypeChange($event)" style="margin-top: 8px;">
-          <ion-segment-button [value]="TransactionType.Restock">
-            <ion-label>{{ 'transaction.restock' | translate }}</ion-label>
-          </ion-segment-button>
-          <ion-segment-button [value]="TransactionType.Collect">
-            <ion-label>{{ 'transaction.collect' | translate }}</ion-label>
-          </ion-segment-button>
-          <ion-segment-button [value]="TransactionType.Redeem">
-            <ion-label>{{ 'transaction.redeem' | translate }}</ion-label>
-          </ion-segment-button>
-        </ion-segment>
-      }
-
-      <ion-list>
-        <ion-item>
-          <ion-input
-            [label]="'transaction.info' | translate"
-            labelPlacement="stacked"
-            [(ngModel)]="info"
-          />
-        </ion-item>
-        <ion-item>
-          <ion-toggle [(ngModel)]="planned">{{ 'transaction.planned' | translate }}</ion-toggle>
-        </ion-item>
-      </ion-list>
-
-      <app-numpad (valueChange)="amount.set($event)" />
     </ion-content>
   `,
   styles: `
+    .create-layout {
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+      padding: 16px;
+    }
+    .top-section {
+      flex: 0 0 auto;
+    }
+    .numpad-section {
+      margin-top: auto;
+      padding-top: 8px;
+    }
     .amount-display {
       text-align: center;
       padding: 16px 0;
     }
     .amount-value {
-      font-size: 48px;
+      font-size: 52px;
+      font-weight: 800;
       margin: 0;
     }
     .contact-name {
       font-size: 14px;
       margin: 4px 0 0;
+    }
+    ion-segment-button {
+      font-size: 13px;
     }
   `,
 })
