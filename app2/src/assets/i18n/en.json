@@ -31,7 +31,19 @@
     "make": "Make Courier",
     "remove": "Remove Courier",
     "details": "Courier Details",
-    "bonusPrompt": "Bonus Percentage"
+    "bonusPrompt": "Bonus Percentage",
+    "since": "Courier since",
+    "inventory": "Inventory",
+    "sales": "Sales",
+    "bonus": "Bonus",
+    "progress": "Progress",
+    "restock": "Restock",
+    "collect": "Collect",
+    "redeem": "Redeem Bonus",
+    "bonusPercent": "Bonus Percentage",
+    "totalSales": "Total Sales",
+    "subCouriers": "Sub-Couriers",
+    "enterAmount": "Enter amount"
   },
   "contact": {
     "create": "New Contact",

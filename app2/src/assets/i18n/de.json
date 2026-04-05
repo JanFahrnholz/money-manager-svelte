@@ -31,7 +31,19 @@
     "make": "Zum Kurier machen",
     "remove": "Kurier entfernen",
     "details": "Kurier-Details",
-    "bonusPrompt": "Bonus-Prozent"
+    "bonusPrompt": "Bonus-Prozent",
+    "since": "Kurier seit",
+    "inventory": "Inventar",
+    "sales": "Umsatz",
+    "bonus": "Bonus",
+    "progress": "Fortschritt",
+    "restock": "Aufstocken",
+    "collect": "Abkassieren",
+    "redeem": "Bonus einlösen",
+    "bonusPercent": "Bonus-Prozent",
+    "totalSales": "Gesamt-Umsatz",
+    "subCouriers": "Sub-Kuriere",
+    "enterAmount": "Betrag eingeben"
   },
   "contact": {
     "create": "Neuer Kontakt",

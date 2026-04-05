@@ -19,6 +19,7 @@ export const routes: Routes = [
       { path: 'transactions/planned', loadComponent: () => import('./features/transactions/pages/planned-list/planned-list.page').then(m => m.PlannedListPage) },
       { path: 'profile', loadComponent: () => import('./features/profile/pages/profile/profile.page').then(m => m.ProfilePage) },
       { path: 'profile/network', loadComponent: () => import('./features/couriers/pages/network-overview/network-overview.page').then(m => m.NetworkOverviewPage) },
+      { path: 'profile/network/:id', loadComponent: () => import('./features/couriers/pages/courier-detail/courier-detail.page').then(m => m.CourierDetailPage) },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
   },
