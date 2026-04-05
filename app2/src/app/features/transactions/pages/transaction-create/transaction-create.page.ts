@@ -1,5 +1,5 @@
 import { Component, OnInit, signal } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
+import { EuroPipe } from '../../../../shared/pipes/euro.pipe';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
@@ -32,7 +32,7 @@ import type { CourierLink } from '../../../../core/models/courier-link.model';
   selector: 'app-transaction-create',
   standalone: true,
   imports: [
-    DecimalPipe,
+    EuroPipe,
     FormsModule,
     IonHeader,
     IonToolbar,
@@ -69,7 +69,7 @@ import type { CourierLink } from '../../../../core/models/courier-link.model';
     <ion-content class="ion-padding">
       <div class="amount-display">
         <ion-text color="dark">
-          <h1 class="amount-value">{{ amount() | number: '1.2-2' }}</h1>
+          <h1 class="amount-value">{{ amount() | euro }}</h1>
         </ion-text>
         <ion-text color="medium">
           <p class="contact-name">{{ contactName() }}</p>

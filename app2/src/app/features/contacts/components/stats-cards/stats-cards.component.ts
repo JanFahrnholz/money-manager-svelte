@@ -1,5 +1,5 @@
 import { Component, computed, input } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
+import { EuroPipe } from '../../../../shared/pipes/euro.pipe';
 import { IonGrid, IonRow, IonCol, IonCard, IonCardHeader, IonCardTitle, IonCardContent } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Transaction } from '../../../../core/models/transaction.model';
@@ -8,7 +8,7 @@ import { TransactionType } from '../../../../core/models/transaction.model';
 @Component({
   selector: 'app-stats-cards',
   standalone: true,
-  imports: [DecimalPipe, IonGrid, IonRow, IonCol, IonCard, IonCardHeader, IonCardTitle, IonCardContent, TranslateModule],
+  imports: [EuroPipe, IonGrid, IonRow, IonCol, IonCard, IonCardHeader, IonCardTitle, IonCardContent, TranslateModule],
   template: `
     <ion-grid>
       <ion-row>
@@ -20,7 +20,7 @@ import { TransactionType } from '../../../../core/models/transaction.model';
               </ion-card-title>
             </ion-card-header>
             <ion-card-content>
-              <div class="stat-value" style="color: #2dd36f;">{{ incomeSum() | number: '1.2-2' }}</div>
+              <div class="stat-value" style="color: #2dd36f;">{{ incomeSum() | euro }}</div>
               <div class="stat-count">{{ incomeCount() }}x</div>
             </ion-card-content>
           </ion-card>
@@ -33,7 +33,7 @@ import { TransactionType } from '../../../../core/models/transaction.model';
               </ion-card-title>
             </ion-card-header>
             <ion-card-content>
-              <div class="stat-value" style="color: #eb445a;">{{ expenseSum() | number: '1.2-2' }}</div>
+              <div class="stat-value" style="color: #eb445a;">{{ expenseSum() | euro }}</div>
               <div class="stat-count">{{ expenseCount() }}x</div>
             </ion-card-content>
           </ion-card>
@@ -48,7 +48,7 @@ import { TransactionType } from '../../../../core/models/transaction.model';
               </ion-card-title>
             </ion-card-header>
             <ion-card-content>
-              <div class="stat-value" style="color: #e0ac08;">{{ invoiceSum() | number: '1.2-2' }}</div>
+              <div class="stat-value" style="color: #e0ac08;">{{ invoiceSum() | euro }}</div>
               <div class="stat-count">{{ invoiceCount() }}x</div>
             </ion-card-content>
           </ion-card>

@@ -1,5 +1,5 @@
 import { Component, computed, OnInit, signal } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
+import { EuroPipe } from '../../../../shared/pipes/euro.pipe';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
   IonHeader,
@@ -68,7 +68,7 @@ import { TransactionTypeIconPipe } from '../../../../shared/pipes/transaction-ty
   selector: 'app-contact-detail',
   standalone: true,
   imports: [
-    DecimalPipe,
+    EuroPipe,
     RouterLink,
     IonHeader,
     IonToolbar,
@@ -131,7 +131,7 @@ import { TransactionTypeIconPipe } from '../../../../shared/pipes/transaction-ty
           </ion-avatar>
           <h2 class="contact-name">{{ c.name }}</h2>
           <h1 class="contact-balance" [style.color]="balanceTextColor()">
-            {{ c.balance | number: '1.2-2' }}
+            {{ c.balance | euro }}
           </h1>
           <p class="contact-score">{{ 'score' | translate }}: {{ c.score }}</p>
         </div>
@@ -181,7 +181,7 @@ import { TransactionTypeIconPipe } from '../../../../shared/pipes/transaction-ty
                     slot="end"
                     [color]="txColor(tx.type)"
                   >
-                    {{ txSign(tx.type) }}{{ tx.amount | number: '1.2-2' }}
+                    {{ txSign(tx.type) }}{{ tx.amount | euro }}
                   </ion-note>
                 </ion-item>
               }

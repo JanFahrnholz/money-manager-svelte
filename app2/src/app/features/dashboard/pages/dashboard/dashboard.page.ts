@@ -1,5 +1,5 @@
 import { Component, computed, OnInit, signal } from '@angular/core';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import {
   IonHeader,
@@ -45,13 +45,13 @@ import {
 } from '../../../../shared/components/timeframe-selector/timeframe-selector.component';
 import { BalanceCardComponent } from '../../components/balance-card/balance-card.component';
 import { TransactionTypeIconPipe } from '../../../../shared/pipes/transaction-type-icon.pipe';
+import { EuroPipe } from '../../../../shared/pipes/euro.pipe';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [
     DatePipe,
-    DecimalPipe,
     RouterLink,
     IonHeader,
     IonToolbar,
@@ -73,6 +73,7 @@ import { TransactionTypeIconPipe } from '../../../../shared/pipes/transaction-ty
     TimeframeSelectorComponent,
     BalanceCardComponent,
     TransactionTypeIconPipe,
+    EuroPipe,
   ],
   template: `
     <ion-header>
@@ -102,7 +103,7 @@ import { TransactionTypeIconPipe } from '../../../../shared/pipes/transaction-ty
         <div class="main-balance">
           <div class="balance-label">{{ 'balance' | translate }}</div>
           <div class="balance-value">
-            {{ auth.user()?.balance ?? 0 | number: '1.2-2' }}
+            {{ auth.user()?.balance ?? 0 | euro }}
           </div>
         </div>
 
@@ -145,7 +146,7 @@ import { TransactionTypeIconPipe } from '../../../../shared/pipes/transaction-ty
                     <p>{{ tx.date | date: 'mediumDate' }}@if (tx.info) { &mdash; {{ tx.info }} }</p>
                   </ion-label>
                   <ion-note slot="end">
-                    {{ tx.amount | number: '1.2-2' }}
+                    {{ tx.amount | euro }}
                   </ion-note>
                   <ion-button
                     slot="end"
@@ -177,7 +178,7 @@ import { TransactionTypeIconPipe } from '../../../../shared/pipes/transaction-ty
                   slot="end"
                   [color]="txColor(tx.type)"
                 >
-                  {{ txSign(tx.type) }}{{ tx.amount | number: '1.2-2' }}
+                  {{ txSign(tx.type) }}{{ tx.amount | euro }}
                 </ion-note>
               </ion-item>
             }

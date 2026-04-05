@@ -1,5 +1,6 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
+import { EuroPipe } from '../../../../shared/pipes/euro.pipe';
 import { RouterLink } from '@angular/router';
 import {
   IonHeader,
@@ -36,6 +37,7 @@ import type { User } from '../../../../core/models/user.model';
   standalone: true,
   imports: [
     DecimalPipe,
+    EuroPipe,
     RouterLink,
     IonHeader,
     IonToolbar,
@@ -84,7 +86,7 @@ import type { User } from '../../../../core/models/user.model';
             <ion-col size="4">
               <ion-card class="balance-card">
                 <ion-card-content class="balance-card-content" style="border-top: 3px solid #ffd600;">
-                  <div class="balance-value">{{ l.inventoryBalance | number:'1.2-2' }}&euro;</div>
+                  <div class="balance-value">{{ l.inventoryBalance | euro }}</div>
                   <div class="balance-label">{{ 'courier.inventory' | translate }}</div>
                 </ion-card-content>
               </ion-card>
@@ -92,7 +94,7 @@ import type { User } from '../../../../core/models/user.model';
             <ion-col size="4">
               <ion-card class="balance-card">
                 <ion-card-content class="balance-card-content" style="border-top: 3px solid #4cd964;">
-                  <div class="balance-value">{{ l.salesBalance | number:'1.2-2' }}&euro;</div>
+                  <div class="balance-value">{{ l.salesBalance | euro }}</div>
                   <div class="balance-label">{{ 'courier.sales' | translate }}</div>
                 </ion-card-content>
               </ion-card>
@@ -100,7 +102,7 @@ import type { User } from '../../../../core/models/user.model';
             <ion-col size="4">
               <ion-card class="balance-card">
                 <ion-card-content class="balance-card-content" style="border-top: 3px solid #ff9500;">
-                  <div class="balance-value">{{ l.bonusBalance | number:'1.2-2' }}&euro;</div>
+                  <div class="balance-value">{{ l.bonusBalance | euro }}</div>
                   <div class="balance-label">{{ 'courier.bonus' | translate }}</div>
                 </ion-card-content>
               </ion-card>

@@ -8,6 +8,7 @@ import {
   IonSegment,
   IonSegmentButton,
   IonLabel,
+  IonItem,
   IonList,
   IonFab,
   IonFabButton,
@@ -37,6 +38,7 @@ type FilterMode = 'all' | 'owned' | 'linked';
     IonSegment,
     IonSegmentButton,
     IonLabel,
+    IonItem,
     IonList,
     IonFab,
     IonFabButton,
@@ -85,6 +87,10 @@ type FilterMode = 'all' | 'owned' | 'linked';
         <ion-list>
           @for (contact of filteredContacts(); track contact.id) {
             <app-contact-list-item [contact]="contact" />
+          } @empty {
+            <ion-item>
+              <ion-label color="medium" class="ion-text-center">{{ 'contact.empty' | translate }}</ion-label>
+            </ion-item>
           }
         </ion-list>
       }

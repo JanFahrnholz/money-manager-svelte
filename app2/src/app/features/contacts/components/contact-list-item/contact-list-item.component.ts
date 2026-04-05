@@ -1,5 +1,5 @@
 import { Component, computed, input } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
+import { EuroPipe } from '../../../../shared/pipes/euro.pipe';
 import { RouterLink } from '@angular/router';
 import { IonItem, IonLabel, IonAvatar, IonNote } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
@@ -8,7 +8,7 @@ import type { Contact } from '../../../../core/models/contact.model';
 @Component({
   selector: 'app-contact-list-item',
   standalone: true,
-  imports: [DecimalPipe, RouterLink, IonItem, IonLabel, IonAvatar, IonNote, TranslateModule],
+  imports: [EuroPipe, RouterLink, IonItem, IonLabel, IonAvatar, IonNote, TranslateModule],
   template: `
     <ion-item [routerLink]="routerPath()" detail="true">
       <ion-avatar slot="start" aria-hidden="true">
@@ -34,7 +34,7 @@ import type { Contact } from '../../../../core/models/contact.model';
         <p>{{ 'score' | translate }}: {{ contact().score }}</p>
       </ion-label>
       <ion-note slot="end" [color]="balanceColor()">
-        {{ contact().balance | number: '1.2-2' }}€
+        {{ contact().balance | euro }}
       </ion-note>
     </ion-item>
   `,

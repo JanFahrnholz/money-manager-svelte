@@ -1,4 +1,4 @@
-import { Component, output, signal } from '@angular/core';
+import { AfterViewInit, Component, output, signal } from '@angular/core';
 import { IonSegment, IonSegmentButton, IonLabel } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -44,10 +44,15 @@ const timeframes: Timeframe[] = ['1w', '1m', '3m', '6m', '1y', 'max'];
     </ion-segment>
   `,
 })
-export class TimeframeSelectorComponent {
+export class TimeframeSelectorComponent implements AfterViewInit {
   readonly value = signal<Timeframe>('max');
   readonly change = output<Timeframe>();
   readonly timeframes = timeframes;
+
+  ngAfterViewInit(): void {
+    // Force segment indicator re-render for the initial value
+    setTimeout(() => this.value.set(this.value()), 50);
+  }
 
   onChange(event: CustomEvent): void {
     const tf = event.detail.value as Timeframe;

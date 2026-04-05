@@ -1,17 +1,18 @@
 import { Component, input } from '@angular/core';
 import { IonCard, IonCardContent } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
+import { EuroPipe } from '../../../../shared/pipes/euro.pipe';
 
 @Component({
   selector: 'app-balance-card',
   standalone: true,
-  imports: [IonCard, IonCardContent, TranslateModule],
+  imports: [IonCard, IonCardContent, TranslateModule, EuroPipe],
   template: `
     <ion-card [style.border-left]="'4px solid ' + borderColor()">
       <ion-card-content class="card-body">
         <div class="card-label">{{ label() | translate }}</div>
         <div class="card-value" [style.color]="color()">
-          {{ prefix() }}{{ value().toFixed(2) }}
+          {{ prefix() }}{{ value() | euro }}
         </div>
       </ion-card-content>
     </ion-card>

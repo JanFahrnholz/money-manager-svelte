@@ -1,5 +1,6 @@
 import { Component, computed, OnInit, signal } from '@angular/core';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
+import { EuroPipe } from '../../../../shared/pipes/euro.pipe';
 import {
   IonHeader,
   IonToolbar,
@@ -28,7 +29,7 @@ import type { Transaction } from '../../../../core/models/transaction.model';
   standalone: true,
   imports: [
     DatePipe,
-    DecimalPipe,
+    EuroPipe,
     IonHeader,
     IonToolbar,
     IonTitle,
@@ -68,7 +69,7 @@ import type { Transaction } from '../../../../core/models/transaction.model';
                 <p>{{ tx.date | date: 'mediumDate' }}</p>
               </ion-label>
               <ion-note slot="end">
-                {{ tx.amount | number: '1.2-2' }}
+                {{ tx.amount | euro }}
               </ion-note>
               <ion-button
                 slot="end"

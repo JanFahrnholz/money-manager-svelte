@@ -1,5 +1,5 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
+import { EuroPipe } from '../../../../shared/pipes/euro.pipe';
 import { RouterLink } from '@angular/router';
 import {
   IonHeader,
@@ -54,7 +54,7 @@ interface FlatNode {
     IonCol,
     IonCard,
     IonCardContent,
-    DecimalPipe,
+    EuroPipe,
     RouterLink,
     TranslateModule,
   ],
@@ -87,7 +87,7 @@ interface FlatNode {
           <ion-col size="4">
             <ion-card>
               <ion-card-content class="summary-card">
-                <div class="summary-value">{{ totalInventory() | number:'1.2-2' }}&euro;</div>
+                <div class="summary-value">{{ totalInventory() | euro }}</div>
                 <div class="summary-label">{{ 'network.totalInventory' | translate }}</div>
               </ion-card-content>
             </ion-card>
@@ -95,7 +95,7 @@ interface FlatNode {
           <ion-col size="4">
             <ion-card>
               <ion-card-content class="summary-card">
-                <div class="summary-value">{{ totalRevenue() | number:'1.2-2' }}&euro;</div>
+                <div class="summary-value">{{ totalRevenue() | euro }}</div>
                 <div class="summary-label">{{ 'network.openRevenue' | translate }}</div>
               </ion-card-content>
             </ion-card>
@@ -116,7 +116,7 @@ interface FlatNode {
               </ion-avatar>
               <ion-label>
                 <h3>{{ node.courierName }}</h3>
-                <p>Inv: {{ node.link.inventoryBalance }}&euro; &middot; Umsatz: {{ node.link.salesBalance }}&euro; &middot; Bonus: {{ node.link.bonusBalance }}&euro;</p>
+                <p>Inv: {{ node.link.inventoryBalance | euro }} &middot; Umsatz: {{ node.link.salesBalance | euro }} &middot; Bonus: {{ node.link.bonusBalance | euro }}</p>
               </ion-label>
             </ion-item>
           }

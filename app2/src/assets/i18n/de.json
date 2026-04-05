@@ -70,7 +70,8 @@
     "linked": "Verlinkt mit",
     "unlink": "Verlinkung aufheben",
     "qrInvalid": "QR-Code ungültig",
-    "qrScanPrompt": "Lass deinen Partner diesen Code scannen"
+    "qrScanPrompt": "Lass deinen Partner diesen Code scannen",
+    "empty": "Keine Kontakte"
   },
   "timeframe": { "1w": "1W", "1m": "1M", "3m": "3M", "6m": "6M", "1y": "1J", "max": "Max" },
   "profile": { "settings": "Einstellungen", "language": "Sprache", "logout": "Abmelden", "network": "Mein Netzwerk", "sync": "Synchronisierung", "deviceId": "Geräte-ID", "pairs": "Aktive Verlinkungen", "noPairs": "Keine Verlinkungen" },
