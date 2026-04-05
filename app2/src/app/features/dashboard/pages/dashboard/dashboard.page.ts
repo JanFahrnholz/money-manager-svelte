@@ -18,6 +18,7 @@ import {
   IonRefresher,
   IonRefresherContent,
   IonSpinner,
+  IonBadge,
 } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
@@ -69,6 +70,7 @@ import { EuroPipe } from '../../../../shared/pipes/euro.pipe';
     IonRefresher,
     IonRefresherContent,
     IonSpinner,
+    IonBadge,
     TranslateModule,
     TimeframeSelectorComponent,
     BalanceCardComponent,
@@ -143,7 +145,13 @@ import { EuroPipe } from '../../../../shared/pipes/euro.pipe';
                 <ion-item>
                   <ion-label>
                     <h3>{{ contactNameMap()[tx.contact] || '' }} &middot; {{ 'transaction.' + txTypeKey(tx.type) | translate }}</h3>
-                    <p>{{ tx.date | date:'dd.MM.yyyy' }}@if (tx.info) { &mdash; {{ tx.info }} }</p>
+                    <p [style.color]="isOverdue(tx.date) ? '#ff3b30' : ''">
+                      {{ tx.date | date:'dd.MM.yyyy' }}
+                      @if (isOverdue(tx.date)) {
+                        <ion-badge color="danger" style="margin-left:8px;">Überfällig</ion-badge>
+                      }
+                      @if (tx.info) { &mdash; {{ tx.info }} }
+                    </p>
                   </ion-label>
                   <ion-note slot="end">
                     {{ tx.amount | euro }}
@@ -339,6 +347,10 @@ export class DashboardPage implements OnInit {
       default:
         return 'income';
     }
+  }
+
+  isOverdue(dateStr: string): boolean {
+    return new Date(dateStr) < new Date();
   }
 
   txColor(type: TransactionType): string {

@@ -14,6 +14,7 @@ import {
   IonNote,
   IonButton,
   IonIcon,
+  IonBadge,
   AlertController,
 } from '@ionic/angular/standalone';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -42,6 +43,7 @@ import type { Transaction } from '../../../../core/models/transaction.model';
     IonNote,
     IonButton,
     IonIcon,
+    IonBadge,
     TranslateModule,
   ],
   template: `
@@ -66,7 +68,12 @@ import type { Transaction } from '../../../../core/models/transaction.model';
               <ion-label>
                 <h3>{{ 'transaction.' + txTypeKey(tx.type) | translate }}</h3>
                 <p>{{ contactNames()[tx.contact] || '—' }}</p>
-                <p>{{ tx.date | date:'dd.MM.yyyy' }}</p>
+                <p [style.color]="isOverdue(tx.date) ? '#ff3b30' : ''">
+                  {{ tx.date | date:'dd.MM.yyyy' }}
+                  @if (isOverdue(tx.date)) {
+                    <ion-badge color="danger" style="margin-left:8px;">Überfällig</ion-badge>
+                  }
+                </p>
               </ion-label>
               <ion-note slot="end">
                 {{ tx.amount | euro }}
@@ -153,6 +160,10 @@ export class PlannedListPage implements OnInit {
       ],
     });
     await alert.present();
+  }
+
+  isOverdue(dateStr: string): boolean {
+    return new Date(dateStr) < new Date();
   }
 
   txTypeKey(type: TransactionType): string {

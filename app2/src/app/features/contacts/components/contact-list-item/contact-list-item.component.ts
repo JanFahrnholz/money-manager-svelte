@@ -32,7 +32,7 @@ import type { Contact } from '../../../../core/models/contact.model';
       </ion-avatar>
       <ion-label>
         <h2>{{ contact().name }}@if (contact().user) { <span> &#x1F517;</span> }</h2>
-        <p>{{ 'score' | translate }}: {{ (contact().score || 0) | number:'1.0-0' }}</p>
+        <p [style.color]="scoreColor()">{{ 'score' | translate }}: {{ (contact().score || 0) | number:'1.0-0' }}</p>
       </ion-label>
       <ion-note slot="end" [color]="balanceColor()">
         {{ contact().balance | euro }}
@@ -63,4 +63,11 @@ export class ContactListItemComponent {
     if (balance < 0) return 'danger';
     return 'warning';
   });
+
+  scoreColor(): string {
+    const s = this.contact().score || 0;
+    if (s > 50) return '#4cd964';
+    if (s >= 0) return '#ffd600';
+    return '#ff3b30';
+  }
 }

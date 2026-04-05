@@ -136,7 +136,9 @@ import { TransactionTypeIconPipe } from '../../../../shared/pipes/transaction-ty
           <h1 class="contact-balance" [style.color]="balanceTextColor()">
             {{ c.balance | euro }}
           </h1>
-          <p class="contact-score">{{ 'score' | translate }}: {{ c.score | number:'1.0-0' }}</p>
+          <p class="contact-score" (click)="showScoreInfo()" style="cursor:pointer;text-decoration:underline dotted;" [style.color]="scoreColor()">
+            {{ 'score' | translate }}: {{ c.score | number:'1.0-0' }} &#x24D8;
+          </p>
         </div>
 
         <!-- New Transaction button -->
@@ -164,6 +166,11 @@ import { TransactionTypeIconPipe } from '../../../../shared/pipes/transaction-ty
         <div class="section">
           <h3 class="section-title">{{ 'contact.stats' | translate }}</h3>
           <app-stats-cards [transactions]="filteredTransactions()" [score]="c.score" />
+        </div>
+
+        <!-- Balance Relationship Summary -->
+        <div style="text-align:center;padding:8px 16px;font-size:14px;color:#999;font-style:italic;">
+          {{ balanceSummary() }}
         </div>
 
         <!-- Transaction List -->
@@ -403,6 +410,21 @@ export class ContactDetailPage implements OnInit {
     return '#c9a81e';
   });
 
+  scoreColor(): string {
+    const s = this.contact()?.score ?? 0;
+    if (s > 50) return '#4cd964';
+    if (s >= 0) return '#ffd600';
+    return '#ff3b30';
+  }
+
+  readonly balanceSummary = computed(() => {
+    const c = this.contact();
+    if (!c) return '';
+    if (c.balance < 0) return `${c.name} schuldet dir ${Math.abs(c.balance).toLocaleString('de-DE', { minimumFractionDigits: 2 })} \u20AC`;
+    if (c.balance > 0) return `Du schuldest ${c.name} ${c.balance.toLocaleString('de-DE', { minimumFractionDigits: 2 })} \u20AC`;
+    return 'Ausgeglichen';
+  });
+
   readonly actionButtons = computed(() => {
     const buttons: any[] = [
       {
@@ -525,6 +547,15 @@ export class ContactDetailPage implements OnInit {
     private toast: ToastService,
   ) {
     addIcons({ ellipsisHorizontal, addCircle, arrowDownCircle, arrowUpCircle, documentText, returnDownBack, cube, cashOutline, gift, swapHorizontal });
+  }
+
+  async showScoreInfo(): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: 'Score',
+      message: 'Der Score bewertet die Zuverl\u00E4ssigkeit eines Kontakts. Einnahmen, R\u00FCckzahlungen und Balance flie\u00DFen in die Berechnung ein. Je h\u00F6her, desto besser.',
+      buttons: ['OK'],
+    });
+    await alert.present();
   }
 
   async ngOnInit(): Promise<void> {
