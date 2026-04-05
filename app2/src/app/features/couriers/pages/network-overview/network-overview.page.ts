@@ -19,8 +19,11 @@ import {
   IonCol,
   IonCard,
   IonCardContent,
+  IonIcon,
 } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
+import { addIcons } from 'ionicons';
+import { peopleOutline } from 'ionicons/icons';
 import { CourierService, NetworkNode } from '../../services/courier.service';
 import { UserService } from '../../../../core/services/user.service';
 import { ToastService } from '../../../../core/services/toast.service';
@@ -54,6 +57,7 @@ interface FlatNode {
     IonCol,
     IonCard,
     IonCardContent,
+    IonIcon,
     EuroPipe,
     RouterLink,
     TranslateModule,
@@ -105,7 +109,16 @@ interface FlatNode {
 
       <!-- Network tree -->
       @if (flatNodes().length === 0) {
-        <ion-note class="empty-note">{{ 'network.empty' | translate }}</ion-note>
+        <div style="text-align:center;padding:40px 24px;">
+          <ion-icon name="people-outline" style="font-size:64px;color:#666;display:block;margin:0 auto 16px;" />
+          <h3 style="color:#fff;margin-bottom:8px;">{{ 'network.empty' | translate }}</h3>
+          <p style="color:#888;font-size:14px;line-height:1.5;margin-bottom:24px;">
+            {{ 'network.explanation' | translate }}
+          </p>
+          <ion-button [routerLink]="['/tabs/contacts']" fill="outline">
+            {{ 'network.setupCourier' | translate }}
+          </ion-button>
+        </div>
       } @else {
         <ion-list [inset]="true">
           @for (node of flatNodes(); track node.link.id) {
@@ -165,6 +178,10 @@ export class NetworkOverviewPage implements OnInit {
   private readonly toast = inject(ToastService);
 
   readonly tree = signal<NetworkNode[]>([]);
+
+  constructor() {
+    addIcons({ peopleOutline });
+  }
 
   readonly flatNodes = computed(() => {
     const treeValue = this.tree();

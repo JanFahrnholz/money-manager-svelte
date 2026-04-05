@@ -71,7 +71,9 @@
     "unlink": "Unlink",
     "qrInvalid": "Invalid QR code",
     "qrScanPrompt": "Have your partner scan this code",
-    "empty": "No contacts"
+    "empty": "No contacts",
+    "welcome": "Welcome!",
+    "welcomeHint": "Create your first contact to start tracking transactions. Tap + to get started."
   },
   "timeframe": { "1w": "1W", "1m": "1M", "3m": "3M", "6m": "6M", "1y": "1Y", "max": "Max" },
   "profile": { "settings": "Settings", "language": "Language", "logout": "Logout", "network": "My Network", "sync": "Sync", "deviceId": "Device ID", "pairs": "Active Links", "noPairs": "No links" },
@@ -95,6 +97,14 @@
     "courierCount": "Couriers",
     "totalInventory": "Total Inventory",
     "openRevenue": "Open Revenue",
-    "empty": "No couriers yet"
-  }
+    "empty": "No couriers yet",
+    "explanation": "Couriers sell on your behalf. Link a contact as courier, assign inventory, and track their revenue + bonus.",
+    "setupCourier": "Set up a contact as courier"
+  },
+  "score.info": "The score rates contact reliability. Income, refunds and balance are factored in. Higher is better.",
+  "balance.owes": "owes you",
+  "balance.youOwe": "You owe",
+  "balance.even": "Even",
+  "overdue": "Overdue",
+  "copied": "Copied!"
 }

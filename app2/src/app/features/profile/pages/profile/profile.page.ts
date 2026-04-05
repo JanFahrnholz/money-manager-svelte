@@ -13,6 +13,7 @@ import {
   IonNote,
   IonIcon,
   IonButton,
+  AlertController,
 } from '@ionic/angular/standalone';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
@@ -55,7 +56,9 @@ import { CourierService } from '../../../couriers/services/courier.service';
       <!-- User info section -->
       <div class="user-info">
         <div class="avatar">{{ initial() }}</div>
-        <div class="username">{{ userService.user()?.username }}</div>
+        <div class="username" (click)="editUsername()" style="cursor:pointer;">
+          {{ userService.user()?.username }} &#9998;
+        </div>
       </div>
 
       <!-- Settings list -->
@@ -102,9 +105,9 @@ import { CourierService } from '../../../couriers/services/courier.service';
 
       <!-- Device Info -->
       <ion-list [inset]="true">
-        <ion-item>
+        <ion-item button (click)="copyDeviceId()">
           <ion-label>{{ 'profile.deviceId' | translate }}</ion-label>
-          <ion-note slot="end">{{ deviceService.deviceId().slice(0, 8) }}...</ion-note>
+          <ion-note slot="end">{{ deviceService.deviceId().slice(0, 8) }}... &#x1F4CB;</ion-note>
         </ion-item>
       </ion-list>
 
@@ -172,6 +175,7 @@ export class ProfilePage implements OnInit {
   private readonly sqlite = inject(SqliteService);
   private readonly toast = inject(ToastService);
   private readonly http = inject(HttpClient);
+  private readonly alertCtrl = inject(AlertController);
 
   readonly initial = computed(() => {
     const name = this.userService.user()?.username;
@@ -201,6 +205,12 @@ export class ProfilePage implements OnInit {
   getContactName(contactId: string): string {
     const contact = this.contactService.contacts().find(c => c.id === contactId);
     return contact?.name ?? contactId;
+  }
+
+  async copyDeviceId(): Promise<void> {
+    const id = this.deviceService.deviceId();
+    await navigator.clipboard.writeText(id);
+    this.toast.success('Geräte-ID kopiert!');
   }
 
   async unlinkPair(pairId: string): Promise<void> {
@@ -234,5 +244,30 @@ export class ProfilePage implements OnInit {
     } catch (e: any) {
       this.toast.error('Import fehlgeschlagen: ' + e.message);
     }
+  }
+
+  async editUsername(): Promise<void> {
+    const current = this.userService.user()?.username || '';
+    const alert = await this.alertCtrl.create({
+      header: 'Name ändern',
+      inputs: [{ name: 'username', type: 'text', value: current, placeholder: 'Dein Name' }],
+      buttons: [
+        { text: 'Abbrechen', role: 'cancel' },
+        { text: 'Speichern', handler: (data: { username: string }) => this.saveUsername(data.username) },
+      ],
+    });
+    await alert.present();
+  }
+
+  async saveUsername(name: string): Promise<void> {
+    if (!name?.trim()) return;
+    const user = this.userService.user();
+    if (!user) return;
+    await this.sqlite.run(
+      'UPDATE users SET username = ?, updated = ? WHERE id = ?',
+      [name.trim(), new Date().toISOString(), user.id],
+    );
+    this.userService.user.set({ ...user, username: name.trim() });
+    this.toast.success('Name gespeichert');
   }
 }

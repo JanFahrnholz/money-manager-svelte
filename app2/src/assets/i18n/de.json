@@ -71,7 +71,9 @@
     "unlink": "Verlinkung aufheben",
     "qrInvalid": "QR-Code ungültig",
     "qrScanPrompt": "Lass deinen Partner diesen Code scannen",
-    "empty": "Keine Kontakte"
+    "empty": "Keine Kontakte",
+    "welcome": "Willkommen!",
+    "welcomeHint": "Erstelle deinen ersten Kontakt um Transaktionen zu verfolgen. Tippe auf + um loszulegen."
   },
   "timeframe": { "1w": "1W", "1m": "1M", "3m": "3M", "6m": "6M", "1y": "1J", "max": "Max" },
   "profile": { "settings": "Einstellungen", "language": "Sprache", "logout": "Abmelden", "network": "Mein Netzwerk", "sync": "Synchronisierung", "deviceId": "Geräte-ID", "pairs": "Aktive Verlinkungen", "noPairs": "Keine Verlinkungen" },
@@ -95,6 +97,14 @@
     "courierCount": "Kuriere",
     "totalInventory": "Gesamt Inventar",
     "openRevenue": "Offener Umsatz",
-    "empty": "Noch keine Kuriere"
-  }
+    "empty": "Noch keine Kuriere",
+    "explanation": "Kuriere verkaufen für dich. Verlinke einen Kontakt als Kurier, gib ihm Inventar und verfolge seinen Umsatz + Bonus.",
+    "setupCourier": "Kontakt als Kurier einrichten"
+  },
+  "score.info": "Der Score bewertet die Zuverlässigkeit eines Kontakts. Einnahmen, Rückzahlungen und Balance fließen ein. Je höher, desto besser.",
+  "balance.owes": "schuldet dir",
+  "balance.youOwe": "Du schuldest",
+  "balance.even": "Ausgeglichen",
+  "overdue": "Überfällig",
+  "copied": "Kopiert!"
 }

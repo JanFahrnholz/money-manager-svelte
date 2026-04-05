@@ -20,7 +20,7 @@ import {
 } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
-import { add } from 'ionicons/icons';
+import { add, personAddOutline } from 'ionicons/icons';
 import { ContactService } from '../../services/contact.service';
 import { ContactListItemComponent } from '../../components/contact-list-item/contact-list-item.component';
 
@@ -88,9 +88,13 @@ type FilterMode = 'all' | 'owned' | 'linked';
           @for (contact of filteredContacts(); track contact.id) {
             <app-contact-list-item [contact]="contact" />
           } @empty {
-            <ion-item>
-              <ion-label color="medium" class="ion-text-center">{{ 'contact.empty' | translate }}</ion-label>
-            </ion-item>
+            <div style="text-align:center;padding:60px 24px;">
+              <ion-icon name="person-add-outline" style="font-size:64px;color:#666;display:block;margin:0 auto 16px;" />
+              <h3 style="color:#fff;margin-bottom:8px;">{{ 'contact.welcome' | translate }}</h3>
+              <p style="color:#888;font-size:14px;line-height:1.5;margin-bottom:24px;">
+                {{ 'contact.welcomeHint' | translate }}
+              </p>
+            </div>
           }
         </ion-list>
       }
@@ -158,7 +162,7 @@ export class ContactListPage implements OnInit {
   });
 
   constructor(private contactService: ContactService) {
-    addIcons({ add });
+    addIcons({ add, personAddOutline });
   }
 
   async ngOnInit(): Promise<void> {
