@@ -46,7 +46,13 @@
     "bonusPercent": "Bonus-Prozent",
     "totalSales": "Gesamt-Umsatz",
     "subCouriers": "Sub-Kuriere",
-    "enterAmount": "Betrag eingeben"
+    "enterAmount": "Betrag eingeben",
+    "dashboard": "Kurier-Dashboard",
+    "manager": "Manager",
+    "sellTo": "Verkaufen",
+    "managerContacts": "Kontakte des Managers",
+    "ownContacts": "Eigene Kontakte",
+    "mySubCouriers": "Meine Kuriere"
   },
   "contact": {
     "create": "Neuer Kontakt",

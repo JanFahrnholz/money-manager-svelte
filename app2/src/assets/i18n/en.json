@@ -46,7 +46,13 @@
     "bonusPercent": "Bonus Percentage",
     "totalSales": "Total Sales",
     "subCouriers": "Sub-Couriers",
-    "enterAmount": "Enter amount"
+    "enterAmount": "Enter amount",
+    "dashboard": "Courier Dashboard",
+    "manager": "Manager",
+    "sellTo": "Sell",
+    "managerContacts": "Manager's Contacts",
+    "ownContacts": "Own Contacts",
+    "mySubCouriers": "My Couriers"
   },
   "contact": {
     "create": "New Contact",

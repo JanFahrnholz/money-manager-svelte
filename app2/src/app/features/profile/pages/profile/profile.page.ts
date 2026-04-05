@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   IonHeader,
@@ -16,9 +16,10 @@ import {
 } from '@ionic/angular/standalone';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
-import { logOut, language, syncCircle, peopleCircle } from 'ionicons/icons';
+import { logOut, language, syncCircle, peopleCircle, briefcase } from 'ionicons/icons';
 import { AuthService } from '../../../../core/services/auth.service';
 import { PocketbaseService } from '../../../../core/services/pocketbase.service';
+import { CourierService } from '../../../couriers/services/courier.service';
 
 @Component({
   selector: 'app-profile',
@@ -76,6 +77,12 @@ import { PocketbaseService } from '../../../../core/services/pocketbase.service'
           <ion-icon name="people-circle" slot="start" />
           <ion-label>{{ 'profile.network' | translate }}</ion-label>
         </ion-item>
+        @if (isCourier()) {
+          <ion-item [routerLink]="['/tabs/profile/courier-dashboard']" detail>
+            <ion-icon name="briefcase" slot="start" />
+            <ion-label>{{ 'courier.dashboard' | translate }}</ion-label>
+          </ion-item>
+        }
       </ion-list>
 
       <!-- Logout button -->
@@ -114,18 +121,26 @@ import { PocketbaseService } from '../../../../core/services/pocketbase.service'
     `,
   ],
 })
-export class ProfilePage {
+export class ProfilePage implements OnInit {
   readonly auth = inject(AuthService);
   readonly pb = inject(PocketbaseService);
   readonly translate = inject(TranslateService);
+  private readonly courierService = inject(CourierService);
 
   readonly initial = computed(() => {
     const name = this.auth.user()?.username;
     return name ? name.charAt(0) : '?';
   });
 
+  readonly isCourier = signal(false);
+
   constructor() {
-    addIcons({ logOut, language, syncCircle, peopleCircle });
+    addIcons({ logOut, language, syncCircle, peopleCircle, briefcase });
+  }
+
+  async ngOnInit(): Promise<void> {
+    await this.courierService.loadManagedBy();
+    this.isCourier.set(this.courierService.managedBy().length > 0);
   }
 
   changeLang(event: CustomEvent): void {
