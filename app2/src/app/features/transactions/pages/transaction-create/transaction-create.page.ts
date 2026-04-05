@@ -23,7 +23,10 @@ import { TranslateModule } from '@ngx-translate/core';
 import { NumpadComponent } from '../../../../shared/components/numpad/numpad.component';
 import { TransactionService } from '../../services/transaction.service';
 import { ContactService } from '../../../contacts/services/contact.service';
+import { CourierService } from '../../../couriers/services/courier.service';
+import { AuthService } from '../../../../core/services/auth.service';
 import { TransactionType } from '../../../../core/models/transaction.model';
+import type { CourierLink } from '../../../../core/models/courier-link.model';
 
 @Component({
   selector: 'app-transaction-create',
@@ -88,6 +91,20 @@ import { TransactionType } from '../../../../core/models/transaction.model';
         </ion-segment-button>
       </ion-segment>
 
+      @if (courierLink()) {
+        <ion-segment [value]="type()" (ionChange)="onTypeChange($event)" style="margin-top: 8px;">
+          <ion-segment-button [value]="TransactionType.Restock">
+            <ion-label>{{ 'transaction.restock' | translate }}</ion-label>
+          </ion-segment-button>
+          <ion-segment-button [value]="TransactionType.Collect">
+            <ion-label>{{ 'transaction.collect' | translate }}</ion-label>
+          </ion-segment-button>
+          <ion-segment-button [value]="TransactionType.Redeem">
+            <ion-label>{{ 'transaction.redeem' | translate }}</ion-label>
+          </ion-segment-button>
+        </ion-segment>
+      }
+
       <ion-list>
         <ion-item>
           <ion-input
@@ -125,6 +142,7 @@ export class TransactionCreatePage implements OnInit {
   readonly amount = signal(0);
   readonly type = signal(TransactionType.Income);
   readonly contactName = signal('');
+  readonly courierLink = signal<CourierLink | null>(null);
 
   info = '';
   planned = false;
@@ -136,13 +154,22 @@ export class TransactionCreatePage implements OnInit {
     private navCtrl: NavController,
     private txService: TransactionService,
     private contactService: ContactService,
+    private courierService: CourierService,
+    private auth: AuthService,
   ) {}
 
   ngOnInit(): void {
     this.contactId = this.route.snapshot.queryParamMap.get('contactId') ?? '';
     if (this.contactId) {
-      this.contactService.getById(this.contactId).then((c) => {
-        if (c) this.contactName.set(c.name);
+      this.contactService.getById(this.contactId).then(async (c) => {
+        if (c) {
+          this.contactName.set(c.name);
+          if (c.user) {
+            const links = await this.courierService.getByManager(this.auth.user()?.id ?? '');
+            const link = links.find((l) => l.courier === c.user);
+            this.courierLink.set(link ?? null);
+          }
+        }
       });
     }
   }
@@ -160,6 +187,7 @@ export class TransactionCreatePage implements OnInit {
       contact: this.contactId,
       info: this.info,
       planned: this.planned,
+      courierLink: this.courierLink()?.id,
     });
 
     this.navCtrl.back();

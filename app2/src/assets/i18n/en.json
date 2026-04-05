@@ -25,7 +25,10 @@
     "planned": "Planned",
     "type": "Transaction Type",
     "delete": "Delete Transaction",
-    "deleteConfirm": "Are you sure?"
+    "deleteConfirm": "Are you sure?",
+    "restock": "Restock",
+    "collect": "Collect",
+    "redeem": "Redeem"
   },
   "courier": {
     "make": "Make Courier",

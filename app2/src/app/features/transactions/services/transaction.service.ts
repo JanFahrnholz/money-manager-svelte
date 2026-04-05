@@ -48,6 +48,7 @@ export class TransactionService {
     contact: string;
     info?: string;
     planned?: boolean;
+    courierLink?: string;
   }): Promise<Transaction> {
     try {
       const id = crypto.randomUUID().replace(/-/g, '').slice(0, 15);
@@ -63,7 +64,7 @@ export class TransactionService {
         type: data.type,
         contact: data.contact,
         owner,
-        courierLink: '',
+        courierLink: data.courierLink ?? '',
         planned,
         created: now,
         updated: now,
@@ -87,6 +88,10 @@ export class TransactionService {
         }
         if (tx.type === TransactionType.Refund) {
           await this.auth.updateBalance(tx.amount);
+        }
+
+        if (tx.courierLink) {
+          await this.updateCourierBalance(tx);
         }
       }
 
@@ -144,6 +149,10 @@ export class TransactionService {
         if (tx.type === TransactionType.Refund) {
           await this.auth.updateBalance(-tx.amount);
         }
+
+        if (tx.courierLink) {
+          await this.updateCourierBalance(tx, true);
+        }
       }
 
       await this.sqlite.delete('transactions', id);
@@ -173,5 +182,29 @@ export class TransactionService {
       'UPDATE contacts SET balance = balance + ?, updated = ? WHERE id = ?',
       [delta, new Date().toISOString(), tx.contact],
     );
+  }
+
+  private async updateCourierBalance(tx: Transaction, reverse = false): Promise<void> {
+    const now = new Date().toISOString();
+    const amount = reverse ? -tx.amount : tx.amount;
+
+    if (tx.type === TransactionType.Restock) {
+      await this.sqlite.run(
+        'UPDATE courier_links SET inventoryBalance = inventoryBalance + ?, updated = ?, synced = 0 WHERE id = ?',
+        [amount, now, tx.courierLink],
+      );
+    }
+    if (tx.type === TransactionType.Collect) {
+      await this.sqlite.run(
+        'UPDATE courier_links SET salesBalance = salesBalance - ?, updated = ?, synced = 0 WHERE id = ?',
+        [amount, now, tx.courierLink],
+      );
+    }
+    if (tx.type === TransactionType.Redeem) {
+      await this.sqlite.run(
+        'UPDATE courier_links SET bonusBalance = bonusBalance - ?, updated = ?, synced = 0 WHERE id = ?',
+        [amount, now, tx.courierLink],
+      );
+    }
   }
 }

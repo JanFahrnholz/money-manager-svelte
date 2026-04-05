@@ -25,7 +25,10 @@
     "planned": "Geplant",
     "type": "Transaktionstyp",
     "delete": "Transaktion löschen",
-    "deleteConfirm": "Bist du sicher?"
+    "deleteConfirm": "Bist du sicher?",
+    "restock": "Aufstocken",
+    "collect": "Abkassieren",
+    "redeem": "Bonus einlösen"
   },
   "courier": {
     "make": "Zum Kurier machen",
