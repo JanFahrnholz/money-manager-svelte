@@ -1,10 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
-import { SqliteService } from './core/services/sqlite.service';
-import { UserService } from './core/services/user.service';
-import { DeviceService } from './core/services/device.service';
 import { EncryptedSyncService } from './core/services/encrypted-sync.service';
-import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-root',
@@ -13,22 +9,10 @@ import { TranslateService } from '@ngx-translate/core';
   template: `<ion-app><ion-router-outlet /></ion-app>`,
 })
 export class AppComponent implements OnInit {
-  constructor(
-    private sqlite: SqliteService,
-    private user: UserService,
-    private device: DeviceService,
-    private sync: EncryptedSyncService,
-    private translate: TranslateService,
-  ) {
-    const lang = localStorage.getItem('language') || 'de';
-    this.translate.setDefaultLang('de');
-    this.translate.use(lang);
-  }
+  constructor(private sync: EncryptedSyncService) {}
 
   async ngOnInit() {
-    await this.sqlite.init();
-    await this.user.init();
-    await this.device.init();
+    // SQLite, User, Device already initialized via APP_INITIALIZER
     await this.sync.pollAll();
     this.sync.startPolling();
   }

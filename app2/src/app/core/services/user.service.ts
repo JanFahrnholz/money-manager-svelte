@@ -23,7 +23,7 @@ export class UserService {
         created: now,
         updated: now,
       };
-      await this.sqlite.upsert('users', localUser as unknown as Record<string, any>);
+      await this.sqlite.upsert('users', { ...localUser, settings: JSON.stringify(localUser.settings) });
       this.user.set(localUser);
     }
   }

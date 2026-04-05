@@ -145,7 +145,11 @@ export class SqliteService {
       .filter((k) => k !== 'id')
       .map((k) => `${k} = excluded.${k}`)
       .join(', ');
-    const values = keys.map((k) => data[k]);
+    const values = keys.map((k) => {
+      const v = data[k];
+      if (v !== null && typeof v === 'object') return JSON.stringify(v);
+      return v;
+    });
 
     const sql = `INSERT INTO ${table} (${keys.join(', ')}) VALUES (${placeholders})
       ON CONFLICT(id) DO UPDATE SET ${updates}`;
