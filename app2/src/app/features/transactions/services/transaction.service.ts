@@ -78,6 +78,16 @@ export class TransactionService {
 
       if (!planned) {
         await this.updateContactBalance(tx);
+
+        if (tx.type === TransactionType.Income) {
+          await this.auth.updateBalance(tx.amount);
+        }
+        if (tx.type === TransactionType.Expense) {
+          await this.auth.updateBalance(-tx.amount);
+        }
+        if (tx.type === TransactionType.Refund) {
+          await this.auth.updateBalance(tx.amount);
+        }
       }
 
       this.toast.success('Transaktion erstellt');
@@ -99,6 +109,16 @@ export class TransactionService {
       const tx = await this.sqlite.getById<Transaction>('transactions', id);
       if (tx) {
         await this.updateContactBalance(tx);
+
+        if (tx.type === TransactionType.Income) {
+          await this.auth.updateBalance(tx.amount);
+        }
+        if (tx.type === TransactionType.Expense) {
+          await this.auth.updateBalance(-tx.amount);
+        }
+        if (tx.type === TransactionType.Refund) {
+          await this.auth.updateBalance(tx.amount);
+        }
       }
       this.toast.success('Transaktion bestätigt');
     } catch (e: any) {
@@ -114,6 +134,16 @@ export class TransactionService {
 
       if (!tx.planned) {
         await this.updateContactBalance(tx, true);
+
+        if (tx.type === TransactionType.Income) {
+          await this.auth.updateBalance(-tx.amount);
+        }
+        if (tx.type === TransactionType.Expense) {
+          await this.auth.updateBalance(tx.amount);
+        }
+        if (tx.type === TransactionType.Refund) {
+          await this.auth.updateBalance(-tx.amount);
+        }
       }
 
       await this.sqlite.delete('transactions', id);

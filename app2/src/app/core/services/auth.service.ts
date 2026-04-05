@@ -48,6 +48,17 @@ export class AuthService {
     this.router.navigate(['/auth/login']);
   }
 
+  async updateBalance(delta: number): Promise<void> {
+    const user = this.user();
+    if (!user) return;
+    const newBalance = user.balance + delta;
+    await this.sqlite.run(
+      'UPDATE users SET balance = ?, updated = ?, synced = 0 WHERE id = ?',
+      [newBalance, new Date().toISOString(), user.id],
+    );
+    this.user.set({ ...user, balance: newBalance });
+  }
+
   private mapRecordToUser(record: Record<string, any>): User {
     return {
       id: record['id'],
