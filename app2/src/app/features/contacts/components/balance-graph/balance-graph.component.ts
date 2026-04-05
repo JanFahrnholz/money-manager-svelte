@@ -93,21 +93,46 @@ export class BalanceGraphComponent {
     html += `<stop offset="100%" stop-color="${color}" stop-opacity="0.02"/>`;
     html += `</linearGradient></defs>`;
 
-    // Area fill path
-    const polyPoints = points.map((p, i) => `${toX(i)},${toY(p.balance)}`);
-    const areaPath = `M${toX(0)},${PAD_TOP + CHART_H} L${polyPoints.join(' L')} L${toX(points.length - 1)},${PAD_TOP + CHART_H} Z`;
+    // Step path (horizontal then vertical)
+    let stepLine = `M${toX(0)},${toY(points[0].balance)}`;
+    for (let i = 1; i < points.length; i++) {
+      stepLine += ` H${toX(i)} V${toY(points[i].balance)}`;
+    }
+
+    // Area fill (step shape closed to bottom)
+    const areaPath = stepLine + ` V${PAD_TOP + CHART_H} H${toX(0)} Z`;
     html += `<path d="${areaPath}" fill="url(#${gradId})"/>`;
 
-    // Polyline
-    html += `<polyline points="${polyPoints.join(' ')}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linejoin="round"/>`;
+    // Step line
+    html += `<path d="${stepLine}" fill="none" stroke="${color}" stroke-width="1.5"/>`;
 
-    // Dots (only render subset to avoid SVG clutter with many points)
-    const step = Math.max(1, Math.floor(points.length / 40));
-    for (let i = 0; i < points.length; i += step) {
+    // Dots (subset)
+    const dotStep = Math.max(1, Math.floor(points.length / 40));
+    for (let i = 0; i < points.length; i += dotStep) {
       html += `<circle cx="${toX(i)}" cy="${toY(points[i].balance)}" r="2" fill="${color}"/>`;
     }
-    // Always render last dot
     html += `<circle cx="${toX(points.length - 1)}" cy="${toY(points[points.length - 1].balance)}" r="3" fill="${color}" stroke="#1a1a1a" stroke-width="1.5"/>`;
+
+    // Hover tooltip zones
+    for (let i = 0; i < points.length; i++) {
+      const x = toX(i);
+      const y = toY(points[i].balance);
+      const d = new Date(points[i].date);
+      const dateStr = d.toLocaleDateString('de-DE', { day: 'numeric', month: 'short', year: 'numeric' });
+      const valStr = points[i].balance.toLocaleString('de-DE', { minimumFractionDigits: 2 }) + '\u20AC';
+      const x1 = i === 0 ? PAD_LEFT : (toX(i - 1) + x) / 2;
+      const x2 = i === points.length - 1 ? PAD_LEFT + CHART_W : (x + toX(i + 1)) / 2;
+      html += `<rect x="${x1}" y="${PAD_TOP}" width="${x2 - x1}" height="${CHART_H}" fill="transparent" data-tip="${i}"/>`;
+      const tx = Math.min(Math.max(x, PAD_LEFT + 40), PAD_LEFT + CHART_W - 40);
+      const ty = Math.max(y - 32, PAD_TOP);
+      html += `<g class="tip" data-tip="${i}" style="pointer-events:none;opacity:0;">`;
+      html += `<line x1="${x}" y1="${PAD_TOP}" x2="${x}" y2="${PAD_TOP + CHART_H}" stroke="#ffd600" stroke-width="0.5" stroke-dasharray="2"/>`;
+      html += `<circle cx="${x}" cy="${y}" r="4" fill="${color}" stroke="#1a1a1a" stroke-width="2"/>`;
+      html += `<rect x="${tx - 40}" y="${ty}" width="80" height="28" rx="4" fill="#333" stroke="#555" stroke-width="0.5"/>`;
+      html += `<text x="${tx}" y="${ty + 12}" text-anchor="middle" fill="#fff" font-size="8" font-weight="600">${valStr}</text>`;
+      html += `<text x="${tx}" y="${ty + 22}" text-anchor="middle" fill="#999" font-size="6">${dateStr}</text>`;
+      html += `</g>`;
+    }
 
     // X-axis date labels (show ~4-5 evenly spaced dates)
     const labelCount = Math.min(5, points.length);
@@ -128,6 +153,17 @@ export class BalanceGraphComponent {
       }
     }
 
-    svg.innerHTML = html;
+    svg.textContent = '';
+    svg.insertAdjacentHTML('afterbegin', html);
+
+    // Wire hover tooltips
+    const tips = svg.querySelectorAll('g.tip');
+    svg.querySelectorAll('rect[data-tip]').forEach((zone) => {
+      const idx = zone.getAttribute('data-tip');
+      zone.addEventListener('mouseenter', () => tips.forEach(t => ((t as SVGElement).style.opacity = t.getAttribute('data-tip') === idx ? '1' : '0')));
+      zone.addEventListener('mouseleave', () => tips.forEach(t => ((t as SVGElement).style.opacity = '0')));
+      zone.addEventListener('touchstart', (e) => { e.preventDefault(); tips.forEach(t => ((t as SVGElement).style.opacity = t.getAttribute('data-tip') === idx ? '1' : '0')); });
+    });
+    svg.addEventListener('mouseleave', () => tips.forEach(t => ((t as SVGElement).style.opacity = '0')));
   }
 }
