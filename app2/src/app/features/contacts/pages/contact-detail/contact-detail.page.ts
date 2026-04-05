@@ -357,11 +357,23 @@ export class ContactDetailPage implements OnInit {
     }
 
     const txs = filtered.slice().reverse(); // filtered txs chronological
-    return txs.map((t) => {
+    const points = txs.map((t) => {
       if (t.type === TransactionType.Invoice) balance -= t.amount;
       if (t.type === TransactionType.Refund) balance += t.amount;
       return { date: t.date, balance };
     });
+
+    // If no data points in timeframe, show flat line at current balance
+    if (points.length < 2) {
+      const now = new Date().toISOString();
+      const startDate = start ? start.toISOString() : now;
+      return [
+        { date: startDate, balance },
+        { date: now, balance },
+      ];
+    }
+
+    return points;
   });
 
   readonly initial = computed(() => {
