@@ -142,8 +142,8 @@ import { EuroPipe } from '../../../../shared/pipes/euro.pipe';
               @for (tx of planned(); track tx.id) {
                 <ion-item>
                   <ion-label>
-                    <h3>{{ 'transaction.' + txTypeKey(tx.type) | translate }}</h3>
-                    <p>{{ tx.date | date: 'mediumDate' }}@if (tx.info) { &mdash; {{ tx.info }} }</p>
+                    <h3>{{ contactNameMap()[tx.contact] || '' }} &middot; {{ 'transaction.' + txTypeKey(tx.type) | translate }}</h3>
+                    <p>{{ tx.date | date:'dd.MM.yyyy' }}@if (tx.info) { &mdash; {{ tx.info }} }</p>
                   </ion-label>
                   <ion-note slot="end">
                     {{ tx.amount | euro }}

@@ -31,6 +31,46 @@ export class ContactService {
   async loadAll(): Promise<void> {
     const rows = await this.sqlite.getAll<Contact>('contacts', 'name ASC');
     this.contacts.set(rows);
+    await this.calculateScores();
+  }
+
+  async calculateScores(): Promise<void> {
+    const contacts = this.contacts();
+    for (const contact of contacts) {
+      const txs = await this.sqlite.query<{ type: string; amount: number }>(
+        'SELECT type, amount FROM transactions WHERE contact = ? AND planned = 0',
+        [contact.id],
+      );
+
+      let totalIncome = 0,
+        totalExpense = 0,
+        totalInvoice = 0,
+        totalRefund = 0;
+      for (const tx of txs) {
+        if (tx.type === 'Income') totalIncome += tx.amount;
+        if (tx.type === 'Expense') totalExpense += tx.amount;
+        if (tx.type === 'Invoice') totalInvoice += tx.amount;
+        if (tx.type === 'Refund') totalRefund += tx.amount;
+      }
+
+      const netBalance = contact.balance;
+      const netTransactions = totalIncome - totalExpense;
+
+      const normalize = (val: number, min: number, max: number) => {
+        if (max === min) return 0;
+        return (val - min) / (max - min) - 0.5;
+      };
+
+      const score =
+        (normalize(netBalance, -1000, 1000) * 0.25 +
+          normalize(netTransactions, -2000, 2000) * 0.25 +
+          normalize(-totalInvoice, -1000, 0) * 0.25 +
+          normalize(totalRefund, 0, 500) * 0.25) *
+        100;
+
+      contact.score = Math.round(score * 100) / 100;
+    }
+    this.contacts.set([...contacts]);
   }
 
   async getById(id: string): Promise<Contact | null> {
