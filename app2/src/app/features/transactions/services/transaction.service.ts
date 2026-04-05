@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { SqliteService } from '../../../core/services/sqlite.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { Transaction, TransactionType } from '../../../core/models/transaction.model';
 
 @Injectable({ providedIn: 'root' })
@@ -8,6 +9,7 @@ export class TransactionService {
   constructor(
     private sqlite: SqliteService,
     private auth: AuthService,
+    private toast: ToastService,
   ) {}
 
   async loadByContact(contactId: string, limit = 50): Promise<Transaction[]> {
@@ -47,61 +49,79 @@ export class TransactionService {
     info?: string;
     planned?: boolean;
   }): Promise<Transaction> {
-    const id = crypto.randomUUID().replace(/-/g, '').slice(0, 15);
-    const now = new Date().toISOString();
-    const owner = this.auth.user()?.id ?? '';
-    const planned = data.planned ?? false;
+    try {
+      const id = crypto.randomUUID().replace(/-/g, '').slice(0, 15);
+      const now = new Date().toISOString();
+      const owner = this.auth.user()?.id ?? '';
+      const planned = data.planned ?? false;
 
-    const tx: Transaction = {
-      id,
-      amount: data.amount,
-      info: data.info ?? '',
-      date: now,
-      type: data.type,
-      contact: data.contact,
-      owner,
-      courierLink: '',
-      planned,
-      created: now,
-      updated: now,
-      synced: false,
-    };
+      const tx: Transaction = {
+        id,
+        amount: data.amount,
+        info: data.info ?? '',
+        date: now,
+        type: data.type,
+        contact: data.contact,
+        owner,
+        courierLink: '',
+        planned,
+        created: now,
+        updated: now,
+        synced: false,
+      };
 
-    await this.sqlite.upsert('transactions', {
-      ...tx,
-      planned: planned ? 1 : 0,
-      synced: 0,
-    });
+      await this.sqlite.upsert('transactions', {
+        ...tx,
+        planned: planned ? 1 : 0,
+        synced: 0,
+      });
 
-    if (!planned) {
-      await this.updateContactBalance(tx);
+      if (!planned) {
+        await this.updateContactBalance(tx);
+      }
+
+      this.toast.success('Transaktion erstellt');
+      return tx;
+    } catch (e: any) {
+      this.toast.error('Fehler: ' + e.message);
+      throw e;
     }
-
-    return tx;
   }
 
   async confirmPlanned(id: string): Promise<void> {
-    const now = new Date().toISOString();
-    await this.sqlite.run(
-      'UPDATE transactions SET planned = 0, date = ?, synced = 0, updated = ? WHERE id = ?',
-      [now, now, id],
-    );
+    try {
+      const now = new Date().toISOString();
+      await this.sqlite.run(
+        'UPDATE transactions SET planned = 0, date = ?, synced = 0, updated = ? WHERE id = ?',
+        [now, now, id],
+      );
 
-    const tx = await this.sqlite.getById<Transaction>('transactions', id);
-    if (tx) {
-      await this.updateContactBalance(tx);
+      const tx = await this.sqlite.getById<Transaction>('transactions', id);
+      if (tx) {
+        await this.updateContactBalance(tx);
+      }
+      this.toast.success('Transaktion bestätigt');
+    } catch (e: any) {
+      this.toast.error('Fehler: ' + e.message);
+      throw e;
     }
   }
 
   async remove(id: string): Promise<void> {
-    const tx = await this.sqlite.getById<Transaction>('transactions', id);
-    if (!tx) return;
+    try {
+      const tx = await this.sqlite.getById<Transaction>('transactions', id);
+      if (!tx) return;
 
-    if (!tx.planned) {
-      await this.updateContactBalance(tx, true);
+      if (!tx.planned) {
+        await this.updateContactBalance(tx, true);
+      }
+
+      await this.sqlite.delete('transactions', id);
+      this.toast.success('Transaktion gelöscht');
+    } catch (e: any) {
+      this.toast.error('Fehler: ' + e.message);
+      throw e;
     }
-
-    await this.sqlite.delete('transactions', id);
   }
 
   private async updateContactBalance(tx: Transaction, reverse = false): Promise<void> {

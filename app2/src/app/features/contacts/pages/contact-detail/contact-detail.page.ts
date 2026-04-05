@@ -16,9 +16,10 @@ import {
   IonNote,
   IonAvatar,
   IonActionSheet,
+  AlertController,
   NavController,
 } from '@ionic/angular/standalone';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
 import { ellipsisHorizontal } from 'ionicons/icons';
 import { ContactService } from '../../services/contact.service';
@@ -148,7 +149,7 @@ import { StatsCardsComponent } from '../../components/stats-cards/stats-cards.co
       <ion-action-sheet
         [isOpen]="showActions()"
         [header]="contact()?.name ?? ''"
-        [buttons]="actionButtons"
+        [buttons]="actionButtons()"
         (didDismiss)="showActions.set(false)"
       />
     </ion-content>
@@ -247,32 +248,34 @@ export class ContactDetailPage implements OnInit {
     return '#c9a81e';
   });
 
-  readonly actionButtons = [
+  readonly actionButtons = computed(() => [
     {
-      text: 'Bearbeiten',
+      text: this.translate.instant('edit'),
       role: 'edit' as const,
       handler: () => {
         // Edit handled via role if needed
       },
     },
     {
-      text: 'L\u00F6schen',
+      text: this.translate.instant('delete'),
       role: 'destructive' as const,
       handler: () => {
-        this.deleteContact();
+        this.confirmDelete();
       },
     },
     {
-      text: 'Abbrechen',
+      text: this.translate.instant('cancel'),
       role: 'cancel' as const,
     },
-  ];
+  ]);
 
   constructor(
     private route: ActivatedRoute,
     private navCtrl: NavController,
     private contactService: ContactService,
     private txService: TransactionService,
+    private alertCtrl: AlertController,
+    private translate: TranslateService,
   ) {
     addIcons({ ellipsisHorizontal });
   }
@@ -327,6 +330,24 @@ export class ContactDetailPage implements OnInit {
       return '+';
     }
     return '-';
+  }
+
+  private async confirmDelete(): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: 'Kontakt löschen?',
+      message: 'Bist du sicher?',
+      buttons: [
+        'Abbrechen',
+        {
+          text: 'Löschen',
+          role: 'destructive',
+          handler: () => {
+            this.deleteContact();
+          },
+        },
+      ],
+    });
+    await alert.present();
   }
 
   private async deleteContact(): Promise<void> {

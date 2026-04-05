@@ -1,6 +1,7 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { SqliteService } from '../../../core/services/sqlite.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { ToastService } from '../../../core/services/toast.service';
 import type { Contact } from '../../../core/models/contact.model';
 
 @Injectable({ providedIn: 'root' })
@@ -22,6 +23,7 @@ export class ContactService {
   constructor(
     private sqlite: SqliteService,
     private auth: AuthService,
+    private toast: ToastService,
   ) {}
 
   async loadAll(): Promise<void> {
@@ -34,49 +36,67 @@ export class ContactService {
   }
 
   async create(name: string, user?: string): Promise<Contact> {
-    const id = crypto.randomUUID().replace(/-/g, '').slice(0, 15);
-    const now = new Date().toISOString();
-    const owner = this.auth.user()?.id ?? '';
+    try {
+      const id = crypto.randomUUID().replace(/-/g, '').slice(0, 15);
+      const now = new Date().toISOString();
+      const owner = this.auth.user()?.id ?? '';
 
-    const contact: Contact = {
-      id,
-      name,
-      linkedName: '',
-      balance: 0,
-      owner,
-      user: user ?? '',
-      statistics: '',
-      score: 0,
-      created: now,
-      updated: now,
-      synced: false,
-    };
+      const contact: Contact = {
+        id,
+        name,
+        linkedName: '',
+        balance: 0,
+        owner,
+        user: user ?? '',
+        statistics: '',
+        score: 0,
+        created: now,
+        updated: now,
+        synced: false,
+      };
 
-    await this.sqlite.upsert('contacts', {
-      ...contact,
-      synced: 0,
-    });
+      await this.sqlite.upsert('contacts', {
+        ...contact,
+        synced: 0,
+      });
 
-    this.contacts.update((list) => [...list, contact]);
-    return contact;
+      this.contacts.update((list) => [...list, contact]);
+      this.toast.success('Kontakt erstellt');
+      return contact;
+    } catch (e: any) {
+      this.toast.error('Fehler: ' + e.message);
+      throw e;
+    }
   }
 
   async update(id: string, data: Partial<Contact>): Promise<void> {
-    const now = new Date().toISOString();
-    await this.sqlite.upsert('contacts', {
-      id,
-      ...data,
-      updated: now,
-      synced: 0,
-    });
+    try {
+      const now = new Date().toISOString();
+      await this.sqlite.upsert('contacts', {
+        id,
+        ...data,
+        updated: now,
+        synced: 0,
+      });
 
-    this.contacts.update((list) =>
-      list.map((c) => (c.id === id ? { ...c, ...data, updated: now } : c)),
-    );
+      this.contacts.update((list) =>
+        list.map((c) => (c.id === id ? { ...c, ...data, updated: now } : c)),
+      );
+      this.toast.success('Kontakt aktualisiert');
+    } catch (e: any) {
+      this.toast.error('Fehler: ' + e.message);
+      throw e;
+    }
   }
 
   async remove(id: string): Promise<void> {
-    await this.sqlite.delete('contacts', id);
-    this.contacts.update((list) => list.filter((c) => c.id !== id));
+    try {
+      await this.sqlite.delete('contacts', id);
+      this.contacts.update((list) => list.filter((c) => c.id !== id));
+      this.toast.success('Kontakt gelöscht');
+    } catch (e: any) {
+      this.toast.error('Fehler: ' + e.message);
+      throw e;
+    }
   }
 }
