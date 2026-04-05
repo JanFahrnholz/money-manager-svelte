@@ -115,12 +115,17 @@ export class ContactService {
   async update(id: string, data: Partial<Contact>): Promise<void> {
     try {
       const now = new Date().toISOString();
-      await this.sqlite.upsert('contacts', {
-        id,
-        ...data,
-        updated: now,
-        synced: 0,
+      const fields = { ...data, updated: now, synced: 0 };
+      const keys = Object.keys(fields).filter(k => k !== 'id');
+      const sets = keys.map(k => `${k} = ?`).join(', ');
+      const values = keys.map(k => {
+        const v = (fields as any)[k];
+        return v !== null && typeof v === 'object' ? JSON.stringify(v) : v;
       });
+      await this.sqlite.run(
+        `UPDATE contacts SET ${sets} WHERE id = ?`,
+        [...values, id],
+      );
 
       this.contacts.update((list) =>
         list.map((c) => (c.id === id ? { ...c, ...data, updated: now } : c)),
