@@ -63,7 +63,7 @@ import type { User } from '../../../../core/models/user.model';
     <ion-header>
       <ion-toolbar>
         <ion-buttons slot="start">
-          <ion-back-button defaultHref="/tabs/profile" />
+          <ion-back-button defaultHref="/tabs/profile" [text]="'back' | translate" />
         </ion-buttons>
         <ion-title>{{ 'courier.dashboard' | translate }}</ion-title>
       </ion-toolbar>

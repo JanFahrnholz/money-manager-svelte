@@ -62,7 +62,7 @@ interface FlatNode {
     <ion-header>
       <ion-toolbar>
         <ion-buttons slot="start">
-          <ion-back-button defaultHref="/tabs/profile" />
+          <ion-back-button defaultHref="/tabs/profile" [text]="'back' | translate" />
         </ion-buttons>
         <ion-title>{{ 'network.title' | translate }}</ion-title>
         <ion-buttons slot="end">
