@@ -1,7 +1,11 @@
 import { Injectable, signal } from '@angular/core';
+import { Capacitor } from '@capacitor/core';
 import PocketBase from 'pocketbase';
 
-const RELAY_URL = 'http://localhost:8090';
+// On native (Android/iOS), use LAN IP. On web, use localhost.
+const RELAY_URL = Capacitor.isNativePlatform()
+  ? 'http://192.168.178.36:8090'
+  : 'http://localhost:8090';
 
 @Injectable({ providedIn: 'root' })
 export class RelayService {
