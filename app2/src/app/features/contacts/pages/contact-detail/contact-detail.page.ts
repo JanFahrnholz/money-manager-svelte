@@ -344,6 +344,8 @@ export class ContactDetailPage implements OnInit {
     const txs = this.filteredTransactions().slice().reverse(); // chronological order
     let balance = 0;
     return txs.map((t) => {
+      if (t.type === TransactionType.Income) balance += t.amount;
+      if (t.type === TransactionType.Expense) balance -= t.amount;
       if (t.type === TransactionType.Invoice) balance -= t.amount;
       if (t.type === TransactionType.Refund) balance += t.amount;
       return { date: t.date, balance };

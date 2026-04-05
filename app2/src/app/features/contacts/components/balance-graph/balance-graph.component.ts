@@ -8,9 +8,9 @@ export interface BalancePoint {
 const PAD_LEFT = 40;
 const PAD_RIGHT = 10;
 const PAD_TOP = 10;
-const PAD_BOTTOM = 20;
+const PAD_BOTTOM = 28;
 const VIEW_W = 320;
-const VIEW_H = 120;
+const VIEW_H = 130;
 const CHART_W = VIEW_W - PAD_LEFT - PAD_RIGHT;
 const CHART_H = VIEW_H - PAD_TOP - PAD_BOTTOM;
 
@@ -88,9 +88,31 @@ export class BalanceGraphComponent {
     // Polyline
     html += `<polyline points="${polyPoints.join(' ')}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linejoin="round"/>`;
 
-    // Dots
-    for (let i = 0; i < points.length; i++) {
+    // Dots (only render subset to avoid SVG clutter with many points)
+    const step = Math.max(1, Math.floor(points.length / 40));
+    for (let i = 0; i < points.length; i += step) {
       html += `<circle cx="${toX(i)}" cy="${toY(points[i].balance)}" r="2" fill="${color}"/>`;
+    }
+    // Always render last dot
+    html += `<circle cx="${toX(points.length - 1)}" cy="${toY(points[points.length - 1].balance)}" r="3" fill="${color}" stroke="#1a1a1a" stroke-width="1.5"/>`;
+
+    // X-axis date labels (show ~4-5 evenly spaced dates)
+    const labelCount = Math.min(5, points.length);
+    const labelStep = Math.max(1, Math.floor((points.length - 1) / (labelCount - 1)));
+    for (let i = 0; i < points.length; i += labelStep) {
+      const d = new Date(points[i].date);
+      const label = d.toLocaleDateString('de-DE', { month: 'short', year: '2-digit' });
+      html += `<text x="${toX(i)}" y="${VIEW_H - 2}" text-anchor="middle" fill="#666" font-size="7">${label}</text>`;
+    }
+    // Always show last date (only if far enough from previous label)
+    if (points.length > 1) {
+      const lastIdx = points.length - 1;
+      const prevLabelIdx = Math.floor((labelCount - 1) * labelStep);
+      if (lastIdx - prevLabelIdx > points.length * 0.1) {
+        const lastD = new Date(points[lastIdx].date);
+        const lastLabel = lastD.toLocaleDateString('de-DE', { month: 'short', year: '2-digit' });
+        html += `<text x="${toX(lastIdx)}" y="${VIEW_H - 2}" text-anchor="end" fill="#666" font-size="7">${lastLabel}</text>`;
+      }
     }
 
     svg.innerHTML = html;
