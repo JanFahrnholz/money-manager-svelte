@@ -14,7 +14,7 @@ import { TransactionType } from '../../../../core/models/transaction.model';
     <ion-grid>
       <ion-row>
         <ion-col size="6">
-          <ion-card class="stat-card">
+          <ion-card class="stat-card" style="border-left: 3px solid #4cd964;">
             <ion-card-header>
               <ion-card-title style="color: #2dd36f; font-size: 14px;">
                 {{ 'transaction.income' | translate }}
@@ -27,7 +27,7 @@ import { TransactionType } from '../../../../core/models/transaction.model';
           </ion-card>
         </ion-col>
         <ion-col size="6">
-          <ion-card class="stat-card">
+          <ion-card class="stat-card" style="border-left: 3px solid #ff3b30;">
             <ion-card-header>
               <ion-card-title style="color: #eb445a; font-size: 14px;">
                 {{ 'transaction.expense' | translate }}
@@ -42,7 +42,7 @@ import { TransactionType } from '../../../../core/models/transaction.model';
       </ion-row>
       <ion-row>
         <ion-col size="6">
-          <ion-card class="stat-card">
+          <ion-card class="stat-card" style="border-left: 3px solid #ff9500;">
             <ion-card-header>
               <ion-card-title style="color: #e0ac08; font-size: 14px;">
                 {{ 'transaction.invoice' | translate }}
@@ -55,7 +55,7 @@ import { TransactionType } from '../../../../core/models/transaction.model';
           </ion-card>
         </ion-col>
         <ion-col size="6">
-          <ion-card class="stat-card">
+          <ion-card class="stat-card" style="border-left: 3px solid #ffd600;">
             <ion-card-header>
               <ion-card-title style="color: #c9a81e; font-size: 14px;">
                 {{ 'score' | translate }}

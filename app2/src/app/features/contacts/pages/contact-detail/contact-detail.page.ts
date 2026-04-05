@@ -155,7 +155,7 @@ import { TransactionTypeIconPipe } from '../../../../shared/pipes/transaction-ty
         <app-timeframe-selector (change)="onTimeframeChange($event)" />
 
         <!-- Balance Graph -->
-        <div class="section">
+        <div class="section graph-section">
           <h3 class="section-title">{{ 'contact.history' | translate }}</h3>
           <app-balance-graph [data]="graphData()" />
         </div>
@@ -288,6 +288,10 @@ import { TransactionTypeIconPipe } from '../../../../shared/pipes/transaction-ty
     }
     .section {
       margin-top: 20px;
+    }
+    .graph-section {
+      margin: 8px 0;
+      padding: 8px 16px;
     }
     .section-title {
       font-size: 14px;

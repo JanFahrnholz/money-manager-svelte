@@ -232,8 +232,9 @@ import { EuroPipe } from '../../../../shared/pipes/euro.pipe';
       margin: 0;
     }
     .section-link {
-      font-size: 14px;
       color: var(--ion-color-primary);
+      font-size: 13px;
+      font-weight: 500;
       text-decoration: none;
     }
     .section-title {

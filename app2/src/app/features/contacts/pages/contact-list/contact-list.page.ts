@@ -84,7 +84,7 @@ type FilterMode = 'all' | 'owned' | 'linked';
       @if (loading()) {
         <div style="display:flex;justify-content:center;padding:40px;"><ion-spinner /></div>
       } @else {
-        <ion-list>
+        <ion-list lines="inset">
           @for (contact of filteredContacts(); track contact.id) {
             <app-contact-list-item [contact]="contact" />
           } @empty {
