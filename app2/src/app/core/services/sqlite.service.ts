@@ -72,6 +72,22 @@ export class SqliteService {
     `);
 
     await this.db.execute(`
+      CREATE TABLE IF NOT EXISTS courier_links (
+        id TEXT PRIMARY KEY,
+        manager TEXT NOT NULL,
+        courier TEXT NOT NULL,
+        inventoryBalance REAL DEFAULT 0,
+        salesBalance REAL DEFAULT 0,
+        bonusBalance REAL DEFAULT 0,
+        bonusPercentage REAL DEFAULT 5,
+        totalSales REAL DEFAULT 0,
+        created TEXT,
+        updated TEXT,
+        synced INTEGER DEFAULT 0
+      );
+    `);
+
+    await this.db.execute(`
       CREATE TABLE IF NOT EXISTS statistics (
         id TEXT PRIMARY KEY,
         contact TEXT NOT NULL,
