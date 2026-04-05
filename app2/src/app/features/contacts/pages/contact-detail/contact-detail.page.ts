@@ -24,6 +24,8 @@ import { addIcons } from 'ionicons';
 import { ellipsisHorizontal } from 'ionicons/icons';
 import { ContactService } from '../../services/contact.service';
 import { TransactionService } from '../../../transactions/services/transaction.service';
+import { PocketbaseService } from '../../../../core/services/pocketbase.service';
+import { ToastService } from '../../../../core/services/toast.service';
 import type { Contact } from '../../../../core/models/contact.model';
 import type { Transaction } from '../../../../core/models/transaction.model';
 import { TransactionType } from '../../../../core/models/transaction.model';
@@ -250,10 +252,15 @@ export class ContactDetailPage implements OnInit {
 
   readonly actionButtons = computed(() => [
     {
-      text: this.translate.instant('edit'),
-      role: 'edit' as const,
+      text: this.translate.instant('contact.rename'),
       handler: () => {
-        // Edit handled via role if needed
+        this.showRenameAlert();
+      },
+    },
+    {
+      text: this.translate.instant('contact.linkUser'),
+      handler: () => {
+        this.showLinkUserAlert();
       },
     },
     {
@@ -276,6 +283,8 @@ export class ContactDetailPage implements OnInit {
     private txService: TransactionService,
     private alertCtrl: AlertController,
     private translate: TranslateService,
+    private pb: PocketbaseService,
+    private toast: ToastService,
   ) {
     addIcons({ ellipsisHorizontal });
   }
@@ -330,6 +339,50 @@ export class ContactDetailPage implements OnInit {
       return '+';
     }
     return '-';
+  }
+
+  private async showRenameAlert(): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: this.translate.instant('contact.rename'),
+      inputs: [{ name: 'name', type: 'text', value: this.contact()!.name }],
+      buttons: [
+        { text: this.translate.instant('cancel'), role: 'cancel' },
+        { text: this.translate.instant('save'), handler: (data: { name: string }) => this.renameContact(data.name) },
+      ],
+    });
+    await alert.present();
+  }
+
+  private async renameContact(name: string): Promise<void> {
+    const c = this.contact();
+    if (!c || !name.trim()) return;
+    await this.contactService.update(c.id, { name: name.trim() });
+    this.contact.set({ ...c, name: name.trim() });
+  }
+
+  private async showLinkUserAlert(): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: this.translate.instant('contact.linkUser'),
+      message: this.translate.instant('contact.linkUserPrompt'),
+      inputs: [{ name: 'username', type: 'text', placeholder: this.translate.instant('auth.username') }],
+      buttons: [
+        { text: this.translate.instant('cancel'), role: 'cancel' },
+        { text: this.translate.instant('contact.link'), handler: (data: { username: string }) => this.linkUser(data.username) },
+      ],
+    });
+    await alert.present();
+  }
+
+  private async linkUser(username: string): Promise<void> {
+    const c = this.contact();
+    if (!c || !username.trim()) return;
+    try {
+      const user = await this.pb.client.collection('users').getFirstListItem(`username="${username.trim()}"`);
+      await this.contactService.update(c.id, { user: user['id'], linkedName: username.trim() });
+      this.contact.set({ ...c, user: user['id'], linkedName: username.trim() });
+    } catch {
+      this.toast.error(this.translate.instant('contact.userNotFound'));
+    }
   }
 
   private async confirmDelete(): Promise<void> {

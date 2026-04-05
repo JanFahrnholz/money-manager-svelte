@@ -27,7 +27,12 @@
     "detail": "Kontaktdetails",
     "history": "Kontostand-Verlauf",
     "stats": "Statistiken",
-    "transactions": "Transaktionen"
+    "transactions": "Transaktionen",
+    "rename": "Name ändern",
+    "linkUser": "User verlinken",
+    "linkUserPrompt": "Benutzername des Users eingeben",
+    "link": "Verlinken",
+    "userNotFound": "User nicht gefunden"
   },
   "timeframe": { "1w": "1W", "1m": "1M", "3m": "3M", "6m": "6M", "1y": "1J", "max": "Max" },
   "profile": { "settings": "Einstellungen", "language": "Sprache", "logout": "Abmelden", "network": "Mein Netzwerk", "sync": "Synchronisierung" },
