@@ -53,6 +53,18 @@ export class RelayService {
     }
   }
 
+  async fetchAll(excludeSender: string): Promise<{ id: string; payload: string; created: string }[]> {
+    try {
+      const records = await this.pb.collection('sync_messages').getFullList({
+        filter: `sender!="${excludeSender}"`,
+        sort: 'created',
+      });
+      return records.map(r => ({ id: r.id, payload: r['payload'], created: r['created'] }));
+    } catch {
+      return [];
+    }
+  }
+
   async deleteMessage(id: string): Promise<void> {
     try {
       await this.pb.collection('sync_messages').delete(id);

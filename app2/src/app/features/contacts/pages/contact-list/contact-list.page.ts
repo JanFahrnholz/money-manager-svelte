@@ -265,7 +265,10 @@ export class ContactListPage implements OnInit {
       // Update contact with remote device ID
       await this.contactService.update(contact.id, { user: deviceId, linkedName: contactName });
 
-      // Send initial sync
+      // Send pairing request so the other device creates its pair too
+      await this.encryptedSync.sendPairingRequest(deviceId, contactId, contact.id, contact.name);
+
+      // Send initial sync of our mirror contact
       await this.encryptedSync.notifyChange('contacts', contact.id, 'upsert', { ...contact, user: deviceId, linkedName: contactName });
 
       this.toast.success('Verlinkt mit ' + (contactName || 'Unbekannt'));

@@ -52,11 +52,38 @@ export class EncryptedSyncService {
     }
   }
 
+  /**
+   * Send a pairing request so the QR-displayer can create its own pair.
+   * This is sent as a plaintext JSON (not encrypted) because the pair doesn't exist yet on the other side.
+   */
+  async sendPairingRequest(remoteDeviceId: string, remoteContactId: string, localContactId: string, localContactName: string): Promise<void> {
+    if (!this.relay.online()) return;
+    try {
+      const pairId = await this.crypto.hashPairId(this.device.deviceId(), remoteDeviceId);
+      const payload = JSON.stringify({
+        type: 'pairing_request',
+        fromDeviceId: this.device.deviceId(),
+        fromPublicKey: this.device.getPublicKeyJwk(),
+        forContactId: remoteContactId,
+        mirrorContactId: localContactId,
+        mirrorContactName: localContactName,
+      });
+      await this.relay.send(pairId, this.device.deviceId(), payload);
+      console.log('[EncryptedSync] pairing request sent');
+    } catch (e) {
+      console.error('[EncryptedSync] pairing request failed:', e);
+    }
+  }
+
   async pollAll(): Promise<void> {
     if (this.syncing() || !this.relay.online()) return;
     this.syncing.set(true);
 
     try {
+      // 1. Check for pairing requests (unencrypted messages for contacts we own but haven't paired yet)
+      await this.pollPairingRequests();
+
+      // 2. Poll encrypted sync messages for existing pairs
       const pairs = this.device.pairs();
       for (const pair of pairs) {
         const pairId = await this.crypto.hashPairId(this.device.deviceId(), pair.remoteDeviceId);
@@ -69,12 +96,65 @@ export class EncryptedSyncService {
             await this.applySyncEvent(event);
             await this.relay.deleteMessage(msg.id);
           } catch (e) {
-            console.error('[EncryptedSync] decrypt/apply failed:', e);
+            // Might be a pairing request (plaintext) that we already processed — just delete
+            await this.relay.deleteMessage(msg.id);
           }
         }
       }
     } finally {
       this.syncing.set(false);
+    }
+  }
+
+  private async pollPairingRequests(): Promise<void> {
+    // Get all contacts we own that aren't yet paired
+    const contacts = await this.sqlite.getAll<any>('contacts', 'created DESC');
+    const existingPairs = this.device.pairs();
+
+    for (const contact of contacts) {
+      // Skip contacts that already have a pair
+      if (existingPairs.find(p => p.localContactId === contact.id)) continue;
+
+      // For each unpaired contact, check if there's a pairing request from any device
+      // We check all possible pairIds by looking at sync_messages with our deviceId in the pairId
+      // Since we don't know the remote deviceId, we fetch ALL messages and try to parse as pairing requests
+    }
+
+    // Simpler approach: fetch ALL messages where we're NOT the sender, try to parse as pairing request
+    try {
+      const allMessages = await this.relay.fetchAll(this.device.deviceId());
+      for (const msg of allMessages) {
+        try {
+          const data = JSON.parse(msg.payload);
+          if (data.type === 'pairing_request' && data.forContactId) {
+            console.log('[EncryptedSync] received pairing request for contact:', data.forContactId);
+
+            // Check if we own this contact
+            const contact = await this.sqlite.getById<any>('contacts', data.forContactId);
+            if (!contact) { await this.relay.deleteMessage(msg.id); continue; }
+
+            // Check if already paired
+            const existingPair = existingPairs.find(p => p.localContactId === data.forContactId);
+            if (existingPair) { await this.relay.deleteMessage(msg.id); continue; }
+
+            // Create pair on our side
+            await this.device.createPair(data.forContactId, data.fromDeviceId, data.fromPublicKey, data.mirrorContactName || '');
+
+            // Update contact with remote deviceId
+            await this.sqlite.run(
+              "UPDATE contacts SET user = ?, linkedName = ?, updated = ?, synced = 0 WHERE id = ?",
+              [data.fromDeviceId, data.mirrorContactName || '', new Date().toISOString(), data.forContactId]
+            );
+
+            console.log('[EncryptedSync] pair created for contact:', data.forContactId);
+            await this.relay.deleteMessage(msg.id);
+          }
+        } catch {
+          // Not a pairing request — ignore (might be encrypted sync data for a pair we don't have yet)
+        }
+      }
+    } catch (e) {
+      console.error('[EncryptedSync] polling pairing requests failed:', e);
     }
   }
 
