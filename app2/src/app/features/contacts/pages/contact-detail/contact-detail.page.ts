@@ -733,7 +733,8 @@ export class ContactDetailPage implements OnInit {
   showLinkQr(): void {
     const c = this.contact();
     if (!c) return;
-    this.qrPayload.set(this.deviceService.generateQrPayload(c.id, c.name));
+    const ownerName = this.auth.user()?.username || 'Unbekannt';
+    this.qrPayload.set(this.deviceService.generateQrPayload(c.id, c.name, ownerName));
     this.showQrModal.set(true);
   }
 

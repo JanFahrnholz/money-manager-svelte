@@ -50,12 +50,13 @@ export class DeviceService {
     return this.identity!.privateKey;
   }
 
-  generateQrPayload(contactId: string, contactName: string): string {
+  generateQrPayload(contactId: string, contactName: string, ownerName: string): string {
     return JSON.stringify({
       deviceId: this.identity!.id,
       publicKey: this.identity!.publicKey,
       contactId,
       contactName,
+      ownerName,
     });
   }
 

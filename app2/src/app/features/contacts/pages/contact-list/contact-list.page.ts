@@ -30,6 +30,7 @@ import { ContactService } from '../../services/contact.service';
 import { DeviceService } from '../../../../core/services/device.service';
 import { EncryptedSyncService } from '../../../../core/services/encrypted-sync.service';
 import { ToastService } from '../../../../core/services/toast.service';
+import { UserService } from '../../../../core/services/user.service';
 import { QrScannerComponent } from '../../../../shared/components/qr-scanner/qr-scanner.component';
 import { ContactListItemComponent } from '../../components/contact-list-item/contact-list-item.component';
 
@@ -201,6 +202,7 @@ export class ContactListPage implements OnInit {
     private deviceService: DeviceService,
     private encryptedSync: EncryptedSyncService,
     private toast: ToastService,
+    private auth: UserService,
     private alertCtrl: AlertController,
     private nav: NavController,
     private translate: TranslateService,
@@ -254,24 +256,26 @@ export class ContactListPage implements OnInit {
     this.showScanModal.set(false);
     try {
       const parsed = JSON.parse(data);
-      const { deviceId, publicKey, contactId, contactName } = parsed;
+      const { deviceId, publicKey, contactId, contactName, ownerName } = parsed;
 
-      // Create mirror contact
-      const contact = await this.contactService.create(contactName || 'Unbekannt');
+      // Mirror contact gets named after the QR DISPLAYER (not the contact name)
+      const mirrorName = ownerName || contactName || 'Unbekannt';
+      const contact = await this.contactService.create(mirrorName);
 
       // Create pair
-      const pair = await this.deviceService.createPair(contact.id, deviceId, publicKey, contactName || '');
+      await this.deviceService.createPair(contact.id, deviceId, publicKey, mirrorName);
 
       // Update contact with remote device ID
-      await this.contactService.update(contact.id, { user: deviceId, linkedName: contactName });
+      await this.contactService.update(contact.id, { user: deviceId, linkedName: mirrorName });
 
-      // Send pairing request so the other device creates its pair too
-      await this.encryptedSync.sendPairingRequest(deviceId, contactId, contact.id, contact.name);
+      // Send pairing request with OUR name so the other device knows who we are
+      const myName = this.auth.user()?.username || 'Unbekannt';
+      await this.encryptedSync.sendPairingRequest(deviceId, contactId, contact.id, myName);
 
       // Send initial sync of our mirror contact
-      await this.encryptedSync.notifyChange('contacts', contact.id, 'upsert', { ...contact, user: deviceId, linkedName: contactName });
+      await this.encryptedSync.notifyChange('contacts', contact.id, 'upsert', { ...contact, user: deviceId, linkedName: mirrorName });
 
-      this.toast.success('Verlinkt mit ' + (contactName || 'Unbekannt'));
+      this.toast.success('Verlinkt mit ' + mirrorName);
 
       // Navigate to new contact
       this.nav.navigateForward('/tabs/contacts/' + contact.id);
