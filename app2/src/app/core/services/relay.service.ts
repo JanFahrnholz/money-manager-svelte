@@ -23,11 +23,18 @@ export class RelayService {
 
   async checkConnection(): Promise<void> {
     try {
+      console.log('[Relay] checking:', this.pb.baseURL);
       await this.pb.health.check();
+      console.log('[Relay] online');
       this.online.set(true);
-    } catch {
+    } catch (e) {
+      console.error('[Relay] offline:', this.pb.baseURL, e);
       this.online.set(false);
     }
+  }
+
+  getUrl(): string {
+    return this.pb.baseURL;
   }
 
   async send(pairId: string, sender: string, payload: string): Promise<void> {

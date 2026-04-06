@@ -74,9 +74,12 @@ import { CourierService } from '../../../couriers/services/courier.service';
             <ion-select-option value="en">English</ion-select-option>
           </ion-select>
         </ion-item>
-        <ion-item>
+        <ion-item (click)="relay.checkConnection()">
           <ion-icon name="sync-circle" slot="start" />
-          <ion-label>{{ 'profile.sync' | translate }}</ion-label>
+          <ion-label>
+            {{ 'profile.sync' | translate }}
+            <p style="font-size:11px;color:#666;">{{ relay.getUrl() }}</p>
+          </ion-label>
           <ion-note slot="end" [color]="relay.online() ? 'success' : 'medium'">
             {{ relay.online() ? ('online' | translate) : ('offline' | translate) }}
           </ion-note>
