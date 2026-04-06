@@ -4,6 +4,9 @@ const config: CapacitorConfig = {
   appId: 'com.moneymanager.app',
   appName: 'MoneyManager',
   webDir: 'dist/app2/browser',
+  server: {
+    androidScheme: 'http',
+  },
   plugins: {
     CapacitorSQLite: {
       iosDatabaseLocation: 'Library/CapacitorDatabase',
