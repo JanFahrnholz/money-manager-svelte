@@ -1,0 +1,49 @@
+<h2>Kontakt-Detail: Balance-Graph mit Zeitraum-Wahl</h2>
+<p class="subtitle">Segment-Buttons über dem Graph</p>
+
+<div class="mockup" style="max-width:400px;">
+  <div class="mockup-header">Balance-Verlauf Sektion</div>
+  <div class="mockup-body" style="font-family:system-ui;background:#1a1a1a;color:#fff;padding:16px;">
+    <div style="font-size:12px;font-weight:600;color:#666;margin-bottom:8px;">KONTOSTAND-VERLAUF</div>
+    <div style="background:#222;border-radius:12px;padding:16px;">
+      <!-- Timeframe Selector -->
+      <div style="display:flex;background:#333;border-radius:8px;padding:2px;margin-bottom:12px;">
+        <div style="flex:1;text-align:center;padding:6px;font-size:12px;color:#888;border-radius:6px;">1W</div>
+        <div style="flex:1;text-align:center;padding:6px;font-size:12px;background:#ffd600;color:#000;border-radius:6px;font-weight:600;">1M</div>
+        <div style="flex:1;text-align:center;padding:6px;font-size:12px;color:#888;border-radius:6px;">3M</div>
+        <div style="flex:1;text-align:center;padding:6px;font-size:12px;color:#888;border-radius:6px;">6M</div>
+        <div style="flex:1;text-align:center;padding:6px;font-size:12px;color:#888;border-radius:6px;">1J</div>
+        <div style="flex:1;text-align:center;padding:6px;font-size:12px;color:#888;border-radius:6px;">Max</div>
+      </div>
+      <!-- Graph -->
+      <svg viewBox="0 0 320 120" style="width:100%;height:auto;">
+        <line x1="0" y1="20" x2="320" y2="20" stroke="#333" stroke-width="0.5"/>
+        <line x1="0" y1="60" x2="320" y2="60" stroke="#333" stroke-width="0.5" stroke-dasharray="4"/>
+        <line x1="0" y1="100" x2="320" y2="100" stroke="#333" stroke-width="0.5"/>
+        <text x="0" y="16" fill="#666" font-size="10">+200€</text>
+        <text x="0" y="56" fill="#666" font-size="10">0€</text>
+        <text x="0" y="96" fill="#666" font-size="10">-200€</text>
+        <path d="M40,60 L80,45 L120,70 L160,30 L200,25 L240,40 L280,20 L320,15 L320,120 L40,120 Z" fill="url(#grad2)" opacity="0.3"/>
+        <polyline points="40,60 80,45 120,70 160,30 200,25 240,40 280,20 320,15" fill="none" stroke="#4cd964" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="40" cy="60" r="3" fill="#4cd964"/>
+        <circle cx="80" cy="45" r="3" fill="#4cd964"/>
+        <circle cx="120" cy="70" r="3" fill="#4cd964"/>
+        <circle cx="160" cy="30" r="3" fill="#4cd964"/>
+        <circle cx="200" cy="25" r="3" fill="#4cd964"/>
+        <circle cx="240" cy="40" r="3" fill="#4cd964"/>
+        <circle cx="280" cy="20" r="3" fill="#4cd964"/>
+        <circle cx="320" cy="15" r="4" fill="#4cd964" stroke="#1a1a1a" stroke-width="2"/>
+        <text x="40" y="115" fill="#555" font-size="9" text-anchor="middle">5. Mär</text>
+        <text x="120" y="115" fill="#555" font-size="9" text-anchor="middle">12. Mär</text>
+        <text x="200" y="115" fill="#555" font-size="9" text-anchor="middle">22. Mär</text>
+        <text x="280" y="115" fill="#555" font-size="9" text-anchor="middle">2. Apr</text>
+        <defs>
+          <linearGradient id="grad2" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#4cd964" stop-opacity="0.4"/>
+            <stop offset="100%" stop-color="#4cd964" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+  </div>
+</div>

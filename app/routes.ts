@@ -3,7 +3,7 @@ import NotFoundPage from "./pages/404.svelte";
 import Register from "./user/components/register.svelte";
 import Main from "./pages/main.svelte";
 import { transactionRoutes } from "./transactions/routes";
-import { client, clientId } from "./pocketbase";
+import { client, getClientId } from "./pocketbase";
 import ManagerPage from "./components/pages/manager-page.svelte";
 import CourierPage from "./components/pages/courier-page.svelte";
 import { f7 } from "framework7-svelte";
@@ -30,7 +30,11 @@ var routes = [
           expand:
             "contacts_via_courier,transactions_via_courier,transactions_via_courier.contact",
         });
-        const contact = courier.expand?.contacts_via_courier[0];
+        const contact = courier.expand?.contacts_via_courier?.[0];
+        if (!contact) {
+          resolve("/");
+          return;
+        }
         const transactions = await client.collection("transactions").getFullList({
           filter: `contact="${contact.id}" && (type="Restock" || type="Collect" || type="Redeem")`
         })
@@ -43,7 +47,7 @@ var routes = [
         resolve(
           {
             component:
-              clientId === contact.owner ? CourierPage : ManagerPage,
+              getClientId() === contact.owner ? CourierPage : ManagerPage,
           },
           {
             props: { courier, transactions },

@@ -1,10 +1,10 @@
 import { f7 } from "framework7-svelte";
-import { client, clientId } from "../../pocketbase";
+import { client, getClientId } from "../../pocketbase";
 import { ApiError } from "../../utils/errors";
 
 export async function updateContact({ state }, contact) {
   try {
-    if (contact.user === clientId && contact.owner === clientId) throw new Error("You cannot link yourself!");
+    if (contact.user === getClientId() && contact.owner === getClientId()) throw new Error("You cannot link yourself!");
 
     const contactId = contact.id;
     const newContact = await client

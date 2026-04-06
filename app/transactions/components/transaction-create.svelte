@@ -17,7 +17,7 @@
   import InfoPopover from "../../components/info-popover.svelte";
   import Numpad from "../../components/numpad.svelte";
   import ContactSmartSelect from "../../contacts/components/contact-smart-select.svelte";
-  import { clientId } from "../../pocketbase";
+  import { getClientId } from "../../pocketbase";
   import store from "../../store";
   import { ErrorDialog } from "../../utils/errors";
   import { formatTransactionType } from "../../utils/formatter";
@@ -33,8 +33,8 @@
   let manager = writable(null);
   $: contacts = new ContactCollection(contacts);
   let disablePlanned = false;
-  let isOwner = clientId === $contact?.owner;
-  let isUser = clientId === $contact?.user;
+  let isOwner = getClientId() === $contact?.owner;
+  let isUser = getClientId() === $contact?.user;
   let data = {
     amount: 0,
     planned: false,

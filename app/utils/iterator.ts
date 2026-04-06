@@ -1,5 +1,5 @@
 import { Record } from "pocketbase";
-import { client, clientId } from "../pocketbase";
+import { client, getClientId } from "../pocketbase";
 import { Transaction } from "../transactions/types/transaction";
 import { Observable, Setting, Settings } from "./settings";
 import { ApiError } from "./errors";
@@ -59,7 +59,7 @@ export class ContactCollection extends Collection<Contact>{
     }
 
     getManager(ownerId: string){
-        return this.find(contact => contact.owner === ownerId && contact.user === clientId)
+        return this.find(contact => contact.owner === ownerId && contact.user === getClientId())
     }
 
     getLinked(){
@@ -174,7 +174,7 @@ class BalanceContactIterator extends CollectionIterator<Contact>{
 export class OwnedContactIterator extends CollectionIterator<Contact>{
     constructor(collection: Collection<Contact>){
         super(collection)
-        this.collection.filter(item => clientId === item.owner)
+        this.collection.filter(item => getClientId() === item.owner)
 
     }
 } 
@@ -182,7 +182,7 @@ export class OwnedContactIterator extends CollectionIterator<Contact>{
 export class DefaultContactIterator extends CollectionIterator<Contact>{
     constructor(collection: Collection<Contact>){
         super(collection)
-        this.collection.filter(item => clientId === item.owner && !item.courier)
+        this.collection.filter(item => getClientId() === item.owner && !item.courier)
 
     }
 } 
@@ -190,35 +190,35 @@ export class DefaultContactIterator extends CollectionIterator<Contact>{
 export class NotOwnedContactIterator extends CollectionIterator<Contact>{
     constructor(collection: Collection<Contact>){
         super(collection)
-        this.collection.filter(item => clientId !== item.owner)
+        this.collection.filter(item => getClientId() !== item.owner)
     }
 } 
 
 export class LinkedContactIterator extends CollectionIterator<Contact>{
     constructor(collection: Collection<Contact>){
         super(collection)
-        this.collection.filter(item => clientId === item.user)
+        this.collection.filter(item => getClientId() === item.user)
     }
 }
 
 export class CourierContactIterator extends CollectionIterator<Contact>{
     constructor(collection: Collection<Contact>){
         super(collection)
-        this.collection.filter(item => item.owner === clientId && !!item.courier)
+        this.collection.filter(item => item.owner === getClientId() && !!item.courier)
     }
 }
 
 export class ManagerContactIterator extends CollectionIterator<Contact>{
     constructor(collection: Collection<Contact>){
         super(collection)
-        this.collection.filter(item => item.user === clientId && !!item.courier)
+        this.collection.filter(item => item.user === getClientId() && !!item.courier)
     }
 }
 
 export class ManageableContactIterator extends CollectionIterator<Contact>{
     constructor(collection: Collection<Contact>){
         super(collection)
-        this.collection.filter(item => item.owner !== clientId && item.user !== clientId)
+        this.collection.filter(item => item.owner !== getClientId() && item.user !== getClientId())
     }
 
     public grouped(): {[key: string]: Contact[]}{
@@ -276,7 +276,7 @@ export class Contact extends ApiRecord<Contact> {
         this.user = user
         this.score = +score || 0
         this.expand = data.expand
-        this.manager = clientId !== user && clientId !== owner ? owner : null
+        this.manager = getClientId() !== user && getClientId() !== owner ? owner : null
     }
 
     update(): Contact {

@@ -13,14 +13,14 @@
   import { renderDailyDivider } from "../../utils/functions";
   import TransactionListIcon from "../../transactions/components/transaction-list-icon.svelte";
   import { _ } from "svelte-i18n";
-  import { clientId } from "../../pocketbase";
+  import { getClientId } from "../../pocketbase";
 
   export let courier;
   export let transactions;
-  const contact = courier.expand?.contacts_via_courier[0];
+  const contact = courier.expand?.contacts_via_courier?.[0];
 
-  const isOwner = contact.owner === clientId;
-  const isUser = contact.user === clientId;
+  const isOwner = contact.owner === getClientId();
+  const isUser = contact.user === getClientId();
 
   function calculateBonus(amount) {
     return amount * (courier?.bonusPercentage / 100);

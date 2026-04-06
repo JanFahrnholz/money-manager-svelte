@@ -1,13 +1,13 @@
 <script>
   import { ListItem } from "framework7-svelte";
-  import { clientId } from "../../../pocketbase";
+  import { getClientId } from "../../../pocketbase";
   import ContactListItemAvatar from "./contact-list-item-avatar.svelte";
 
   export let contact;
 
   let title = contact.name;
 
-  if (contact.owner === clientId && contact.user !== "") {
+  if (contact.owner === getClientId() && contact.user !== "") {
     title += " 🔗";
   }
 </script>

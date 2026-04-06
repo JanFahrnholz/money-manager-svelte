@@ -1,0 +1,116 @@
+<h2>Kontakt-Detail: Mit Statistiken & Balance-Graph</h2>
+<p class="subtitle">Überarbeitete Detail-Seite — scrollbar</p>
+
+<div class="mockup" style="max-width:400px;">
+  <div class="mockup-header">Kontakt-Detail (vollständig)</div>
+  <div class="mockup-body" style="font-family:system-ui;background:#1a1a1a;color:#fff;padding:0;">
+    <!-- Nav -->
+    <div style="padding:12px 16px;display:flex;justify-content:space-between;font-size:14px;">
+      <span style="color:#ffd600;">← Zurück</span>
+      <span style="color:#ffd600;">Bearbeiten</span>
+    </div>
+    <!-- Header -->
+    <div style="text-align:center;padding:4px 0 12px;">
+      <div style="width:56px;height:56px;border-radius:50%;background:#4cd964;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#000;margin:0 auto;">M</div>
+      <div style="font-size:18px;font-weight:700;margin-top:6px;">Max Müller</div>
+      <div style="font-size:28px;font-weight:700;color:#4cd964;margin-top:2px;">+150€</div>
+    </div>
+    <!-- Actions -->
+    <div style="display:flex;gap:8px;padding:0 16px;margin-bottom:16px;">
+      <div style="flex:1;background:#ffd600;color:#000;border-radius:12px;padding:10px;text-align:center;font-weight:600;font-size:14px;">+ Transaktion</div>
+    </div>
+
+    <!-- Balance History Graph -->
+    <div style="padding:0 16px;margin-bottom:16px;">
+      <div style="font-size:12px;font-weight:600;color:#666;margin-bottom:8px;">KONTOSTAND-VERLAUF</div>
+      <div style="background:#222;border-radius:12px;padding:16px;">
+        <!-- SVG Graph -->
+        <svg viewBox="0 0 320 120" style="width:100%;height:auto;">
+          <!-- Grid lines -->
+          <line x1="0" y1="20" x2="320" y2="20" stroke="#333" stroke-width="0.5"/>
+          <line x1="0" y1="60" x2="320" y2="60" stroke="#333" stroke-width="0.5" stroke-dasharray="4"/>
+          <line x1="0" y1="100" x2="320" y2="100" stroke="#333" stroke-width="0.5"/>
+          <!-- Labels -->
+          <text x="0" y="16" fill="#666" font-size="10">+200€</text>
+          <text x="0" y="56" fill="#666" font-size="10">0€</text>
+          <text x="0" y="96" fill="#666" font-size="10">-200€</text>
+          <!-- Area fill -->
+          <path d="M40,60 L80,45 L120,70 L160,30 L200,25 L240,40 L280,20 L320,15 L320,120 L40,120 Z" fill="url(#grad)" opacity="0.3"/>
+          <!-- Line -->
+          <polyline points="40,60 80,45 120,70 160,30 200,25 240,40 280,20 320,15" fill="none" stroke="#4cd964" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- Dots -->
+          <circle cx="40" cy="60" r="3" fill="#4cd964"/>
+          <circle cx="80" cy="45" r="3" fill="#4cd964"/>
+          <circle cx="120" cy="70" r="3" fill="#4cd964"/>
+          <circle cx="160" cy="30" r="3" fill="#4cd964"/>
+          <circle cx="200" cy="25" r="3" fill="#4cd964"/>
+          <circle cx="240" cy="40" r="3" fill="#4cd964"/>
+          <circle cx="280" cy="20" r="3" fill="#4cd964"/>
+          <circle cx="320" cy="15" r="4" fill="#4cd964" stroke="#1a1a1a" stroke-width="2"/>
+          <!-- Date labels -->
+          <text x="40" y="115" fill="#555" font-size="9" text-anchor="middle">Jan</text>
+          <text x="120" y="115" fill="#555" font-size="9" text-anchor="middle">Feb</text>
+          <text x="200" y="115" fill="#555" font-size="9" text-anchor="middle">Mär</text>
+          <text x="280" y="115" fill="#555" font-size="9" text-anchor="middle">Apr</text>
+          <defs>
+            <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#4cd964" stop-opacity="0.4"/>
+              <stop offset="100%" stop-color="#4cd964" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div style="padding:0 16px;margin-bottom:16px;">
+      <div style="font-size:12px;font-weight:600;color:#666;margin-bottom:8px;">STATISTIKEN</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div style="background:#222;border-radius:12px;padding:12px;">
+          <div style="font-size:11px;color:#888;">Einnahmen</div>
+          <div style="font-size:18px;font-weight:600;color:#4cd964;">+1.230€</div>
+          <div style="font-size:11px;color:#555;">23 Transaktionen</div>
+        </div>
+        <div style="background:#222;border-radius:12px;padding:12px;">
+          <div style="font-size:11px;color:#888;">Ausgaben</div>
+          <div style="font-size:18px;font-weight:600;color:#ff3b30;">-880€</div>
+          <div style="font-size:11px;color:#555;">12 Transaktionen</div>
+        </div>
+        <div style="background:#222;border-radius:12px;padding:12px;">
+          <div style="font-size:11px;color:#888;">Offene Rechnungen</div>
+          <div style="font-size:18px;font-weight:600;color:#ff9500;">-200€</div>
+          <div style="font-size:11px;color:#555;">2 offen</div>
+        </div>
+        <div style="background:#222;border-radius:12px;padding:12px;">
+          <div style="font-size:11px;color:#888;">Score</div>
+          <div style="font-size:18px;font-weight:600;color:#ffd600;">72</div>
+          <div style="font-size:11px;color:#555;">↑ 5 seit letztem Monat</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transaction History -->
+    <div style="padding:0 16px 16px;">
+      <div style="font-size:12px;font-weight:600;color:#666;margin-bottom:8px;">TRANSAKTIONEN</div>
+      <div style="background:#222;border-radius:12px;">
+        <div style="padding:12px 16px;border-bottom:1px solid #333;display:flex;justify-content:space-between;align-items:center;">
+          <div><div style="font-size:14px;font-weight:500;">Einnahme</div><div style="font-size:12px;color:#888;">Heute · „Miete April"</div></div>
+          <div style="color:#4cd964;font-weight:600;">+50€</div>
+        </div>
+        <div style="padding:12px 16px;border-bottom:1px solid #333;display:flex;justify-content:space-between;align-items:center;">
+          <div><div style="font-size:14px;font-weight:500;">Rückzahlung</div><div style="font-size:12px;color:#888;">2. Apr</div></div>
+          <div style="color:#4cd964;font-weight:600;">+80€</div>
+        </div>
+        <div style="padding:12px 16px;border-bottom:1px solid #333;display:flex;justify-content:space-between;align-items:center;">
+          <div><div style="font-size:14px;font-weight:500;">Rechnung</div><div style="font-size:12px;color:#888;">28. Mär · „Laptop"</div></div>
+          <div style="color:#ff3b30;font-weight:600;">-200€</div>
+        </div>
+        <div style="padding:12px 16px;display:flex;justify-content:space-between;align-items:center;">
+          <div><div style="font-size:14px;font-weight:500;">Einnahme</div><div style="font-size:12px;color:#888;">15. Mär</div></div>
+          <div style="color:#4cd964;font-weight:600;">+120€</div>
+        </div>
+      </div>
+      <div style="text-align:center;padding:12px;color:#ffd600;font-size:14px;">Mehr laden...</div>
+    </div>
+  </div>
+</div>

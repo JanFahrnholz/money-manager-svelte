@@ -9,6 +9,6 @@ export default async function deletePlannedTransaction({ state }, id) {
     );
     
   } catch (error) {
-    throw new Error(error);
+    throw error;
   }
 }

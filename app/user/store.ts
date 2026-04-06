@@ -1,5 +1,5 @@
 import { f7 } from "framework7-svelte";
-import { client, clientId } from "../pocketbase";
+import { client, getClientId } from "../pocketbase";
 import { alerts } from "../store";
 import { ApiError } from "../utils/errors";
 import { errorToast } from "../utils/toast";
@@ -51,9 +51,11 @@ const authStoreConfig = {
     },
     async updateUser({ state }, user) {
       try {
-        const newUser = await client.collection("users").update(clientId, user);
+        const newUser = await client.collection("users").update(getClientId(), user);
         state.user = { ...newUser };
-      } catch (error) {}
+      } catch (error) {
+        errorToast({ message: "Could not update user" });
+      }
     },
     async modifyUserBalance({ state, dispatch }, modifier: number) {
       try {
@@ -61,7 +63,9 @@ const authStoreConfig = {
           ...state.user,
           balance: state.user.balance + modifier,
         });
-      } catch (error) {}
+      } catch (error) {
+        errorToast({ message: "Could not update balance" });
+      }
     },
     async updateSetting({ state, dispatch }, { key, value }) {
       try {

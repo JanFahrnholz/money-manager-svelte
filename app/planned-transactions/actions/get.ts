@@ -10,6 +10,6 @@ export default async function getPlannedTransactions({ state }) {
       });
     state.plannedTransactions = transactions;
   } catch (error) {
-    throw new Error(error);
+    throw error;
   }
 }

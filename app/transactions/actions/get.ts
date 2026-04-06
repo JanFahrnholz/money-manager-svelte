@@ -10,11 +10,12 @@ export const getFirstTransactions = async ({ state }) => {
       expand: "contact,owner,courier,courier.contacts_via_courier",
     });
   } catch (error) {
-    throw new Error(error);
+    throw error;
   }
 };
 
 export const getMoreTransactions = async ({ state }) => {
+  if (!state.transactions.length) return;
   try {
     const lastTransactionDate = new Date(state.transactions.at(-1).date);
     const lastFilterDate = new Date(
@@ -32,7 +33,7 @@ export const getMoreTransactions = async ({ state }) => {
     state.transactions = [...state.transactions, ...res];
     state.lastTransactionFilterDate = filterDate;
   } catch (error) {
-    throw new Error(error);
+    throw error;
   }
 };
 
@@ -43,14 +44,14 @@ export const getAllTransactions = async ({ state }) => {
       expand: "contact,owner,courier,courier.contacts_via_courier",
     });
   } catch (error) {
-    throw new Error(error);
+    throw error;
   }
 };
 
 const isoDateRegex = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z/;
 
 export const getTransactions = async ({ state }, { filter }) => {
-  if (filter?.includes("date")) {
+  if (filter?.includes("date") && state.transactions.length) {
     const filterDate = new Date(filter?.match(isoDateRegex));
     const lastTransactionDate = new Date(state.transactions.at(-1).date);
     const lastFilterDate = new Date(
@@ -71,6 +72,6 @@ export const getTransactions = async ({ state }, { filter }) => {
       expand: "contact,owner,courier,courier.contacts_via_courier",
     });
   } catch (error) {
-    throw new Error(error);
+    throw error;
   }
 };

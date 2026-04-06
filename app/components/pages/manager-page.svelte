@@ -13,7 +13,7 @@
 
   export let courier;
   export let transactions;
-  const contact = courier.expand?.contacts_via_courier[0];
+  const contact = courier.expand?.contacts_via_courier?.[0];
   let progress = 0;
   let name = contact.linkedName ? contact.linkedName : contact.owner;
 

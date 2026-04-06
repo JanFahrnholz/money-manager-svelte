@@ -16,7 +16,7 @@
 
   export let courier;
   export let transactions;
-  const contact = courier.expand?.contacts_via_courier[0];
+  const contact = courier.expand?.contacts_via_courier?.[0];
   let progress = 0;
 
   $: {
@@ -31,13 +31,19 @@
 
   const editBonusPercentage = () => {
     f7.dialog.prompt("enter percentage", null, async (value) => {
-      await client
-        .collection("couriers")
-        .update(courier.id, {
-          bonusPercentage: +value,
-        })
-        .catch((e) => new ApiError(e).dialog())
-        .then(() => {});
+      const parsed = parseFloat(value);
+      if (isNaN(parsed) || parsed < 0 || parsed > 100) {
+        f7.toast.create({ text: "Invalid percentage (0-100)", closeTimeout: 2000 }).open();
+        return;
+      }
+      try {
+        await client.collection("couriers").update(courier.id, {
+          bonusPercentage: parsed,
+        });
+        courier.bonusPercentage = parsed;
+      } catch (e) {
+        new ApiError(e).dialog();
+      }
     });
   };
 </script>

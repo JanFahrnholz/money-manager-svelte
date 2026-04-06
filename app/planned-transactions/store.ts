@@ -1,4 +1,4 @@
-import { client, clientId } from "../pocketbase";
+import { client } from "../pocketbase";
 import { groupByProperty } from "../utils/functions";
 import getPlannedTransactions from "./actions/get";
 import deletePlannedTransaction from "./actions/delete";

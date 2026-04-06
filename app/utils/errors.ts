@@ -9,9 +9,14 @@ export class ApiError extends ClientResponseError {
     Object.setPrototypeOf(this, ApiError.prototype);
     this.name = "ApiError";
 
-    this.display = Object.values(error.toJSON().response.data)
-      .map((item) => item?.message)
-      .join("\n");
+    try {
+      this.display = Object.values(error.toJSON?.().response?.data || {})
+        .map((item: any) => item?.message)
+        .filter(Boolean)
+        .join("\n") || error.message || "Unknown error";
+    } catch (e) {
+      this.display = error.message || "Unknown error";
+    }
   }
 
   public dialog() {

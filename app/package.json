@@ -13,6 +13,12 @@
     "postinstall": "./node_modules/.bin/cpy --flat ./node_modules/framework7-icons/fonts/*.* ./fonts/ && cpy --flat ./node_modules/material-icons/iconfont/*.* ./fonts/"
   },
   "dependencies": {
+    "@capacitor/app": "7.1.0",
+    "@capacitor/cli": "7.4.4",
+    "@capacitor/core": "7.4.4",
+    "@capacitor/haptics": "7.0.2",
+    "@capacitor/keyboard": "7.0.3",
+    "@capacitor/status-bar": "7.0.3",
     "dom7": "^4.0.6",
     "framework7": "^8.3.0",
     "framework7-icons": "^5.0.5",

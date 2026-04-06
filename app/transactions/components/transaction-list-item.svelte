@@ -1,7 +1,7 @@
 <script lang="ts">
   import { f7, ListItem } from "framework7-svelte";
   import { _ } from "svelte-i18n";
-  import { clientId } from "../../pocketbase";
+  import { getClientId } from "../../pocketbase";
   import store, { mainRouter } from "../../store";
   import { formatTime, formatTransactionType } from "../../utils/formatter";
   import TransactionListIcon from "./transaction-list-icon.svelte";
@@ -13,9 +13,9 @@
   const courier = transaction.expand?.courier;
   const manager = courier?.expand?.contacts_via_courier?.at(0);
   let after = contact?.name;
-  let isOwner = clientId === contact?.owner;
-  let isUser = clientId === contact?.user;
-  let isCourier = clientId === courier?.user;
+  let isOwner = getClientId() === contact?.owner;
+  let isUser = getClientId() === contact?.user;
+  let isCourier = getClientId() === courier?.user;
   let title = `${transaction.amount}€ ${formatTransactionType($_, transaction)}`;
   let footer = formatTime(transaction.date);
   const ownerName = (isCourier ? manager : contact)?.linkedName

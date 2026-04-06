@@ -1,4 +1,4 @@
-import { client, clientId } from "../../pocketbase";
+import { client } from "../../pocketbase";
 import { ApiError } from "../../utils/errors";
 import { isInvoice, isRefund } from "../../utils/transactions";
 

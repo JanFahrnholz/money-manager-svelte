@@ -1,4 +1,4 @@
-import { client, clientId } from "../../pocketbase";
+import { client } from "../../pocketbase";
 import { ApiError } from "../../utils/errors";
 
 export default async function confirmPlannedTransaction(
@@ -13,7 +13,7 @@ export default async function confirmPlannedTransaction(
     state.plannedTransactions = state.plannedTransactions.filter(
       (t) =>  t.id !== transaction.id
     );
-    state.transactions = [transaction, ...state.transactions];
+    dispatch("getFirstTransactions");
 
   } catch (error) {
     throw new ApiError(error).dialog();

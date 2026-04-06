@@ -1,0 +1,69 @@
+<h2>Architektur: Wie modellieren wir das Kurier-Netzwerk?</h2>
+<p class="subtitle">Die zentrale Design-Entscheidung — wie hängen Users, Kontakte und Kuriere zusammen?</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>CourierLink-Modell (Empfohlen)</h3>
+      <p>Eine eigene <code>courier_links</code> Tabelle verbindet Manager ↔ Kurier. Jeder Link hat eigenes Inventar, Umsatz, Bonus. Multi-Level entsteht durch Verkettung: A→B→C.</p>
+      <div style="margin-top:8px;">
+        <strong>Pro:</strong> Flexibel, ein User kann mehrere Manager haben, Beziehungen sind explizit mit eigenen Konditionen (Bonus-%) pro Link.<br>
+        <strong>Contra:</strong> Etwas komplexer als ein einfacher Baum.
+      </div>
+    </div>
+  </div>
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Parent-Tree-Modell</h3>
+      <p>Jeder User hat ein <code>parent</code>-Feld das auf seinen Manager zeigt. Inventar/Umsatz/Bonus direkt am User. Baum-Struktur: Root → Manager → Kurier → Sub-Kurier.</p>
+      <div style="margin-top:8px;">
+        <strong>Pro:</strong> Einfach, klare Hierarchie, leicht abzufragen.<br>
+        <strong>Contra:</strong> Ein User kann nur einen Manager haben. Bonus-Konditionen sind global pro User, nicht pro Beziehung.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:24px;">
+  <h3>Datenmodell-Vergleich</h3>
+  <div class="split">
+    <div class="mockup">
+      <div class="mockup-header">A: CourierLink</div>
+      <div class="mockup-body" style="font-family:monospace; font-size:13px; padding:16px; background:#1a1a1a; color:#ccc; line-height:1.6;">
+        <div style="color:#ffd600;">users</div>
+        <div style="padding-left:16px;">id, username, balance</div>
+        <br>
+        <div style="color:#ffd600;">contacts</div>
+        <div style="padding-left:16px;">id, name, balance, owner→user</div>
+        <br>
+        <div style="color:#ffd600;">courier_links</div>
+        <div style="padding-left:16px;">id, manager→user, courier→user</div>
+        <div style="padding-left:16px;">inventoryBalance, salesBalance</div>
+        <div style="padding-left:16px;">bonusBalance, bonusPercentage</div>
+        <br>
+        <div style="color:#ffd600;">transactions</div>
+        <div style="padding-left:16px;">id, contact, type, amount</div>
+        <div style="padding-left:16px;">courier_link? (optional)</div>
+      </div>
+    </div>
+    <div class="mockup">
+      <div class="mockup-header">B: Parent-Tree</div>
+      <div class="mockup-body" style="font-family:monospace; font-size:13px; padding:16px; background:#1a1a1a; color:#ccc; line-height:1.6;">
+        <div style="color:#ffd600;">users</div>
+        <div style="padding-left:16px;">id, username, balance</div>
+        <div style="padding-left:16px;">parent→user?</div>
+        <div style="padding-left:16px;">inventoryBalance, salesBalance</div>
+        <div style="padding-left:16px;">bonusBalance, bonusPercentage</div>
+        <br>
+        <div style="color:#ffd600;">contacts</div>
+        <div style="padding-left:16px;">id, name, balance, owner→user</div>
+        <br>
+        <div style="color:#ffd600;">transactions</div>
+        <div style="padding-left:16px;">id, contact, type, amount</div>
+        <div style="padding-left:16px;">courier→user? (optional)</div>
+      </div>
+    </div>
+  </div>
+</div>

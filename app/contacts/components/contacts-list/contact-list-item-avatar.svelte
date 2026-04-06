@@ -1,11 +1,11 @@
 <script>
     import Avatar from "svelte-avatar";
-  import { clientId } from "../../../pocketbase";
+  import { getClientId } from "../../../pocketbase";
 
     export let contact;
     let name = contact.name
 
-    if(clientId !== contact.owner){
+    if(getClientId() !== contact.owner){
         name = contact.linkedName ? contact.linkedName : contact.owner
     }
 

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { ListItem, f7ready, useStore } from "framework7-svelte";
   import { createEventDispatcher, onMount } from "svelte";
-  import { clientId } from "../../pocketbase";
+  import { getClientId } from "../../pocketbase";
   import { Contact, ContactCollection } from "../../utils/iterator";
   import { _ } from "svelte-i18n";
   import { groupByProperty } from "../../utils/functions";
@@ -28,7 +28,7 @@
   }
 
   const getManager = (owner) => {
-    return contacts.find((i) => i.owner === owner && i.user === clientId)
+    return contacts.find((i) => i.owner === owner && i.user === getClientId())
   }
 
   const onChange = (event) => {

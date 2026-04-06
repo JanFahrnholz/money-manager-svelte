@@ -1,4 +1,4 @@
-import { client, clientId } from "../../pocketbase";
+import { client, getClientId } from "../../pocketbase";
 import { errorToast } from "../../utils/toast";
 
 export default async function createContact({ state }, { name, user }) {
@@ -6,7 +6,7 @@ export default async function createContact({ state }, { name, user }) {
     const contact = await client.collection("contacts").create({
       name,
       user,
-      owner: clientId,
+      owner: getClientId(),
     });
     state.contacts = [...state.contacts, contact];
   } catch (error) {

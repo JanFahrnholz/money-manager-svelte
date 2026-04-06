@@ -9,6 +9,6 @@ export const deleteTransaction = async ({ state }, transaction) => {
     );
 
   } catch (error) {
-    throw new Error(error);
+    throw error;
   }
 };

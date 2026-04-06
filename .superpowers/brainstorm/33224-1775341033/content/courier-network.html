@@ -1,0 +1,222 @@
+<h2>Kurier-Netzwerk: Screens</h2>
+<p class="subtitle">Phase 2 — Manager- und Kurier-Ansichten</p>
+
+<div class="section">
+  <h3>Netzwerk-Übersicht (im Profil-Tab oder eigene Sektion)</h3>
+  <div class="mockup" style="max-width:400px;">
+    <div class="mockup-header">Mein Netzwerk</div>
+    <div class="mockup-body" style="font-family:system-ui;background:#1a1a1a;color:#fff;padding:0;">
+      <div style="padding:12px 16px;display:flex;justify-content:space-between;font-size:14px;">
+        <span style="color:#ffd600;">← Profil</span>
+        <span style="color:#ffd600;">+ Kurier einladen</span>
+      </div>
+      <!-- Totals -->
+      <div style="display:flex;gap:8px;padding:0 16px 16px;">
+        <div style="flex:1;background:#222;border-radius:12px;padding:12px;text-align:center;">
+          <div style="font-size:11px;color:#888;">Kuriere</div>
+          <div style="font-size:22px;font-weight:700;">4</div>
+        </div>
+        <div style="flex:1;background:#222;border-radius:12px;padding:12px;text-align:center;">
+          <div style="font-size:11px;color:#888;">Gesamt Inventar</div>
+          <div style="font-size:22px;font-weight:700;color:#ffd600;">2.400€</div>
+        </div>
+        <div style="flex:1;background:#222;border-radius:12px;padding:12px;text-align:center;">
+          <div style="font-size:11px;color:#888;">Offener Umsatz</div>
+          <div style="font-size:22px;font-weight:700;color:#4cd964;">890€</div>
+        </div>
+      </div>
+      <!-- Tree View -->
+      <div style="padding:0 16px 16px;">
+        <div style="font-size:12px;font-weight:600;color:#666;margin-bottom:8px;">NETZWERK-BAUM</div>
+        <div style="background:#222;border-radius:12px;padding:12px;">
+          <!-- Level 0: Me -->
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 0;">
+            <div style="width:36px;height:36px;border-radius:50%;background:#ffd600;display:flex;align-items:center;justify-content:center;font-weight:700;color:#000;font-size:14px;">DU</div>
+            <div style="flex:1;"><div style="font-weight:600;">Jan (Du)</div><div style="font-size:12px;color:#888;">4 Kuriere · 2 Ebenen</div></div>
+          </div>
+          <!-- Level 1: Direct couriers -->
+          <div style="margin-left:24px;border-left:2px solid #444;padding-left:16px;">
+            <div style="display:flex;align-items:center;gap:10px;padding:8px 0;cursor:pointer;" >
+              <div style="width:32px;height:32px;border-radius:50%;background:#5856d6;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:13px;">A</div>
+              <div style="flex:1;"><div style="font-weight:500;">Anna Kurz</div><div style="font-size:11px;color:#888;">Inv: 800€ · Umsatz: 340€ · Bonus: 17€</div></div>
+              <div style="color:#555;font-size:14px;">›</div>
+            </div>
+            <!-- Level 2: Anna's sub-couriers -->
+            <div style="margin-left:24px;border-left:2px solid #555;padding-left:16px;">
+              <div style="display:flex;align-items:center;gap:10px;padding:6px 0;">
+                <div style="width:28px;height:28px;border-radius:50%;background:#ff9500;display:flex;align-items:center;justify-content:center;font-weight:700;color:#000;font-size:11px;">K</div>
+                <div style="flex:1;"><div style="font-weight:500;font-size:14px;">Kevin Braun</div><div style="font-size:11px;color:#888;">Inv: 200€ · Umsatz: 80€</div></div>
+                <div style="color:#555;font-size:14px;">›</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:8px 0;">
+              <div style="width:32px;height:32px;border-radius:50%;background:#4cd964;display:flex;align-items:center;justify-content:center;font-weight:700;color:#000;font-size:13px;">T</div>
+              <div style="flex:1;"><div style="font-weight:500;">Tom Weber</div><div style="font-size:11px;color:#888;">Inv: 600€ · Umsatz: 250€ · Bonus: 12€</div></div>
+              <div style="color:#555;font-size:14px;">›</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:8px 0;">
+              <div style="width:32px;height:32px;border-radius:50%;background:#ff3b30;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:13px;">P</div>
+              <div style="flex:1;"><div style="font-weight:500;">Paul Richter</div><div style="font-size:11px;color:#888;">Inv: 1.000€ · Umsatz: 300€ · Bonus: 15€</div></div>
+              <div style="color:#555;font-size:14px;">›</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:32px;">
+  <h3>Kurier-Detail (Manager-Sicht)</h3>
+  <div class="split">
+    <div class="mockup">
+      <div class="mockup-header">Kurier: Anna Kurz</div>
+      <div class="mockup-body" style="font-family:system-ui;background:#1a1a1a;color:#fff;padding:0;">
+        <div style="padding:12px 16px;display:flex;justify-content:space-between;font-size:14px;">
+          <span style="color:#ffd600;">← Netzwerk</span>
+          <span style="color:#ffd600;">⚙</span>
+        </div>
+        <!-- Header -->
+        <div style="text-align:center;padding:4px 0 12px;">
+          <div style="width:56px;height:56px;border-radius:50%;background:#5856d6;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#fff;margin:0 auto;">A</div>
+          <div style="font-size:18px;font-weight:700;margin-top:6px;">Anna Kurz</div>
+          <div style="font-size:13px;color:#888;">Kurier seit 12. Jan 2026</div>
+        </div>
+        <!-- Balances -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:0 16px;margin-bottom:16px;">
+          <div style="background:#222;border-radius:12px;padding:10px;text-align:center;">
+            <div style="font-size:10px;color:#888;">Inventar</div>
+            <div style="font-size:18px;font-weight:700;color:#ffd600;">800€</div>
+          </div>
+          <div style="background:#222;border-radius:12px;padding:10px;text-align:center;">
+            <div style="font-size:10px;color:#888;">Umsatz</div>
+            <div style="font-size:18px;font-weight:700;color:#4cd964;">340€</div>
+          </div>
+          <div style="background:#222;border-radius:12px;padding:10px;text-align:center;">
+            <div style="font-size:10px;color:#888;">Bonus</div>
+            <div style="font-size:18px;font-weight:700;color:#ff9500;">17€</div>
+          </div>
+        </div>
+        <!-- Progress -->
+        <div style="padding:0 16px;margin-bottom:16px;">
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:#888;margin-bottom:4px;">
+            <span>Verkaufsfortschritt</span><span>30%</span>
+          </div>
+          <div style="background:#333;border-radius:4px;height:8px;overflow:hidden;">
+            <div style="background:linear-gradient(90deg,#ffd600,#4cd964);width:30%;height:100%;border-radius:4px;"></div>
+          </div>
+        </div>
+        <!-- Actions -->
+        <div style="display:flex;gap:8px;padding:0 16px;margin-bottom:16px;">
+          <div style="flex:1;background:#ffd600;color:#000;border-radius:10px;padding:10px;text-align:center;font-weight:600;font-size:13px;">Aufstocken</div>
+          <div style="flex:1;background:#4cd964;color:#000;border-radius:10px;padding:10px;text-align:center;font-weight:600;font-size:13px;">Abkassieren</div>
+          <div style="flex:1;background:#ff9500;color:#000;border-radius:10px;padding:10px;text-align:center;font-weight:600;font-size:13px;">Bonus</div>
+        </div>
+        <!-- Settings -->
+        <div style="padding:0 16px;margin-bottom:12px;">
+          <div style="background:#222;border-radius:12px;">
+            <div style="padding:12px 16px;display:flex;justify-content:space-between;border-bottom:1px solid #333;">
+              <span style="color:#888;">Bonus-Prozent</span><span>5% <span style="color:#ffd600;">✎</span></span>
+            </div>
+            <div style="padding:12px 16px;display:flex;justify-content:space-between;">
+              <span style="color:#888;">Gesamt-Umsatz</span><span>4.200€</span>
+            </div>
+          </div>
+        </div>
+        <!-- Sub-couriers -->
+        <div style="padding:0 16px 16px;">
+          <div style="font-size:12px;font-weight:600;color:#666;margin-bottom:8px;">SUB-KURIERE (1)</div>
+          <div style="background:#222;border-radius:12px;">
+            <div style="padding:12px 16px;display:flex;justify-content:space-between;align-items:center;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:32px;height:32px;border-radius:50%;background:#ff9500;display:flex;align-items:center;justify-content:center;font-weight:700;color:#000;font-size:12px;">K</div>
+                <div><div style="font-weight:500;">Kevin Braun</div><div style="font-size:11px;color:#888;">Inv: 200€ · Umsatz: 80€</div></div>
+              </div>
+              <div style="color:#555;">›</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mockup">
+      <div class="mockup-header">Kurier-Sicht (Anna sieht das)</div>
+      <div class="mockup-body" style="font-family:system-ui;background:#1a1a1a;color:#fff;padding:0;">
+        <div style="padding:12px 16px;font-size:14px;font-weight:600;text-align:center;">
+          Dein Kurier-Dashboard
+        </div>
+        <!-- Manager info -->
+        <div style="padding:0 16px 12px;">
+          <div style="background:#222;border-radius:12px;padding:12px;display:flex;align-items:center;gap:10px;">
+            <div style="width:36px;height:36px;border-radius:50%;background:#ffd600;display:flex;align-items:center;justify-content:center;font-weight:700;color:#000;font-size:14px;">J</div>
+            <div><div style="font-size:13px;color:#888;">Manager</div><div style="font-weight:600;">Jan</div></div>
+          </div>
+        </div>
+        <!-- My Balances -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:0 16px;margin-bottom:16px;">
+          <div style="background:#222;border-radius:12px;padding:10px;text-align:center;">
+            <div style="font-size:10px;color:#888;">Inventar</div>
+            <div style="font-size:18px;font-weight:700;color:#ffd600;">800€</div>
+          </div>
+          <div style="background:#222;border-radius:12px;padding:10px;text-align:center;">
+            <div style="font-size:10px;color:#888;">Umsatz</div>
+            <div style="font-size:18px;font-weight:700;color:#4cd964;">340€</div>
+          </div>
+          <div style="background:#222;border-radius:12px;padding:10px;text-align:center;">
+            <div style="font-size:10px;color:#888;">Bonus</div>
+            <div style="font-size:18px;font-weight:700;color:#ff9500;">17€</div>
+          </div>
+        </div>
+        <!-- Progress -->
+        <div style="padding:0 16px;margin-bottom:16px;">
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:#888;margin-bottom:4px;">
+            <span>Verkaufsfortschritt</span><span>30%</span>
+          </div>
+          <div style="background:#333;border-radius:4px;height:8px;overflow:hidden;">
+            <div style="background:linear-gradient(90deg,#ffd600,#4cd964);width:30%;height:100%;border-radius:4px;"></div>
+          </div>
+        </div>
+        <!-- Contacts I can sell to -->
+        <div style="padding:0 16px;margin-bottom:12px;">
+          <div style="font-size:12px;font-weight:600;color:#666;margin-bottom:8px;">KONTAKTE (Manager + Eigene)</div>
+          <div style="background:#222;border-radius:12px;">
+            <div style="padding:12px 16px;border-bottom:1px solid #333;display:flex;justify-content:space-between;align-items:center;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:28px;height:28px;border-radius:50%;background:#4cd964;display:flex;align-items:center;justify-content:center;font-weight:700;color:#000;font-size:11px;">M</div>
+                <div><div style="font-size:14px;">Max Müller</div><div style="font-size:11px;color:#555;">von Jan</div></div>
+              </div>
+              <div style="color:#ffd600;font-size:13px;">Verkaufen →</div>
+            </div>
+            <div style="padding:12px 16px;border-bottom:1px solid #333;display:flex;justify-content:space-between;align-items:center;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:28px;height:28px;border-radius:50%;background:#ff3b30;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:11px;">L</div>
+                <div><div style="font-size:14px;">Lisa Schmidt</div><div style="font-size:11px;color:#555;">von Jan</div></div>
+              </div>
+              <div style="color:#ffd600;font-size:13px;">Verkaufen →</div>
+            </div>
+            <div style="padding:12px 16px;display:flex;justify-content:space-between;align-items:center;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:28px;height:28px;border-radius:50%;background:#5856d6;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:11px;">S</div>
+                <div><div style="font-size:14px;">Sarah Neu</div><div style="font-size:11px;color:#4cd964;">eigener Kontakt</div></div>
+              </div>
+              <div style="color:#ffd600;font-size:13px;">Verkaufen →</div>
+            </div>
+          </div>
+        </div>
+        <!-- My sub-couriers -->
+        <div style="padding:0 16px 16px;">
+          <div style="font-size:12px;font-weight:600;color:#666;margin-bottom:8px;">MEINE KURIERE (1)</div>
+          <div style="background:#222;border-radius:12px;">
+            <div style="padding:12px 16px;display:flex;justify-content:space-between;align-items:center;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:28px;height:28px;border-radius:50%;background:#ff9500;display:flex;align-items:center;justify-content:center;font-weight:700;color:#000;font-size:11px;">K</div>
+                <div><div style="font-size:14px;">Kevin Braun</div><div style="font-size:11px;color:#888;">Inv: 200€ · Umsatz: 80€</div></div>
+              </div>
+              <div style="color:#555;">›</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
