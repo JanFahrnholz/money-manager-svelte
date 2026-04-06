@@ -47,7 +47,6 @@ import { DeviceService } from '../../../../core/services/device.service';
 import { EncryptedSyncService } from '../../../../core/services/encrypted-sync.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { QrDisplayComponent } from '../../../../shared/components/qr-display/qr-display.component';
-import { QrScannerComponent } from '../../../../shared/components/qr-scanner/qr-scanner.component';
 import type { Contact } from '../../../../core/models/contact.model';
 import type { CourierLink } from '../../../../core/models/courier-link.model';
 import type { Pair } from '../../../../core/models/pair.model';
@@ -99,7 +98,6 @@ import { TransactionTypeIconPipe } from '../../../../shared/pipes/transaction-ty
     StatsCardsComponent,
     TransactionTypeIconPipe,
     QrDisplayComponent,
-    QrScannerComponent,
   ],
   template: `
     <ion-header>
@@ -238,21 +236,6 @@ import { TransactionTypeIconPipe } from '../../../../shared/pipes/transaction-ty
         </ng-template>
       </ion-modal>
 
-      <ion-modal [isOpen]="showScanModal()" (didDismiss)="showScanModal.set(false)">
-        <ng-template>
-          <ion-header>
-            <ion-toolbar>
-              <ion-title>Scannen</ion-title>
-              <ion-buttons slot="end">
-                <ion-button (click)="showScanModal.set(false)">{{ 'cancel' | translate }}</ion-button>
-              </ion-buttons>
-            </ion-toolbar>
-          </ion-header>
-          <ion-content class="ion-padding">
-            <app-qr-scanner (scanned)="onQrScanned($event)" />
-          </ion-content>
-        </ng-template>
-      </ion-modal>
     </ion-content>
   `,
   styles: `
@@ -322,7 +305,6 @@ export class ContactDetailPage implements OnInit {
   readonly courierLink = signal<CourierLink | null>(null);
   readonly pair = signal<Pair | null>(null);
   readonly showQrModal = signal(false);
-  readonly showScanModal = signal(false);
   readonly qrPayload = signal('');
   readonly displayLimit = signal(50);
 
@@ -448,15 +430,9 @@ export class ContactDetailPage implements OnInit {
     const existingPair = this.pair();
     if (!existingPair) {
       buttons.push({
-        text: this.translate.instant('contact.showQr'),
+        text: this.translate.instant('contact.link'),
         handler: () => {
           this.showLinkQr();
-        },
-      });
-      buttons.push({
-        text: this.translate.instant('contact.scanQr'),
-        handler: () => {
-          this.openScanner();
         },
       });
     } else {
@@ -761,31 +737,7 @@ export class ContactDetailPage implements OnInit {
     this.showQrModal.set(true);
   }
 
-  async openScanner(): Promise<void> {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-      stream.getTracks().forEach(t => t.stop());
-      this.showScanModal.set(true);
-    } catch {
-      this.showManualLinkInput();
-    }
-  }
-
-  async showManualLinkInput(): Promise<void> {
-    const alert = await this.alertCtrl.create({
-      header: 'QR-Daten einfügen',
-      message: 'Kamera nicht verfügbar. Füge die QR-Daten manuell ein:',
-      inputs: [{ name: 'data', type: 'textarea', placeholder: '{"deviceId":"...","publicKey":...}' }],
-      buttons: [
-        { text: this.translate.instant('cancel'), role: 'cancel' },
-        { text: this.translate.instant('contact.link'), handler: (d: { data: string }) => { if (d.data?.trim()) this.onQrScanned(d.data.trim()); } },
-      ],
-    });
-    await alert.present();
-  }
-
   async onQrScanned(data: string): Promise<void> {
-    this.showScanModal.set(false);
     try {
       const parsed = JSON.parse(data);
       const { deviceId, publicKey, contactId, contactName } = parsed;

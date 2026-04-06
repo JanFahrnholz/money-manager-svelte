@@ -17,11 +17,20 @@ import {
   IonRefresher,
   IonRefresherContent,
   IonSpinner,
+  IonModal,
+  IonButton,
+  IonButtons,
+  AlertController,
+  NavController,
 } from '@ionic/angular/standalone';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
-import { add, personAddOutline } from 'ionicons/icons';
+import { add, personAddOutline, qrCode } from 'ionicons/icons';
 import { ContactService } from '../../services/contact.service';
+import { DeviceService } from '../../../../core/services/device.service';
+import { EncryptedSyncService } from '../../../../core/services/encrypted-sync.service';
+import { ToastService } from '../../../../core/services/toast.service';
+import { QrScannerComponent } from '../../../../shared/components/qr-scanner/qr-scanner.component';
 import { ContactListItemComponent } from '../../components/contact-list-item/contact-list-item.component';
 
 type FilterMode = 'all' | 'owned' | 'linked';
@@ -47,13 +56,22 @@ type FilterMode = 'all' | 'owned' | 'linked';
     IonRefresher,
     IonRefresherContent,
     IonSpinner,
+    IonModal,
+    IonButton,
+    IonButtons,
     TranslateModule,
     ContactListItemComponent,
+    QrScannerComponent,
   ],
   template: `
     <ion-header>
       <ion-toolbar>
         <ion-title>{{ 'tabs.contacts' | translate }}</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="openScanner()">
+            <ion-icon name="qr-code" slot="icon-only" />
+          </ion-button>
+        </ion-buttons>
       </ion-toolbar>
       <ion-toolbar>
         <ion-searchbar
@@ -112,6 +130,22 @@ type FilterMode = 'all' | 'owned' | 'linked';
         [buttons]="alertButtons"
         (didDismiss)="alertOpen.set(false)"
       />
+
+      <ion-modal [isOpen]="showScanModal()" (didDismiss)="showScanModal.set(false)">
+        <ng-template>
+          <ion-header>
+            <ion-toolbar>
+              <ion-title>Scannen</ion-title>
+              <ion-buttons slot="end">
+                <ion-button (click)="showScanModal.set(false)">{{ 'cancel' | translate }}</ion-button>
+              </ion-buttons>
+            </ion-toolbar>
+          </ion-header>
+          <ion-content class="ion-padding">
+            <app-qr-scanner (scanned)="onQrScanned($event)" />
+          </ion-content>
+        </ng-template>
+      </ion-modal>
     </ion-content>
   `,
 })
@@ -120,6 +154,7 @@ export class ContactListPage implements OnInit {
   readonly searchTerm = signal('');
   readonly filter = signal<FilterMode>('all');
   readonly alertOpen = signal(false);
+  readonly showScanModal = signal(false);
 
   readonly alertInputs = [
     {
@@ -161,8 +196,16 @@ export class ContactListPage implements OnInit {
     return list;
   });
 
-  constructor(private contactService: ContactService) {
-    addIcons({ add, personAddOutline });
+  constructor(
+    private contactService: ContactService,
+    private deviceService: DeviceService,
+    private encryptedSync: EncryptedSyncService,
+    private toast: ToastService,
+    private alertCtrl: AlertController,
+    private nav: NavController,
+    private translate: TranslateService,
+  ) {
+    addIcons({ add, personAddOutline, qrCode });
   }
 
   async ngOnInit(): Promise<void> {
@@ -182,5 +225,55 @@ export class ContactListPage implements OnInit {
 
   onFilterChange(event: CustomEvent): void {
     this.filter.set(event.detail.value as FilterMode);
+  }
+
+  async openScanner(): Promise<void> {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      stream.getTracks().forEach(t => t.stop());
+      this.showScanModal.set(true);
+    } catch {
+      this.showManualInput();
+    }
+  }
+
+  async showManualInput(): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: 'QR-Daten einfügen',
+      message: 'Kamera nicht verfügbar. QR-Daten manuell einfügen:',
+      inputs: [{ name: 'data', type: 'textarea' as const, placeholder: '{"deviceId":"..."}' }],
+      buttons: [
+        { text: this.translate.instant('cancel'), role: 'cancel' as const },
+        { text: this.translate.instant('contact.link'), handler: (d: { data: string }) => { if (d.data?.trim()) this.onQrScanned(d.data.trim()); } },
+      ],
+    });
+    await alert.present();
+  }
+
+  async onQrScanned(data: string): Promise<void> {
+    this.showScanModal.set(false);
+    try {
+      const parsed = JSON.parse(data);
+      const { deviceId, publicKey, contactId, contactName } = parsed;
+
+      // Create mirror contact
+      const contact = await this.contactService.create(contactName || 'Unbekannt');
+
+      // Create pair
+      const pair = await this.deviceService.createPair(contact.id, deviceId, publicKey, contactName || '');
+
+      // Update contact with remote device ID
+      await this.contactService.update(contact.id, { user: deviceId, linkedName: contactName });
+
+      // Send initial sync
+      await this.encryptedSync.notifyChange('contacts', contact.id, 'upsert', { ...contact, user: deviceId, linkedName: contactName });
+
+      this.toast.success('Verlinkt mit ' + (contactName || 'Unbekannt'));
+
+      // Navigate to new contact
+      this.nav.navigateForward('/tabs/contacts/' + contact.id);
+    } catch (e) {
+      this.toast.error('QR-Code ungültig');
+    }
   }
 }
