@@ -31,9 +31,27 @@ export class EncryptedSyncService {
       const pairId = await this.crypto.hashPairId(this.device.deviceId(), pair.remoteDeviceId);
       await this.relay.send(pairId, this.device.deviceId(), encrypted);
       console.log('[Sync] role upgrade sent:', newRole);
+
+      // After sending role upgrade, also push all contacts
+      await this.syncAllContactsToPair(pair);
     } catch (e) {
       console.error('[Sync] role upgrade send failed:', e);
     }
+  }
+
+  async syncAllContactsToPair(pair: Pair): Promise<void> {
+    const contacts = await this.sqlite.getAll<any>('contacts', 'name ASC');
+    for (const contact of contacts) {
+      const event: SyncEvent = {
+        action: 'upsert',
+        table: 'contacts',
+        recordId: contact.id,
+        data: contact,
+        timestamp: new Date().toISOString(),
+      };
+      await this.sendSyncEvent(pair, event);
+    }
+    console.log('[Sync] pushed', contacts.length, 'contacts to courier');
   }
 
   async sendSyncEvent(pair: Pair, event: SyncEvent): Promise<void> {
@@ -55,12 +73,14 @@ export class EncryptedSyncService {
     for (const pair of pairs) {
       let shouldSync = false;
       if (table === 'contacts' && pair.localContactId === recordId) shouldSync = true;
-      if (table === 'transactions' && pair.localContactId === contactId) shouldSync = true;
+      if (table === 'transactions') {
+        if (pair.localContactId === contactId) shouldSync = true;
+        // Courier syncs all transactions to manager
+        if (pair.role === 'courier') shouldSync = true;
+      }
       if (table === 'courier_links') {
-        const contact = await this.sqlite.getById<any>('contacts', pair.localContactId);
-        if (contact && (data['manager'] === contact['owner'] || data['courier'] === contact['user'])) {
-          shouldSync = true;
-        }
+        // Sync courier_link changes to all pairs for now; can be optimized later
+        shouldSync = true;
       }
 
       if (shouldSync) {
@@ -188,13 +208,24 @@ export class EncryptedSyncService {
     console.log(`[Sync] applying event: table=${event.table}, action=${event.action}, pair.role=${pair.role || 'owner'}`);
 
     if (event.action === 'delete') {
-      if (isViewer) {
+      if (event.table === 'courier_links') {
+        await this.sqlite.delete('courier_links', event.recordId);
+        console.log('[Sync] deleted courier_link');
+      } else if (isViewer) {
         if (event.table === 'contacts') await this.sqlite.delete('remote_contacts', event.recordId);
         if (event.table === 'transactions') await this.sqlite.delete('remote_transactions', event.recordId);
         console.log(`[Sync] deleted from remote_${event.table} cache`);
       } else {
         await this.sqlite.delete(event.table, event.recordId);
       }
+      return;
+    }
+
+    // courier_links are always stored locally (not in remote cache), regardless of role
+    if (event.table === 'courier_links') {
+      const { synced, ...data } = event.data;
+      await this.sqlite.upsert('courier_links', { ...data, id: event.recordId, synced: 1 });
+      console.log('[Sync] updated local courier_link from manager');
       return;
     }
 
@@ -208,6 +239,14 @@ export class EncryptedSyncService {
         console.log('[Sync] stored in remote_transactions cache');
       }
     } else {
+      // Incoming transactions from paired devices go to remote cache
+      if (event.table === 'transactions') {
+        const { synced, ...data } = event.data;
+        await this.sqlite.upsert('remote_transactions', { ...data, id: event.recordId, pairId: pair.id });
+        console.log('[Sync] stored incoming transaction in remote_transactions');
+        return;
+      }
+
       const existing = await this.sqlite.getById<any>(event.table, event.recordId);
       if (existing && existing['updated'] > event.timestamp) return;
 
