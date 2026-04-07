@@ -244,6 +244,16 @@ export class EncryptedSyncService {
         const { synced, ...data } = event.data;
         await this.sqlite.upsert('remote_transactions', { ...data, id: event.recordId, pairId: pair.id });
         console.log('[Sync] stored incoming transaction in remote_transactions');
+
+        // Forward up the chain if we are also a courier for someone else
+        const courierPairs = this.device.pairs().filter(p => p.role === 'courier');
+        for (const cp of courierPairs) {
+          // Don't forward back to the sender
+          if (cp.remoteDeviceId === pair.remoteDeviceId) continue;
+          await this.sendSyncEvent(cp, event);
+          console.log('[Sync] forwarded transaction up chain to:', cp.label);
+        }
+
         return;
       }
 
