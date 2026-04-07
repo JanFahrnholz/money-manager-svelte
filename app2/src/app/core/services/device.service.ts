@@ -60,7 +60,14 @@ export class DeviceService {
     });
   }
 
-  async createPair(localContactId: string, remoteDeviceId: string, remotePublicKeyJwk: JsonWebKey, label: string): Promise<Pair> {
+  async createPair(
+    localContactId: string,
+    remoteDeviceId: string,
+    remotePublicKeyJwk: JsonWebKey,
+    label: string,
+    role: string = '',
+    remoteContactId: string = '',
+  ): Promise<Pair> {
     const sharedKey = await this.crypto.deriveSharedKey(this.identity!.privateKey, remotePublicKeyJwk);
     const id = crypto.randomUUID().replace(/-/g, '').slice(0, 15);
     const pair: Pair = {
@@ -70,6 +77,8 @@ export class DeviceService {
       remotePublicKey: JSON.stringify(remotePublicKeyJwk),
       sharedKey,
       label,
+      role,
+      remoteContactId,
       created: new Date().toISOString(),
     };
     await this.sqlite.upsert('pairs', pair);

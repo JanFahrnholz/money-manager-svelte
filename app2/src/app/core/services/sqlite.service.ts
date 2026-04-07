@@ -116,7 +116,39 @@ export class SqliteService {
         remotePublicKey TEXT NOT NULL,
         sharedKey TEXT NOT NULL,
         label TEXT DEFAULT '',
+        role TEXT DEFAULT '',
+        remoteContactId TEXT DEFAULT '',
         created TEXT NOT NULL
+      );
+    `);
+
+    // Migration: add new columns to pairs if not exist
+    try { await this.db.execute("ALTER TABLE pairs ADD COLUMN role TEXT DEFAULT ''"); } catch {}
+    try { await this.db.execute("ALTER TABLE pairs ADD COLUMN remoteContactId TEXT DEFAULT ''"); } catch {}
+
+    await this.db.execute(`
+      CREATE TABLE IF NOT EXISTS remote_contacts (
+        id TEXT PRIMARY KEY,
+        pairId TEXT NOT NULL,
+        name TEXT NOT NULL DEFAULT '',
+        balance REAL DEFAULT 0,
+        score REAL DEFAULT 0,
+        created TEXT DEFAULT '',
+        updated TEXT DEFAULT ''
+      );
+    `);
+
+    await this.db.execute(`
+      CREATE TABLE IF NOT EXISTS remote_transactions (
+        id TEXT PRIMARY KEY,
+        pairId TEXT NOT NULL,
+        contactId TEXT NOT NULL DEFAULT '',
+        amount REAL NOT NULL DEFAULT 0,
+        type TEXT NOT NULL DEFAULT '',
+        date TEXT NOT NULL DEFAULT '',
+        info TEXT DEFAULT '',
+        created TEXT DEFAULT '',
+        updated TEXT DEFAULT ''
       );
     `);
   }
