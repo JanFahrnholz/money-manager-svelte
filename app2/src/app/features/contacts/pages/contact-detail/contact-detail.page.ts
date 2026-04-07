@@ -716,6 +716,12 @@ export class ContactDetailPage implements OnInit {
             const pct = parseFloat(data.pct) || 5;
             const link = await this.courierService.create(this.contact()!.user, pct);
             this.courierLink.set(link);
+
+            // Send role upgrade to paired viewer device
+            const p = this.pair();
+            if (p) {
+              await this.encryptedSync.sendRoleUpgrade(p, 'courier', { bonusPercentage: pct });
+            }
           },
         },
       ],

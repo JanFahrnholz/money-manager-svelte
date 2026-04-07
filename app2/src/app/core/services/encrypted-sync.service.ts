@@ -18,6 +18,24 @@ export class EncryptedSyncService {
     private relay: RelayService,
   ) {}
 
+  async sendRoleUpgrade(pair: Pair, newRole: string, courierData: Record<string, any> = {}): Promise<void> {
+    if (!this.relay.online()) return;
+    try {
+      const payload = JSON.stringify({
+        type: 'role_upgrade',
+        newRole,
+        courierData,
+        timestamp: new Date().toISOString(),
+      });
+      const encrypted = await this.crypto.encrypt(pair.sharedKey, payload);
+      const pairId = await this.crypto.hashPairId(this.device.deviceId(), pair.remoteDeviceId);
+      await this.relay.send(pairId, this.device.deviceId(), encrypted);
+      console.log('[Sync] role upgrade sent:', newRole);
+    } catch (e) {
+      console.error('[Sync] role upgrade send failed:', e);
+    }
+  }
+
   async sendSyncEvent(pair: Pair, event: SyncEvent): Promise<void> {
     if (!this.relay.online()) return;
     try {
@@ -93,7 +111,16 @@ export class EncryptedSyncService {
         for (const msg of messages) {
           try {
             const json = await this.crypto.decrypt(pair.sharedKey, msg.payload);
-            const event: SyncEvent = JSON.parse(json);
+            const parsed = JSON.parse(json);
+
+            if (parsed.type === 'role_upgrade') {
+              console.log('[Sync] received role upgrade:', parsed.newRole);
+              await this.handleRoleUpgrade(pair, parsed);
+              await this.relay.deleteMessage(msg.id);
+              continue;
+            }
+
+            const event: SyncEvent = parsed;
             await this.applySyncEvent(event, pair);
             await this.relay.deleteMessage(msg.id);
           } catch (e) {
@@ -149,6 +176,11 @@ export class EncryptedSyncService {
     } catch (e) {
       console.error('[Sync] pollPairingRequests error:', e);
     }
+  }
+
+  private async handleRoleUpgrade(pair: Pair, data: { newRole: string; courierData?: Record<string, any> }): Promise<void> {
+    await this.device.updatePairRole(pair.id, data.newRole);
+    console.log('[Sync] pair role updated to:', data.newRole);
   }
 
   private async applySyncEvent(event: SyncEvent, pair: Pair): Promise<void> {

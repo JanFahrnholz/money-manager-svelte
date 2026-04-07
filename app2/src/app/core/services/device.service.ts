@@ -91,6 +91,11 @@ export class DeviceService {
     this.pairs.update(list => list.filter(p => p.id !== id));
   }
 
+  async updatePairRole(pairId: string, newRole: string): Promise<void> {
+    await this.sqlite.run("UPDATE pairs SET role = ? WHERE id = ?", [newRole, pairId]);
+    this.pairs.update(list => list.map(p => p.id === pairId ? { ...p, role: newRole } : p));
+  }
+
   getPairForContact(contactId: string): Pair | undefined {
     return this.pairs().find(p => p.localContactId === contactId);
   }
