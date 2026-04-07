@@ -94,7 +94,7 @@ export class EncryptedSyncService {
           try {
             const json = await this.crypto.decrypt(pair.sharedKey, msg.payload);
             const event: SyncEvent = JSON.parse(json);
-            await this.applySyncEvent(event);
+            await this.applySyncEvent(event, pair);
             await this.relay.deleteMessage(msg.id);
           } catch (e) {
             // Might be a pairing request (plaintext) that we already processed — just delete
@@ -151,17 +151,37 @@ export class EncryptedSyncService {
     }
   }
 
-  private async applySyncEvent(event: SyncEvent): Promise<void> {
+  private async applySyncEvent(event: SyncEvent, pair: Pair): Promise<void> {
+    const isViewer = pair.role === 'viewer';
+    console.log(`[Sync] applying event: table=${event.table}, action=${event.action}, pair.role=${pair.role || 'owner'}`);
+
     if (event.action === 'delete') {
-      await this.sqlite.delete(event.table, event.recordId);
+      if (isViewer) {
+        if (event.table === 'contacts') await this.sqlite.delete('remote_contacts', event.recordId);
+        if (event.table === 'transactions') await this.sqlite.delete('remote_transactions', event.recordId);
+        console.log(`[Sync] deleted from remote_${event.table} cache`);
+      } else {
+        await this.sqlite.delete(event.table, event.recordId);
+      }
       return;
     }
 
-    const existing = await this.sqlite.getById<any>(event.table, event.recordId);
-    if (existing && existing['updated'] > event.timestamp) return;
+    if (isViewer) {
+      const { synced, ...data } = event.data;
+      if (event.table === 'contacts') {
+        await this.sqlite.upsert('remote_contacts', { ...data, id: event.recordId, pairId: pair.id });
+        console.log('[Sync] stored in remote_contacts cache');
+      } else if (event.table === 'transactions') {
+        await this.sqlite.upsert('remote_transactions', { ...data, id: event.recordId, pairId: pair.id });
+        console.log('[Sync] stored in remote_transactions cache');
+      }
+    } else {
+      const existing = await this.sqlite.getById<any>(event.table, event.recordId);
+      if (existing && existing['updated'] > event.timestamp) return;
 
-    const { synced, ...data } = event.data;
-    await this.sqlite.upsert(event.table, { ...data, id: event.recordId, synced: 1 });
+      const { synced, ...data } = event.data;
+      await this.sqlite.upsert(event.table, { ...data, id: event.recordId, synced: 1 });
+    }
   }
 
   startPolling(intervalMs = 30_000): void {
