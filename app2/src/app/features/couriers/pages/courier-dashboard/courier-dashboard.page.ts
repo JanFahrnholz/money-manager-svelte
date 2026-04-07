@@ -1,5 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { EuroPipe } from '../../../../shared/pipes/euro.pipe';
 import { RouterLink } from '@angular/router';
 import {
@@ -13,30 +12,28 @@ import {
   IonItem,
   IonLabel,
   IonAvatar,
-  IonGrid,
-  IonRow,
-  IonCol,
-  IonCard,
-  IonCardContent,
-  IonProgressBar,
   IonButton,
   IonIcon,
 } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
 import { arrowForward } from 'ionicons/icons';
-import { CourierService } from '../../services/courier.service';
 import { SqliteService } from '../../../../core/services/sqlite.service';
-import { UserService } from '../../../../core/services/user.service';
-import type { CourierLink } from '../../../../core/models/courier-link.model';
-import type { Contact } from '../../../../core/models/contact.model';
-import type { User } from '../../../../core/models/user.model';
+import { DeviceService } from '../../../../core/services/device.service';
+import type { Pair } from '../../../../core/models/pair.model';
+
+interface RemoteContact {
+  id: string;
+  pairId: string;
+  name: string;
+  balance: number;
+  score: number;
+}
 
 @Component({
   selector: 'app-courier-dashboard',
   standalone: true,
   imports: [
-    DecimalPipe,
     EuroPipe,
     RouterLink,
     IonHeader,
@@ -49,12 +46,6 @@ import type { User } from '../../../../core/models/user.model';
     IonItem,
     IonLabel,
     IonAvatar,
-    IonGrid,
-    IonRow,
-    IonCol,
-    IonCard,
-    IonCardContent,
-    IonProgressBar,
     IonButton,
     IonIcon,
     TranslateModule,
@@ -70,53 +61,17 @@ import type { User } from '../../../../core/models/user.model';
     </ion-header>
 
     <ion-content class="ion-padding">
-      @if (link(); as l) {
+      @if (courierPair(); as pair) {
         <!-- Manager info card -->
         <div class="manager-header">
           <ion-avatar class="avatar-lg">
-            <div class="avatar-inner">{{ managerName().charAt(0).toUpperCase() }}</div>
+            <div class="avatar-inner">{{ pair.label.charAt(0).toUpperCase() }}</div>
           </ion-avatar>
           <p class="manager-label">{{ 'courier.manager' | translate }}</p>
-          <h2 class="manager-name">{{ managerName() }}</h2>
+          <h2 class="manager-name">{{ pair.label }}</h2>
         </div>
 
-        <!-- Balance cards -->
-        <ion-grid>
-          <ion-row>
-            <ion-col size="4">
-              <ion-card class="balance-card">
-                <ion-card-content class="balance-card-content" style="border-top: 3px solid #ffd600;">
-                  <div class="balance-value">{{ l.inventoryBalance | euro }}</div>
-                  <div class="balance-label">{{ 'courier.inventory' | translate }}</div>
-                </ion-card-content>
-              </ion-card>
-            </ion-col>
-            <ion-col size="4">
-              <ion-card class="balance-card">
-                <ion-card-content class="balance-card-content" style="border-top: 3px solid #4cd964;">
-                  <div class="balance-value">{{ l.salesBalance | euro }}</div>
-                  <div class="balance-label">{{ 'courier.sales' | translate }}</div>
-                </ion-card-content>
-              </ion-card>
-            </ion-col>
-            <ion-col size="4">
-              <ion-card class="balance-card">
-                <ion-card-content class="balance-card-content" style="border-top: 3px solid #ff9500;">
-                  <div class="balance-value">{{ l.bonusBalance | euro }}</div>
-                  <div class="balance-label">{{ 'courier.bonus' | translate }}</div>
-                </ion-card-content>
-              </ion-card>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-
-        <!-- Progress bar -->
-        <div class="progress-section">
-          <div class="progress-label">{{ 'courier.progress' | translate }}: {{ progress() | number:'1.0-0' }}%</div>
-          <ion-progress-bar [value]="progress() / 100" color="success" />
-        </div>
-
-        <!-- Manager's contacts -->
+        <!-- Manager's contacts from remote cache -->
         @if (managerContacts().length > 0) {
           <div class="section">
             <h3 class="section-title">{{ 'courier.managerContacts' | translate }}</h3>
@@ -126,13 +81,18 @@ import type { User } from '../../../../core/models/user.model';
                   <ion-avatar slot="start" style="width:32px;height:32px;">
                     <div class="contact-avatar">{{ c.name.charAt(0).toUpperCase() }}</div>
                   </ion-avatar>
-                  <ion-label>{{ c.name }}</ion-label>
+                  <ion-label>
+                    <h3>{{ c.name }}</h3>
+                    <p [style.color]="c.balance < 0 ? '#ff3b30' : c.balance > 0 ? '#4cd964' : '#888'">
+                      {{ c.balance | euro }}
+                    </p>
+                  </ion-label>
                   <ion-button
                     slot="end"
                     size="small"
                     fill="outline"
                     [routerLink]="['/tabs/transactions/create']"
-                    [queryParams]="{ contactId: c.id }"
+                    [queryParams]="{ remoteContactId: c.id, remoteContactName: c.name, pairId: pair.id }"
                   >
                     {{ 'courier.sellTo' | translate }}
                     <ion-icon name="arrow-forward" slot="end" />
@@ -141,51 +101,19 @@ import type { User } from '../../../../core/models/user.model';
               }
             </ion-list>
           </div>
-        }
-
-        <!-- Own contacts -->
-        @if (ownContacts().length > 0) {
-          <div class="section">
-            <h3 class="section-title">{{ 'courier.ownContacts' | translate }}</h3>
-            <ion-list [inset]="true">
-              @for (c of ownContacts(); track c.id) {
-                <ion-item>
-                  <ion-avatar slot="start" style="width:32px;height:32px;">
-                    <div class="contact-avatar">{{ c.name.charAt(0).toUpperCase() }}</div>
-                  </ion-avatar>
-                  <ion-label>{{ c.name }}</ion-label>
-                  <ion-button
-                    slot="end"
-                    size="small"
-                    fill="outline"
-                    [routerLink]="['/tabs/transactions/create']"
-                    [queryParams]="{ contactId: c.id }"
-                  >
-                    {{ 'courier.sellTo' | translate }}
-                    <ion-icon name="arrow-forward" slot="end" />
-                  </ion-button>
-                </ion-item>
-              }
-            </ion-list>
+        } @else {
+          <div class="empty-contacts">
+            <p>{{ 'courier.noContactsSynced' | translate }}</p>
+            <p class="hint">{{ 'courier.waitingForSync' | translate }}</p>
           </div>
         }
-
-        <!-- Sub-couriers -->
-        @if (subCouriers().length > 0) {
-          <div class="section">
-            <h3 class="section-title">{{ 'courier.mySubCouriers' | translate }}</h3>
-            <ion-list [inset]="true">
-              @for (sub of subCouriers(); track sub.id) {
-                <ion-item [routerLink]="['/tabs/profile/network', sub.id]" detail>
-                  <ion-avatar slot="start" style="width:32px;height:32px;">
-                    <div class="contact-avatar">{{ getSubCourierInitial(sub.id) }}</div>
-                  </ion-avatar>
-                  <ion-label>{{ getSubCourierName(sub.id) }}</ion-label>
-                </ion-item>
-              }
-            </ion-list>
-          </div>
-        }
+      } @else {
+        <!-- No courier pair found -->
+        <div class="empty-state">
+          <div class="empty-icon">&#x1f4e6;</div>
+          <p>{{ 'courier.noPairFound' | translate }}</p>
+          <p class="hint">{{ 'courier.scanQrHint' | translate }}</p>
+        </div>
       }
     </ion-content>
   `,
@@ -224,30 +152,6 @@ import type { User } from '../../../../core/models/user.model';
         font-size: 20px;
         font-weight: 600;
       }
-      .balance-card {
-        margin: 0;
-      }
-      .balance-card-content {
-        text-align: center;
-        padding: 8px 4px;
-      }
-      .balance-value {
-        font-size: 16px;
-        font-weight: bold;
-      }
-      .balance-label {
-        font-size: 11px;
-        color: var(--ion-color-medium);
-        margin-top: 4px;
-      }
-      .progress-section {
-        margin: 16px 0;
-      }
-      .progress-label {
-        font-size: 13px;
-        color: var(--ion-color-medium);
-        margin-bottom: 6px;
-      }
       .section {
         margin-top: 20px;
       }
@@ -270,128 +174,51 @@ import type { User } from '../../../../core/models/user.model';
         font-size: 14px;
         font-weight: bold;
       }
+      .empty-state {
+        text-align: center;
+        padding: 48px 24px;
+        color: var(--ion-color-medium);
+      }
+      .empty-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+      }
+      .empty-contacts {
+        text-align: center;
+        padding: 24px;
+        color: var(--ion-color-medium);
+      }
+      .hint {
+        font-size: 12px;
+        margin-top: 4px;
+      }
     `,
   ],
 })
 export class CourierDashboardPage implements OnInit {
-  private readonly courierService = inject(CourierService);
   private readonly sqlite = inject(SqliteService);
-  private readonly auth = inject(UserService);
+  private readonly deviceService = inject(DeviceService);
 
-  readonly link = signal<CourierLink | null>(null);
-  readonly managerName = signal<string>('');
-  readonly managerContacts = signal<Contact[]>([]);
-  readonly ownContacts = signal<Contact[]>([]);
-  readonly subCouriers = signal<CourierLink[]>([]);
-  readonly subCourierNames = signal<Record<string, string>>({});
-
-  readonly progress = computed(() => {
-    const l = this.link();
-    if (!l) return 0;
-    const total = l.inventoryBalance + l.salesBalance;
-    if (total === 0) return 0;
-    const value = (l.salesBalance / total) * 100;
-    return isFinite(value) ? value : 0;
-  });
+  readonly courierPair = signal<Pair | null>(null);
+  readonly managerContacts = signal<RemoteContact[]>([]);
 
   constructor() {
     addIcons({ arrowForward });
   }
 
   async ngOnInit(): Promise<void> {
-    const userId = this.auth.user()?.id;
-    if (!userId) return;
+    // Find first pair with role 'courier'
+    const pairs = this.deviceService.pairs();
+    const courierPair = pairs.find(p => p.role === 'courier');
+    if (!courierPair) return;
 
-    // Load courier_links where current user is the courier
-    await this.courierService.loadManagedBy();
-    const links = this.courierService.managedBy();
-    if (links.length === 0) return;
+    this.courierPair.set(courierPair);
 
-    // Use the first link (could support switching later)
-    const activeLink = links[0];
-    this.link.set(activeLink);
-
-    // Resolve manager name
-    const name = await this.resolveManagerName(activeLink.manager);
-    this.managerName.set(name);
-
-    // Load manager's contacts
-    const mContacts = await this.sqlite.query<Contact>(
-      'SELECT * FROM contacts WHERE owner = ? ORDER BY name ASC',
-      [activeLink.manager],
+    // Load manager's contacts from the remote_contacts cache
+    const contacts = await this.sqlite.query<RemoteContact>(
+      'SELECT * FROM remote_contacts WHERE pairId = ? ORDER BY name ASC',
+      [courierPair.id],
     );
-    this.managerContacts.set(mContacts);
-
-    // Load own contacts
-    const oContacts = await this.sqlite.query<Contact>(
-      'SELECT * FROM contacts WHERE owner = ? ORDER BY name ASC',
-      [userId],
-    );
-    this.ownContacts.set(oContacts);
-
-    // Load sub-couriers (where current user is a manager)
-    const subs = await this.courierService.getByManager(userId);
-    this.subCouriers.set(subs);
-
-    // Resolve sub-courier names
-    const names: Record<string, string> = {};
-    for (const sub of subs) {
-      names[sub.id] = await this.resolveSubCourierName(sub.courier);
-    }
-    this.subCourierNames.set(names);
-  }
-
-  getSubCourierName(id: string): string {
-    return this.subCourierNames()[id] || 'Unknown';
-  }
-
-  getSubCourierInitial(id: string): string {
-    const name = this.getSubCourierName(id);
-    return name.charAt(0).toUpperCase();
-  }
-
-  private async resolveManagerName(managerId: string): Promise<string> {
-    // First check if the manager has a contact where owner = manager AND user = current user
-    const userId = this.auth.user()?.id;
-    if (userId) {
-      const contacts = await this.sqlite.query<Contact>(
-        'SELECT * FROM contacts WHERE owner = ? AND user = ? LIMIT 1',
-        [managerId, userId],
-      );
-      if (contacts.length > 0) {
-        return contacts[0].linkedName || contacts[0].name;
-      }
-    }
-
-    // Fall back to user table
-    const users = await this.sqlite.query<User>(
-      'SELECT * FROM users WHERE id = ? LIMIT 1',
-      [managerId],
-    );
-    if (users.length > 0) {
-      return users[0].username;
-    }
-
-    return 'Unknown';
-  }
-
-  private async resolveSubCourierName(courierId: string): Promise<string> {
-    const contacts = await this.sqlite.query<Contact>(
-      'SELECT * FROM contacts WHERE user = ? LIMIT 1',
-      [courierId],
-    );
-    if (contacts.length > 0) {
-      return contacts[0].name;
-    }
-
-    const users = await this.sqlite.query<User>(
-      'SELECT * FROM users WHERE id = ? LIMIT 1',
-      [courierId],
-    );
-    if (users.length > 0) {
-      return users[0].username;
-    }
-
-    return 'Unknown';
+    this.managerContacts.set(contacts);
   }
 }

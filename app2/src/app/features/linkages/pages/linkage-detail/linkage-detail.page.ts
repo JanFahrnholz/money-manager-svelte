@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import {
   IonHeader,
@@ -12,8 +12,12 @@ import {
   IonItem,
   IonLabel,
   IonNote,
+  IonButton,
+  IonIcon,
 } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
+import { addIcons } from 'ionicons';
+import { arrowForward } from 'ionicons/icons';
 import { EuroPipe } from '../../../../shared/pipes/euro.pipe';
 import { DeviceService } from '../../../../core/services/device.service';
 import { SqliteService } from '../../../../core/services/sqlite.service';
@@ -51,7 +55,10 @@ interface RemoteTransaction {
     IonItem,
     IonLabel,
     IonNote,
+    IonButton,
+    IonIcon,
     DatePipe,
+    RouterLink,
     TranslateModule,
     EuroPipe,
   ],
@@ -71,6 +78,18 @@ interface RemoteTransaction {
           <div style="font-size:20px;font-weight:700;">{{ pair()!.label }}</div>
           <div style="font-size:13px;color:#888;margin-top:4px;">{{ pair()!.role === 'courier' ? 'Kurier' : 'Viewer' }}</div>
         </div>
+
+        @if (pair()!.role === 'courier') {
+          <div style="text-align:center;padding:8px 0 16px;">
+            <ion-button
+              expand="block"
+              [routerLink]="['/tabs/profile/courier-dashboard']"
+            >
+              Kurier-Dashboard
+              <ion-icon name="arrow-forward" slot="end" />
+            </ion-button>
+          </div>
+        }
 
         @if (contact()) {
           <div style="text-align:center;padding:16px 0;">
@@ -116,6 +135,10 @@ export class LinkageDetailPage implements OnInit {
   readonly pair = signal<Pair | null>(null);
   readonly contact = signal<RemoteContact | null>(null);
   readonly transactions = signal<RemoteTransaction[]>([]);
+
+  constructor() {
+    addIcons({ arrowForward });
+  }
 
   async ngOnInit(): Promise<void> {
     const pairId = this.route.snapshot.paramMap.get('pairId');
