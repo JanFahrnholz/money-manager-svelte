@@ -258,27 +258,26 @@ export class ContactListPage implements OnInit {
       const parsed = JSON.parse(data);
       const { deviceId, publicKey, contactId, contactName, ownerName } = parsed;
 
-      // Mirror contact gets named after the QR DISPLAYER (not the contact name)
-      const mirrorName = ownerName || contactName || 'Unbekannt';
-      const contact = await this.contactService.create(mirrorName);
+      const displayName = ownerName || 'Unbekannt';
 
-      // Create pair
-      await this.deviceService.createPair(contact.id, deviceId, publicKey, mirrorName);
+      // Create pair — NO mirror contact
+      await this.deviceService.createPair(
+        '',           // localContactId: empty (no mirror contact)
+        deviceId,
+        publicKey,
+        displayName,  // label = owner's name
+        'viewer',     // role
+        contactId,    // remoteContactId = contact on owner's device
+      );
 
-      // Update contact with remote device ID
-      await this.contactService.update(contact.id, { user: deviceId, linkedName: mirrorName });
-
-      // Send pairing request with OUR name so the other device knows who we are
+      // Send pairing request so the owner creates their pair too
       const myName = this.auth.user()?.username || 'Unbekannt';
-      await this.encryptedSync.sendPairingRequest(deviceId, contactId, contact.id, myName);
+      await this.encryptedSync.sendPairingRequest(deviceId, contactId, '', myName);
 
-      // Send initial sync of our mirror contact
-      await this.encryptedSync.notifyChange('contacts', contact.id, 'upsert', { ...contact, user: deviceId, linkedName: mirrorName });
+      this.toast.success('Verlinkt mit ' + displayName);
 
-      this.toast.success('Verlinkt mit ' + mirrorName);
-
-      // Navigate to new contact
-      this.nav.navigateForward('/tabs/contacts/' + contact.id);
+      // Navigate to profile linkages instead of a contact
+      this.nav.navigateForward('/tabs/profile');
     } catch (e) {
       this.toast.error('QR-Code ungültig');
     }
