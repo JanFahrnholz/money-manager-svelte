@@ -17,7 +17,7 @@ import {
 } from '@ionic/angular/standalone';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
-import { language, syncCircle, peopleCircle, briefcase, cloudDownload } from 'ionicons/icons';
+import { language, syncCircle, peopleCircle, briefcase, cloudDownload, linkOutline } from 'ionicons/icons';
 import { HttpClient } from '@angular/common/http';
 import { UserService } from '../../../../core/services/user.service';
 import { RelayService } from '../../../../core/services/relay.service';
@@ -115,28 +115,13 @@ import { CourierService } from '../../../couriers/services/courier.service';
       </ion-list>
 
       <!-- Active Pairs -->
-      <div style="padding:0 16px;">
-        <div style="font-size:12px;font-weight:600;color:#666;margin-bottom:8px;">{{ 'profile.pairs' | translate }}</div>
-      </div>
-      @if (deviceService.pairs().length === 0) {
-        <ion-list [inset]="true">
-          <ion-item><ion-label color="medium">{{ 'profile.noPairs' | translate }}</ion-label></ion-item>
-        </ion-list>
-      } @else {
-        <ion-list [inset]="true">
-          @for (pair of deviceService.pairs(); track pair.id) {
-            <ion-item>
-              <ion-label>
-                <h3>{{ pair.label || 'Unknown' }}</h3>
-                <p>{{ getContactName(pair.localContactId) }}</p>
-              </ion-label>
-              <ion-button slot="end" fill="clear" color="danger" (click)="unlinkPair(pair.id)">
-                {{ 'contact.unlink' | translate }}
-              </ion-button>
-            </ion-item>
-          }
-        </ion-list>
-      }
+      <ion-list [inset]="true">
+        <ion-item [routerLink]="['/tabs/profile/linkages']" detail>
+          <ion-icon name="link-outline" slot="start" />
+          <ion-label>{{ 'profile.pairs' | translate }}</ion-label>
+          <ion-note slot="end">{{ deviceService.pairs().length }}</ion-note>
+        </ion-item>
+      </ion-list>
     </ion-content>
   `,
   styles: [
@@ -189,7 +174,7 @@ export class ProfilePage implements OnInit {
   readonly imported = signal(false);
 
   constructor() {
-    addIcons({ language, syncCircle, peopleCircle, briefcase, cloudDownload });
+    addIcons({ language, syncCircle, peopleCircle, briefcase, cloudDownload, linkOutline });
   }
 
   async ngOnInit(): Promise<void> {
