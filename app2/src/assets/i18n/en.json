@@ -52,7 +52,11 @@
     "sellTo": "Sell",
     "managerContacts": "Manager's Contacts",
     "ownContacts": "Own Contacts",
-    "mySubCouriers": "My Couriers"
+    "mySubCouriers": "My Couriers",
+    "noContactsSynced": "No contacts synced yet",
+    "waitingForSync": "Waiting for data from manager...",
+    "noPairFound": "You are not a courier yet",
+    "scanQrHint": "Scan a QR code and get promoted to courier"
   },
   "contact": {
     "create": "New Contact",

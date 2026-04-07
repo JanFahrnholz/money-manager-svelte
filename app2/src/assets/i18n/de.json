@@ -52,7 +52,11 @@
     "sellTo": "Verkaufen",
     "managerContacts": "Kontakte des Managers",
     "ownContacts": "Eigene Kontakte",
-    "mySubCouriers": "Meine Kuriere"
+    "mySubCouriers": "Meine Kuriere",
+    "noContactsSynced": "Noch keine Kontakte synchronisiert",
+    "waitingForSync": "Warte auf Daten vom Manager...",
+    "noPairFound": "Du bist noch kein Kurier",
+    "scanQrHint": "Scanne einen QR-Code und werde zum Kurier befördert"
   },
   "contact": {
     "create": "Neuer Kontakt",
