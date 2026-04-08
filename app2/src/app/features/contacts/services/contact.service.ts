@@ -77,7 +77,7 @@ export class ContactService {
     return this.sqlite.getById<Contact>('contacts', id);
   }
 
-  async create(name: string, user?: string): Promise<Contact> {
+  async create(name: string, user?: string, networkId: string = 'own'): Promise<Contact> {
     try {
       const id = crypto.randomUUID().replace(/-/g, '').slice(0, 15);
       const now = new Date().toISOString();
@@ -92,6 +92,7 @@ export class ContactService {
         user: user ?? '',
         statistics: '',
         score: 0,
+        networkId,
         created: now,
         updated: now,
         synced: false,

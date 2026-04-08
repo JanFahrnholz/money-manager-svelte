@@ -7,6 +7,7 @@ export interface Contact {
   user: string;
   statistics: string;
   score: number;
+  networkId: string;
   created: string;
   updated: string;
   synced: boolean;

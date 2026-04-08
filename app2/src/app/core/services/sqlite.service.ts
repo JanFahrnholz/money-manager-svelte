@@ -49,6 +49,7 @@ export class SqliteService {
         user TEXT DEFAULT '',
         statistics TEXT DEFAULT '',
         score REAL DEFAULT 0,
+        networkId TEXT DEFAULT 'own',
         created TEXT NOT NULL,
         updated TEXT NOT NULL,
         synced INTEGER DEFAULT 0
@@ -121,6 +122,9 @@ export class SqliteService {
         created TEXT NOT NULL
       );
     `);
+
+    // Migration: add new columns to contacts if not exist
+    try { await this.db.execute("ALTER TABLE contacts ADD COLUMN networkId TEXT DEFAULT 'own'"); } catch {}
 
     // Migration: add new columns to pairs if not exist
     try { await this.db.execute("ALTER TABLE pairs ADD COLUMN role TEXT DEFAULT ''"); } catch {}
