@@ -177,7 +177,7 @@ import { EuroPipe } from '../../../../shared/pipes/euro.pipe';
           <h3 class="section-title">{{ 'recent' | translate }}</h3>
           <ion-list>
             @for (tx of recentFiltered(); track tx.id) {
-              <ion-item [routerLink]="['/tabs/contacts', tx.contact]" detail="true">
+              <ion-item [routerLink]="['/tabs/network', tx.contact]" detail="true">
                 <ion-icon [name]="tx.type | txIcon" slot="start" />
                 <ion-label>
                   <h3>{{ 'transaction.' + txTypeKey(tx.type) | translate }}</h3>

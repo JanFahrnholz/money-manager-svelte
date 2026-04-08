@@ -20,6 +20,8 @@ import {
   IonModal,
   IonButton,
   IonButtons,
+  IonCard,
+  IonCardContent,
   AlertController,
   NavController,
 } from '@ionic/angular/standalone';
@@ -60,6 +62,8 @@ type FilterMode = 'all' | 'owned' | 'linked';
     IonModal,
     IonButton,
     IonButtons,
+    IonCard,
+    IonCardContent,
     TranslateModule,
     ContactListItemComponent,
     QrScannerComponent,
@@ -67,7 +71,7 @@ type FilterMode = 'all' | 'owned' | 'linked';
   template: `
     <ion-header>
       <ion-toolbar>
-        <ion-title>{{ 'tabs.contacts' | translate }}</ion-title>
+        <ion-title>{{ 'tabs.network' | translate }}</ion-title>
         <ion-buttons slot="end">
           <ion-button (click)="openScanner()">
             <ion-icon name="qr-code" slot="icon-only" />
@@ -100,6 +104,14 @@ type FilterMode = 'all' | 'owned' | 'linked';
       <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
         <ion-refresher-content />
       </ion-refresher>
+      <ion-card style="margin:16px;">
+        <ion-card-content style="text-align:center;">
+          <div style="font-size:16px;font-weight:700;">{{ 'network.myNetwork' | translate }}</div>
+          <div style="font-size:13px;color:#888;margin-top:4px;">
+            {{ contactService.contacts().length }} {{ 'network.contacts' | translate }}
+          </div>
+        </ion-card-content>
+      </ion-card>
       @if (loading()) {
         <div style="display:flex;justify-content:center;padding:40px;"><ion-spinner /></div>
       } @else {
@@ -198,7 +210,7 @@ export class ContactListPage implements OnInit {
   });
 
   constructor(
-    private contactService: ContactService,
+    public contactService: ContactService,
     private deviceService: DeviceService,
     private encryptedSync: EncryptedSyncService,
     private toast: ToastService,

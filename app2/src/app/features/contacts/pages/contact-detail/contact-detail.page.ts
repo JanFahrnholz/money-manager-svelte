@@ -103,7 +103,7 @@ import { TransactionTypeIconPipe } from '../../../../shared/pipes/transaction-ty
     <ion-header>
       <ion-toolbar>
         <ion-buttons slot="start">
-          <ion-back-button defaultHref="/tabs/contacts" [text]="'back' | translate" />
+          <ion-back-button defaultHref="/tabs/network" [text]="'back' | translate" />
         </ion-buttons>
         <ion-title>{{ contact()?.name ?? '' }}</ion-title>
         <ion-buttons slot="end">

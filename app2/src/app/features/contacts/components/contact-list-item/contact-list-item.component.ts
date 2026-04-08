@@ -43,7 +43,7 @@ import type { Contact } from '../../../../core/models/contact.model';
 export class ContactListItemComponent {
   readonly contact = input.required<Contact>();
 
-  readonly routerPath = computed(() => `/tabs/contacts/${this.contact().id}`);
+  readonly routerPath = computed(() => `/tabs/network/${this.contact().id}`);
 
   readonly initial = computed(() => {
     const name = this.contact().name;
