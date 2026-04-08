@@ -4,16 +4,9 @@ import {
   IonToolbar,
   IonTitle,
   IonContent,
-  IonSearchbar,
-  IonSegment,
-  IonSegmentButton,
-  IonLabel,
-  IonItem,
-  IonList,
   IonFab,
   IonFabButton,
   IonIcon,
-  IonAlert,
   IonRefresher,
   IonRefresherContent,
   IonSpinner,
@@ -22,21 +15,21 @@ import {
   IonButtons,
   IonCard,
   IonCardContent,
+  IonBadge,
   AlertController,
   NavController,
 } from '@ionic/angular/standalone';
+import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
-import { add, personAddOutline, qrCode } from 'ionicons/icons';
+import { add, chevronForward, qrCode } from 'ionicons/icons';
 import { ContactService } from '../../services/contact.service';
 import { DeviceService } from '../../../../core/services/device.service';
 import { EncryptedSyncService } from '../../../../core/services/encrypted-sync.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { UserService } from '../../../../core/services/user.service';
 import { QrScannerComponent } from '../../../../shared/components/qr-scanner/qr-scanner.component';
-import { ContactListItemComponent } from '../../components/contact-list-item/contact-list-item.component';
-
-type FilterMode = 'all' | 'owned' | 'linked';
+import { EuroPipe } from '../../../../shared/pipes/euro.pipe';
 
 @Component({
   selector: 'app-contact-list',
@@ -46,16 +39,9 @@ type FilterMode = 'all' | 'owned' | 'linked';
     IonToolbar,
     IonTitle,
     IonContent,
-    IonSearchbar,
-    IonSegment,
-    IonSegmentButton,
-    IonLabel,
-    IonItem,
-    IonList,
     IonFab,
     IonFabButton,
     IonIcon,
-    IonAlert,
     IonRefresher,
     IonRefresherContent,
     IonSpinner,
@@ -64,9 +50,11 @@ type FilterMode = 'all' | 'owned' | 'linked';
     IonButtons,
     IonCard,
     IonCardContent,
+    IonBadge,
+    RouterLink,
     TranslateModule,
-    ContactListItemComponent,
     QrScannerComponent,
+    EuroPipe,
   ],
   template: `
     <ion-header>
@@ -78,71 +66,74 @@ type FilterMode = 'all' | 'owned' | 'linked';
           </ion-button>
         </ion-buttons>
       </ion-toolbar>
-      <ion-toolbar>
-        <ion-searchbar
-          [placeholder]="'search' | translate"
-          (ionInput)="onSearch($event)"
-          [debounce]="200"
-        />
-      </ion-toolbar>
-      <ion-toolbar>
-        <ion-segment [value]="filter()" (ionChange)="onFilterChange($event)">
-          <ion-segment-button value="all">
-            <ion-label>{{ 'all' | translate }}</ion-label>
-          </ion-segment-button>
-          <ion-segment-button value="owned">
-            <ion-label>{{ 'owned' | translate }}</ion-label>
-          </ion-segment-button>
-          <ion-segment-button value="linked">
-            <ion-label>{{ 'linked' | translate }}</ion-label>
-          </ion-segment-button>
-        </ion-segment>
-      </ion-toolbar>
     </ion-header>
 
     <ion-content>
       <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
         <ion-refresher-content />
       </ion-refresher>
-      <ion-card style="margin:16px;">
-        <ion-card-content style="text-align:center;">
-          <div style="font-size:16px;font-weight:700;">{{ 'network.myNetwork' | translate }}</div>
-          <div style="font-size:13px;color:#888;margin-top:4px;">
-            {{ contactService.contacts().length }} {{ 'network.contacts' | translate }}
-          </div>
-        </ion-card-content>
-      </ion-card>
+
       @if (loading()) {
         <div style="display:flex;justify-content:center;padding:40px;"><ion-spinner /></div>
       } @else {
-        <ion-list lines="inset">
-          @for (contact of filteredContacts(); track contact.id) {
-            <app-contact-list-item [contact]="contact" />
-          } @empty {
-            <div style="text-align:center;padding:60px 24px;">
-              <ion-icon name="person-add-outline" style="font-size:64px;color:#666;display:block;margin:0 auto 16px;" />
-              <h3 style="color:#fff;margin-bottom:8px;">{{ 'contact.welcome' | translate }}</h3>
-              <p style="color:#888;font-size:14px;line-height:1.5;margin-bottom:24px;">
-                {{ 'contact.welcomeHint' | translate }}
-              </p>
+        <!-- Own Network Card -->
+        <ion-card [routerLink]="['/tabs/network', 'own']" button style="margin:16px;">
+          <ion-card-content>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <div style="font-size:18px;font-weight:700;color:#fff;">{{ 'network.myNetwork' | translate }}</div>
+                <div style="font-size:13px;color:#888;margin-top:4px;">{{ ownContactCount() }} {{ 'network.contacts' | translate }}</div>
+              </div>
+              <ion-icon name="chevron-forward" style="color:#666;font-size:20px;" />
             </div>
-          }
-        </ion-list>
+            <div style="display:flex;gap:16px;margin-top:12px;">
+              <div>
+                <div style="font-size:11px;color:#888;">{{ 'network.claims' | translate }}</div>
+                <div style="font-size:16px;font-weight:600;color:#4cd964;">{{ claims() | euro }}</div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:#888;">{{ 'network.debts' | translate }}</div>
+                <div style="font-size:16px;font-weight:600;color:#ff3b30;">{{ debts() | euro }}</div>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Agent Network Cards -->
+        @for (network of agentNetworks(); track network.pairId) {
+          <ion-card [routerLink]="['/tabs/network', network.pairId]" button style="margin:0 16px 12px;">
+            <ion-card-content>
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                  <div style="font-size:16px;font-weight:700;color:#fff;">{{ network.label }}</div>
+                  <ion-badge color="warning" style="margin-top:4px;">Agent</ion-badge>
+                </div>
+                <ion-icon name="chevron-forward" style="color:#666;font-size:20px;" />
+              </div>
+              <div style="display:flex;gap:16px;margin-top:12px;">
+                <div>
+                  <div style="font-size:11px;color:#888;">{{ 'courier.inventory' | translate }}</div>
+                  <div style="font-size:14px;font-weight:600;color:#ffd600;">{{ network.inventory | euro }}</div>
+                </div>
+                <div>
+                  <div style="font-size:11px;color:#888;">{{ 'courier.sales' | translate }}</div>
+                  <div style="font-size:14px;font-weight:600;color:#4cd964;">{{ network.sales | euro }}</div>
+                </div>
+                <div>
+                  <div style="font-size:11px;color:#888;">{{ 'network.contacts' | translate }}</div>
+                  <div style="font-size:14px;font-weight:600;">{{ network.contactCount }}</div>
+                </div>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        }
       }
 
       <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-        <ion-fab-button (click)="alertOpen.set(true)">
+        <ion-fab-button [routerLink]="['/tabs/network', 'own']">
           <ion-icon name="add" />
         </ion-fab-button>
       </ion-fab>
-
-      <ion-alert
-        [isOpen]="alertOpen()"
-        [header]="'contact.create' | translate"
-        [inputs]="alertInputs"
-        [buttons]="alertButtons"
-        (didDismiss)="alertOpen.set(false)"
-      />
 
       <ion-modal [isOpen]="showScanModal()" (didDismiss)="showScanModal.set(false)">
         <ng-template>
@@ -164,49 +155,34 @@ type FilterMode = 'all' | 'owned' | 'linked';
 })
 export class ContactListPage implements OnInit {
   readonly loading = signal(true);
-  readonly searchTerm = signal('');
-  readonly filter = signal<FilterMode>('all');
-  readonly alertOpen = signal(false);
   readonly showScanModal = signal(false);
 
-  readonly alertInputs = [
-    {
-      name: 'name',
-      type: 'text' as const,
-      placeholder: 'Name',
-    },
-  ];
+  readonly ownContactCount = computed(() =>
+    this.contactService.contacts().filter(c => !c.networkId || c.networkId === 'own').length,
+  );
 
-  readonly alertButtons = [
-    {
-      text: 'Cancel',
-      role: 'cancel' as const,
-    },
-    {
-      text: 'OK',
-      handler: (data: { name: string }) => {
-        const name = data.name?.trim();
-        if (name) {
-          this.contactService.create(name);
-        }
-      },
-    },
-  ];
+  readonly claims = computed(() =>
+    this.contactService.contacts()
+      .filter(c => (!c.networkId || c.networkId === 'own') && c.balance < 0)
+      .reduce((sum, c) => sum + Math.abs(c.balance), 0),
+  );
 
-  readonly filteredContacts = computed(() => {
-    let list =
-      this.filter() === 'owned'
-        ? this.contactService.owned()
-        : this.filter() === 'linked'
-          ? this.contactService.linked()
-          : this.contactService.contacts();
+  readonly debts = computed(() =>
+    this.contactService.contacts()
+      .filter(c => (!c.networkId || c.networkId === 'own') && c.balance > 0)
+      .reduce((sum, c) => sum + c.balance, 0),
+  );
 
-    const term = this.searchTerm().toLowerCase();
-    if (term) {
-      list = list.filter((c) => c.name.toLowerCase().includes(term));
-    }
-
-    return list;
+  readonly agentNetworks = computed(() => {
+    return this.deviceService.pairs()
+      .filter(p => p.role === 'courier')
+      .map(p => ({
+        pairId: p.id,
+        label: p.label || 'Unbekannt',
+        inventory: 0,
+        sales: 0,
+        contactCount: 0,
+      }));
   });
 
   constructor(
@@ -219,7 +195,7 @@ export class ContactListPage implements OnInit {
     private nav: NavController,
     private translate: TranslateService,
   ) {
-    addIcons({ add, personAddOutline, qrCode });
+    addIcons({ add, chevronForward, qrCode });
   }
 
   async ngOnInit(): Promise<void> {
@@ -231,14 +207,6 @@ export class ContactListPage implements OnInit {
   async doRefresh(event: any): Promise<void> {
     await this.contactService.loadAll();
     event.target.complete();
-  }
-
-  onSearch(event: CustomEvent): void {
-    this.searchTerm.set((event.detail.value ?? '').toString());
-  }
-
-  onFilterChange(event: CustomEvent): void {
-    this.filter.set(event.detail.value as FilterMode);
   }
 
   async openScanner(): Promise<void> {
@@ -253,8 +221,8 @@ export class ContactListPage implements OnInit {
 
   async showManualInput(): Promise<void> {
     const alert = await this.alertCtrl.create({
-      header: 'QR-Daten einfügen',
-      message: 'Kamera nicht verfügbar. QR-Daten manuell einfügen:',
+      header: 'QR-Daten einf\u00fcgen',
+      message: 'Kamera nicht verf\u00fcgbar. QR-Daten manuell einf\u00fcgen:',
       inputs: [{ name: 'data', type: 'textarea' as const, placeholder: '{"deviceId":"..."}' }],
       buttons: [
         { text: this.translate.instant('cancel'), role: 'cancel' as const },
@@ -268,30 +236,26 @@ export class ContactListPage implements OnInit {
     this.showScanModal.set(false);
     try {
       const parsed = JSON.parse(data);
-      const { deviceId, publicKey, contactId, contactName, ownerName } = parsed;
+      const { deviceId, publicKey, contactId, ownerName } = parsed;
 
       const displayName = ownerName || 'Unbekannt';
 
-      // Create pair — NO mirror contact
       await this.deviceService.createPair(
-        '',           // localContactId: empty (no mirror contact)
+        '',
         deviceId,
         publicKey,
-        displayName,  // label = owner's name
-        'viewer',     // role
-        contactId,    // remoteContactId = contact on owner's device
+        displayName,
+        'viewer',
+        contactId,
       );
 
-      // Send pairing request so the owner creates their pair too
       const myName = this.auth.user()?.username || 'Unbekannt';
       await this.encryptedSync.sendPairingRequest(deviceId, contactId, '', myName);
 
       this.toast.success('Verlinkt mit ' + displayName);
-
-      // Navigate to profile linkages instead of a contact
       this.nav.navigateForward('/tabs/profile');
     } catch (e) {
-      this.toast.error('QR-Code ungültig');
+      this.toast.error('QR-Code ung\u00fcltig');
     }
   }
 }
