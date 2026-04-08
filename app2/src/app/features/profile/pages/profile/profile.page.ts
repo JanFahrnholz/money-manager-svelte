@@ -84,16 +84,6 @@ import { CourierService } from '../../../couriers/services/courier.service';
             {{ relay.online() ? ('online' | translate) : ('offline' | translate) }}
           </ion-note>
         </ion-item>
-        <ion-item [routerLink]="['/tabs/profile/network']" detail>
-          <ion-icon name="people-circle" slot="start" />
-          <ion-label>{{ 'profile.network' | translate }}</ion-label>
-        </ion-item>
-        @if (isCourier()) {
-          <ion-item [routerLink]="['/tabs/profile/courier-dashboard']" detail>
-            <ion-icon name="briefcase" slot="start" />
-            <ion-label>{{ 'courier.dashboard' | translate }}</ion-label>
-          </ion-item>
-        }
       </ion-list>
 
       <!-- Import -->
