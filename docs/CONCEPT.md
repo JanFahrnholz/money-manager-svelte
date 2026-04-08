@@ -4,15 +4,15 @@
 
 ## 1. Vision
 
-MoneyManager ist eine local-first, privacy-preserving App zum Tracken von Geldbeziehungen. Du führst ein Buch: wer schuldet dir Geld, wem schuldest du, wer hat gezahlt, wer hat geliehen. Alle Daten leben auf deinem Gerät. Kein Server sieht jemals Klartext. Optional können Geräte per QR-Code verlinkt werden für Transparenz (Viewer) oder Delegation (Kurier). Ziel: PWA + native (iOS/Android), offline-first.
+MoneyManager ist eine local-first, privacy-preserving App zum Tracken von Geldbeziehungen. Du führst ein Buch: wer schuldet dir Geld, wem schuldest du, wer hat gezahlt, wer hat geliehen. Alle Daten leben auf deinem Gerät. Kein Server sieht jemals Klartext. Optional können Geräte per QR-Code verbunden werden für Transparenz (Viewer) oder Delegation (Agent). Ziel: PWA + native (iOS/Android), offline-first.
 
 ## 2. Kernprinzipien
 
 - **Kontakt = Bucheintrag**, nicht Person. Ein Kontakt existiert nur in deinem Buch.
 - **Negativer Kontostand = Kontakt schuldet dir Geld.** Positiv = du schuldest dem Kontakt.
+- **Netzwerk = Container für Kontakte.** Jeder hat ein eigenes Netzwerk. Agents arbeiten in fremden Netzwerken.
 - **Daten-Ownership**: Jeder ist Owner seiner eigenen Daten. Kein zentraler Server.
 - **Verlinkung ist optional.** 90% der Nutzung funktioniert ohne Pairing.
-- **Alles ist ein Kontakt.** Kurier, Viewer, Freund — alles sind Kontakte mit verschiedenen Eigenschaften.
 
 ## 3. Core Entities
 
@@ -27,21 +27,27 @@ Lokaler App-Account, kein Server-Account.
 - `id`, `username`, `balance`, `settings`, `language`
 - `balance` = Summe aller Income - Expense + Refund
 
-### 3.3 Contact
-Bucheintrag für eine Person mit der du Geld trackst.
-- `name`, `balance`, `score`, `owner` (immer lokaler User)
-- `user` (deviceId des gepaarten Geräts, leer wenn nicht verlinkt)
-- `balance` = nur Invoice/Refund Effekte (Schulden-Buch)
-- Kann Eigenschaften haben: verlinkt, Kurier
+### 3.3 Netzwerk
+Container der Kontakte und Transaktionen gruppiert.
+- Jeder User hat ein Standard-Netzwerk ("Mein Netzwerk")
+- Agent-Netzwerke: Netzwerke anderer Manager in denen man als Agent arbeitet
+- Kontakte gehören zu genau einem Netzwerk (Default: eigenes)
+- Identifiziert durch `networkId` auf jedem Kontakt ("own" = eigenes, pair.id = Agent-Netzwerk)
 
-### 3.4 Transaction
+### 3.4 Contact
+Bucheintrag für eine Person mit der du Geld trackst.
+- `name`, `balance`, `score`, `owner`, `networkId`
+- `balance` = nur Kredit/Refund Effekte (Schulden-Buch)
+- Kann Eigenschaften haben: verbunden (gepairt), Agent
+
+### 3.5 Transaction
 Geld-Bewegung zwischen dir und einem Kontakt.
 
-| Typ | Deutsch | Wer erstellt | Kontakt-Balance | User-Balance | Kurier-Effekt |
-|-----|---------|-------------|-----------------|--------------|---------------|
-| Income | Einnahme | Owner/Kurier | keine Änderung | +Betrag | Inventar -, Umsatz +, Bonus + |
+| Typ | Deutsch | Wer erstellt | Kontakt-Balance | User-Balance | Agent-Effekt |
+|-----|---------|-------------|-----------------|--------------|--------------|
+| Income | Einnahme | Owner/Agent | keine Änderung | +Betrag | Inventar -, Umsatz +, Bonus + |
 | Expense | Ausgabe | Owner | keine Änderung | -Betrag | — |
-| Invoice | Rechnung | Owner | -Betrag | keine Änderung | — |
+| Credit | Kredit | Owner | -Betrag | keine Änderung | — |
 | Refund | Rückzahlung | Owner | +Betrag | +Betrag | — |
 | Restock | Aufstocken | Manager | keine Änderung | keine Änderung | Inventar + |
 | Collect | Abkassieren | Manager | keine Änderung | keine Änderung | Umsatz - |
@@ -49,75 +55,82 @@ Geld-Bewegung zwischen dir und einem Kontakt.
 
 Geplante Transaktionen (`planned = true`) haben keine Balance-Effekte bis sie bestätigt werden.
 
-### 3.5 CourierLink
-Manager→Kurier Beziehung mit drei Kontoständen.
+### 3.6 AgentLink (intern: CourierLink)
+Manager→Agent Beziehung mit drei Kontoständen.
 - `inventoryBalance`: Warenbestand zum Verkaufen
 - `salesBalance`: Erlöse aus Verkäufen
 - `bonusBalance`: Provision (% vom Umsatz)
 - `bonusPercentage`: Provisionssatz
 
-### 3.6 Pair
+### 3.7 Pair
 Verschlüsselte Verbindung zwischen zwei Geräten.
 - `remoteDeviceId`, `remotePublicKey`, `sharedKey` (AES-256-GCM)
-- `role`: `'viewer'` | `'courier'` | `''`
-- `localContactId`: Kontakt auf Owner-Seite (leer auf Viewer-Seite)
+- `role`: `'viewer'` | `'agent'` | `''`
+- `localContactId`: Kontakt auf Owner-Seite
 - `remoteContactId`: Kontakt-ID auf dem anderen Gerät
 
-## 4. Zwei Modi pro User
+## 4. Netzwerk-Modell
 
-### "Mein Buch" (Owner-Modus)
-Standard. Du erstellst Kontakte, buchst Transaktionen, verwaltest Kuriere.
-- **Tab: Dashboard** — Kontostand, Forderungen/Schulden, letzte Transaktionen
-- **Tab: Kontakte** — Alle Kontakte mit Filter (Alle/Eigene/Verlinkt/Kuriere)
-- **Tab: Profil** — Einstellungen, Geräte-ID, "Bei mir verlinkt"
+### Jeder hat sein eigenes Netzwerk
+- Beim ersten Start: "Mein Netzwerk" wird automatisch erstellt
+- Enthält alle eigenen Kontakte und Transaktionen
+- Volle Kontrolle: erstellen, bearbeiten, löschen
 
-### "Bei mir verlinkt" (Verlinkt-Modus)
-Kleiner Bereich im Profil. Zeigt Personen die DICH in ihrem Buch verlinkt haben.
+### Agent-Netzwerke
+- Wenn du als Agent für einen Manager arbeitest, erscheint dessen Netzwerk als separate Karte
+- Du siehst die gecachten Kontakte des Managers
+- Du kannst Einnahmen buchen die Inventar reduzieren und Umsatz erhöhen
+- Jedes Agent-Netzwerk hat eigenes Inventar/Umsatz/Bonus
+
+### Netzwerk-Verbindung
+- Ein Agent verbindet sein Netzwerk mit dem des Managers
+- Transaktionen in Agent-Kontakten fließen als Umsatz zum Manager
+- Sub-Agents: Agent kann eigene Agents haben → Ketten-Forwarding
+
+### Multi-Manager
+- Ein User kann Agent in mehreren Netzwerken sein
+- Jedes Netzwerk ist unabhängig (eigener Schlüssel, eigenes Inventar)
+- Kontakte sind pro Netzwerk getrennt
+
+## 5. Zwei Modi pro User
+
+### "Mein Netzwerk" (Owner-Modus)
+Standard. Du erstellst Kontakte, buchst Transaktionen, verwaltest Agents.
+
+### "Agent-Netzwerke" (Agent-Modus)
+Netzwerke anderer Manager. Du siehst gecachte Kontakte und buchst Einnahmen.
+
+### "Bei mir verbunden" (Viewer-Modus)
+Im Profil. Zeigt Personen die DICH in ihrem Buch verbunden haben.
 - **Viewer**: Read-Only Sicht auf deine Daten im Buch des Owners
-- **Kurier**: Kurier-Dashboard mit Inventar/Umsatz/Bonus + Kontakte zum Verkaufen
-
-## 5. Kontakt-Eigenschaften
-
-Ein Kontakt ist immer ein Bucheintrag. Optional hat er zusätzliche Eigenschaften:
-
-| Eigenschaft | Bedeutung | Aktivierung |
-|-------------|-----------|------------|
-| Basis | Balance + Transaktionen | Immer (jeder Kontakt) |
-| Verlinkt | Gerät gepairt, Person hat die App | QR-Pairing |
-| Kurier | Darf Einnahmen buchen, hat Inventar/Umsatz/Bonus | Owner befördert nach Pairing |
-
-Kontakt-Detail zeigt alles an einem Ort:
-- Balance, Graph, Stats, Transaktionen (immer)
-- "Verlinkt ✓" Badge + Pair-Info (wenn verlinkt)
-- Kurier-Bereich: Inventar/Umsatz/Bonus + Aktionen (wenn Kurier)
+- **Agent**: Agent-Dashboard mit Inventar/Umsatz/Bonus
 
 ## 6. QR-Pairing
 
-### Zwei Wege zum Pairen
+### Zwei Wege zum Verbinden
 
 **Weg 1: Kontakt-QR (Shortcut)**
-1. Owner öffnet Kontakt-Detail → "Verlinken" → QR zeigen
+1. Owner öffnet Kontakt-Detail → "Verbinden" → QR zeigen
 2. Partner scannt → Pair wird sofort dem Kontakt zugewiesen
 3. QR enthält: `{ deviceId, publicKey, contactId, contactName, ownerName }`
 
 **Weg 2: Profil-QR (Flexibel)**
 1. Owner zeigt Geräte-QR im Profil (immer gleich)
-2. Partner scannt → Geräte gepairt, aber kein Kontakt zugewiesen
-3. Owner weist nachträglich zu: "Diese Verlinkung gehört zu Kontakt X"
-4. QR enthält: `{ deviceId, publicKey, ownerName }`
+2. Partner scannt → Geräte verbunden, kein Kontakt zugewiesen
+3. Owner weist nachträglich zu: "Diese Verbindung gehört zu Kontakt X"
 
 ### Pairing-Ablauf
 1. Gerät B scannt QR → erstellt Pair lokal
-2. Gerät B sendet Pairing-Request an Relay (unverschlüsselt: Public Key + Contact Info)
+2. Gerät B sendet Pairing-Request an Relay
 3. Gerät A pollt → findet Request → erstellt eigenes Pair
-4. Beide Geräte haben jetzt denselben AES-256-GCM Schlüssel (via ECDH)
+4. Beide Geräte haben denselben AES-256-GCM Schlüssel (via ECDH)
 5. Verschlüsselter Sync startet
 
-### Beförderung zum Kurier
-1. Kontakt muss erst verlinkt sein (Pair existiert)
-2. Owner: Kontakt-Detail → "Zum Kurier machen" → Bonus-% eingeben
-3. `role_upgrade` Sync-Message an Kurier-Gerät
-4. Manager sendet alle seine Kontakte als Cache an den Kurier
+### Beförderung zum Agent
+1. Kontakt muss erst verbunden sein (Pair existiert)
+2. Owner: Kontakt-Detail → "Zum Agent machen" → Bonus-% eingeben
+3. `role_upgrade` Sync-Message an Agent-Gerät
+4. Manager sendet alle seine Kontakte als Cache an den Agent
 
 ## 7. Verschlüsselung & Sync
 
@@ -133,22 +146,22 @@ Kontakt-Detail zeigt alles an einem Ort:
 
 ### Sync-Richtungen
 - **Owner → Viewer**: Kontakt-Daten + Transaktionen (Read-Only Push)
-- **Owner → Kurier**: Kontakte, CourierLink-Updates (Inventar, Bonus-%)
-- **Kurier → Owner**: Income-Transaktionen, Balance-Updates
-- **Chain Forwarding**: Sub-Kurier → Kurier → Manager (automatisch)
+- **Owner → Agent**: Kontakte, AgentLink-Updates (Inventar, Bonus-%)
+- **Agent → Owner**: Income-Transaktionen, Balance-Updates
+- **Chain Forwarding**: Sub-Agent → Agent → Manager (automatisch)
 
 ### Cache-Tabellen
 Empfangene Daten landen in separaten Cache-Tabellen:
-- `remote_contacts`: Gecachte Kontakte vom Manager (für Kurier)
+- `remote_contacts`: Gecachte Kontakte vom Manager (für Agent)
 - `remote_transactions`: Gecachte Transaktionen
 
-## 8. Kurier-System
+## 8. Agent-System
 
 ### Inventar-Flow
 ```
 Manager stockt auf (Restock +500€)
-    → Kurier: inventoryBalance = 500€
-Kurier verkauft (Income 50€ bei Kontakt "Max")
+    → Agent: inventoryBalance = 500€
+Agent verkauft (Income 50€ bei Kontakt "Max")
     → inventoryBalance -50 = 450€
     → salesBalance +50 = 50€
     → bonusBalance +2.50 (5%)
@@ -158,40 +171,77 @@ Manager löst Bonus ein (Redeem 2.50€)
     → bonusBalance -2.50 = 0€
 ```
 
-### Multi-Level (Sub-Kuriere)
-- Kurier kann in seinem Owner-Modus eigene Kuriere einladen
+### Multi-Level (Sub-Agents)
+- Agent kann in seinem Owner-Modus eigene Agents einladen
 - Kevin arbeitet für Dominik, Dominik arbeitet für Jan
 - Kevins Transaktionen: Kevin → Dominik (Sync) → Jan (Chain Forwarding)
 
 ### Multi-Manager
-- Ein Kurier kann für mehrere Manager arbeiten
+- Ein Agent kann für mehrere Manager arbeiten
 - Jeder Manager = separates Pair mit eigenem Inventar/Schlüssel
-- Kurier-Dashboard: Liste der Manager
+- Netzwerk-Tab: separate Karte pro Manager
 
 ## 9. UI-Struktur
 
 ### Tab-Bar
-Dashboard | Kontakte | Profil
+**Dashboard** | **Netzwerk** | **Profil**
 
-### Seiten
+### Netzwerk-Tab (vorher "Kontakte")
+Zeigt eine **Liste von Netzwerk-Karten**:
+
+| Karte | Inhalt |
+|-------|--------|
+| Mein Netzwerk | Kontaktanzahl, Forderungen, Schulden |
+| Jans Netzwerk [Agent] | Kontaktanzahl, Inventar, Umsatz |
+| Lisas Netzwerk [Agent] | Kontaktanzahl, Inventar |
+
+- Tap auf Karte → öffnet Kontaktliste für dieses Netzwerk
+- Neuer User sieht nur "Mein Netzwerk"
+- QR-Scanner Button unten
+
+### Kontaktliste (innerhalb eines Netzwerks)
+- Suche + Filter
+- Agent-Netzwerk zeigt Agent-Info Banner (Inventar/Umsatz/Bonus)
+- "Einnahme buchen" Button in Agent-Netzwerken
+
+### Kontakt-Detail
+- Balance, Graph, Stats, Transaktionen
+- Netzwerk-Zugehörigkeit angezeigt
+- Agent-Kontakte: "Zum Agent machen" / Agent-Info wenn schon Agent
+- "Verbinden" für QR-Pairing
+
+### Dashboard
+- Kontostand (global)
+- Forderungen/Schulden (aus "Mein Netzwerk")
+- Agent-Summary (falls Agent): Gesamt-Inventar, Gesamt-Umsatz
+- Letzte Transaktionen (alle Netzwerke)
+- Geplante Transaktionen
+
+### Profil
+- Username, Sprache, Sync-Status
+- Geräte-QR + Geräte-ID
+- Netzwerk-Übersicht (alle Netzwerke mit Rolle)
+- Verlinkungen (wer sieht meine Daten)
+
+### Seiten-Übersicht
 
 | Route | Seite | Modus |
 |-------|-------|-------|
 | `/tabs/dashboard` | Dashboard | Owner |
-| `/tabs/contacts` | Kontaktliste (Filter: Alle/Eigene/Verlinkt/Kuriere) | Owner |
-| `/tabs/contacts/:id` | Kontakt-Detail (Balance, Graph, Stats, Tx, Kurier-Bereich) | Owner |
-| `/tabs/transactions/create` | Transaktion erstellen (Numpad) | Owner/Kurier |
+| `/tabs/network` | Netzwerk-Liste (Karten) | Alle |
+| `/tabs/network/:networkId` | Kontaktliste im Netzwerk | Owner/Agent |
+| `/tabs/network/:networkId/:contactId` | Kontakt-Detail | Owner/Agent |
+| `/tabs/transactions/create` | Transaktion erstellen | Owner/Agent |
 | `/tabs/transactions/planned` | Geplante Transaktionen | Owner |
-| `/tabs/profile` | Profil + "Bei mir verlinkt" | Beide |
-| `/tabs/profile/linkages` | Verlinkungen-Liste (Pairs) | Verlinkt |
-| `/tabs/profile/linkages/:id` | Verlinkung-Detail (Read-Only oder Kurier) | Verlinkt |
-| `/tabs/profile/courier-dashboard` | Kurier-Dashboard (Inventar, Manager-Kontakte) | Kurier |
+| `/tabs/profile` | Profil | Alle |
+| `/tabs/profile/linkages` | Verlinkungen | Viewer |
+| `/tabs/profile/linkages/:pairId` | Verlinkung-Detail | Viewer |
 
 ### Shared Components
 - TimeframeSelector (1W/1M/Monat/3M/6M/1J/Max)
 - Numpad (Betrags-Eingabe)
 - BalanceGraph (SVG Step-Graph mit Hover-Tooltips + Null-Linie)
-- StatsCards (2x2 Grid: Einnahme/Ausgabe/Rechnung/Score)
+- StatsCards (2x2 Grid: Einnahme/Ausgabe/Kredit/Score)
 - QrDisplay + QrScanner
 
 ## 10. Zukunft
@@ -200,10 +250,10 @@ Dashboard | Kontakte | Profil
 - Produkt-Katalog (Name, Preis, Bestand, Einheit)
 - Order-Workflow: open → accepted → packaged → delivered
 - Gelieferte Order → automatische Transaktion
-- Kuriere sehen Produktkatalog des Managers
+- Agents sehen Produktkatalog des Managers
 
 ### Phase 4: Chat
-- Nachrichten zwischen verlinkten Geräten
+- Nachrichten zwischen verbundenen Geräten
 - Verknüpft mit Bestellungen (ein Chat pro Order)
 - Über den gleichen verschlüsselten Relay
 
