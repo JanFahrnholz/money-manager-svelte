@@ -103,7 +103,7 @@ import { TransactionTypeIconPipe } from '../../../../shared/pipes/transaction-ty
     <ion-header>
       <ion-toolbar>
         <ion-buttons slot="start">
-          <ion-back-button defaultHref="/tabs/network" [text]="'back' | translate" />
+          <ion-back-button [defaultHref]="'/tabs/network/' + (contact()?.networkId || 'own')" [text]="'back' | translate" />
         </ion-buttons>
         <ion-title>{{ contact()?.name ?? '' }}</ion-title>
         <ion-buttons slot="end">
@@ -137,6 +137,9 @@ import { TransactionTypeIconPipe } from '../../../../shared/pipes/transaction-ty
           </h1>
           <p class="contact-score" (click)="showScoreInfo()" style="cursor:pointer;text-decoration:underline dotted;" [style.color]="scoreColor()">
             {{ 'score' | translate }}: {{ c.score | number:'1.0-0' }} &#x24D8;
+          </p>
+          <p style="font-size:12px;color:#666;margin-top:4px;">
+            {{ networkLabel() }}
           </p>
         </div>
 
@@ -401,6 +404,13 @@ export class ContactDetailPage implements OnInit {
     return '#c9a81e';
   });
 
+  readonly networkLabel = computed(() => {
+    const c = this.contact();
+    if (!c || !c.networkId || c.networkId === 'own') return 'Mein Netzwerk';
+    const pair = this.deviceService.pairs().find(p => p.id === c.networkId);
+    return pair?.label ? pair.label + ' Netzwerk' : c.networkId;
+  });
+
   scoreColor(): string {
     const s = this.contact()?.score ?? 0;
     if (s > 50) return '#4cd964';
@@ -544,7 +554,7 @@ export class ContactDetailPage implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    const id = this.route.snapshot.paramMap.get('id') ?? '';
+    const id = this.route.snapshot.params['contactId'] ?? this.route.snapshot.paramMap.get('id') ?? '';
     if (!id) return;
 
     this.loading.set(true);
@@ -553,7 +563,7 @@ export class ContactDetailPage implements OnInit {
   }
 
   async doRefresh(event: any): Promise<void> {
-    const id = this.contact()?.id ?? this.route.snapshot.paramMap.get('id') ?? '';
+    const id = this.contact()?.id ?? this.route.snapshot.params['contactId'] ?? this.route.snapshot.paramMap.get('id') ?? '';
     if (id) {
       await this.loadData(id);
     }
