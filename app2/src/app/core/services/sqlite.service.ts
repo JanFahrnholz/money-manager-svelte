@@ -158,6 +158,19 @@ export class SqliteService {
         updated TEXT DEFAULT ''
       );
     `);
+
+    await this.db.execute(`CREATE TABLE IF NOT EXISTS ratchet_state (
+  pairId TEXT PRIMARY KEY,
+  rootKey TEXT NOT NULL,
+  sendChainKey TEXT NOT NULL,
+  receiveChainKey TEXT NOT NULL,
+  sendCounter INTEGER DEFAULT 0,
+  receiveCounter INTEGER DEFAULT 0,
+  myEphemeralPublic TEXT DEFAULT '',
+  myEphemeralPrivate TEXT DEFAULT '',
+  theirEphemeralPublic TEXT DEFAULT '',
+  updated TEXT NOT NULL
+)`);
   }
 
   async query<T>(sql: string, params: any[] = []): Promise<T[]> {
