@@ -19,6 +19,8 @@ import {
   IonRefresherContent,
   IonSpinner,
   IonBadge,
+  IonCard,
+  IonCardContent,
 } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
@@ -35,6 +37,8 @@ import {
 } from 'ionicons/icons';
 import { UserService } from '../../../../core/services/user.service';
 import { RelayService } from '../../../../core/services/relay.service';
+import { DeviceService } from '../../../../core/services/device.service';
+import { SqliteService } from '../../../../core/services/sqlite.service';
 import { ContactService } from '../../../contacts/services/contact.service';
 import { TransactionService } from '../../../transactions/services/transaction.service';
 import { TransactionType } from '../../../../core/models/transaction.model';
@@ -72,6 +76,8 @@ import { EuroPipe } from '../../../../shared/pipes/euro.pipe';
     IonRefresherContent,
     IonSpinner,
     IonBadge,
+    IonCard,
+    IonCardContent,
     TranslateModule,
     TimeframeSelectorComponent,
     BalanceCardComponent,
@@ -133,6 +139,39 @@ import { EuroPipe } from '../../../../shared/pipes/euro.pipe';
             </ion-col>
           </ion-row>
         </ion-grid>
+
+        <!-- Agent Cards -->
+        @if (agentCards().length > 0) {
+          <div class="section">
+            <h3 class="section-title">{{ 'courier.dashboard' | translate }}</h3>
+            @for (card of agentCards(); track card.pairId) {
+              <ion-card button class="agent-card" style="margin:0 0 12px;">
+                <ion-card-content>
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                      <div style="font-size:16px;font-weight:700;color:#fff;">Agent bei {{ card.label }}</div>
+                      <div style="font-size:12px;color:#888;margin-top:2px;">{{ card.contactCount }} {{ 'network.contacts' | translate }}</div>
+                    </div>
+                    <div style="text-align:right;">
+                      <div style="font-size:11px;color:#888;">{{ 'courier.inventory' | translate }}</div>
+                      <div style="font-size:18px;font-weight:700;color:#ffd600;">{{ card.inventory | euro }}</div>
+                    </div>
+                  </div>
+                  <div style="display:flex;gap:16px;margin-top:10px;">
+                    <div>
+                      <div style="font-size:11px;color:#888;">{{ 'courier.sales' | translate }}</div>
+                      <div style="font-size:14px;font-weight:600;color:#4cd964;">{{ card.sales | euro }}</div>
+                    </div>
+                    <div>
+                      <div style="font-size:11px;color:#888;">{{ 'courier.bonus' | translate }}</div>
+                      <div style="font-size:14px;font-weight:600;color:#ff9500;">{{ card.bonus | euro }}</div>
+                    </div>
+                  </div>
+                </ion-card-content>
+              </ion-card>
+            }
+          </div>
+        }
 
         <!-- Planned transactions -->
         @if (planned().length > 0) {
@@ -255,6 +294,11 @@ import { EuroPipe } from '../../../../shared/pipes/euro.pipe';
       padding: 0 16px;
       margin: 0 0 8px;
     }
+    .agent-card {
+      --background: linear-gradient(135deg, rgba(255,214,0,0.08), rgba(255,214,0,0.02));
+      border: 1px solid rgba(255,214,0,0.15);
+      border-radius: 12px;
+    }
   `,
 })
 export class DashboardPage implements OnInit {
@@ -263,6 +307,7 @@ export class DashboardPage implements OnInit {
   readonly activeMonthRange = signal<{ start: Date; end: Date } | null>(null);
   readonly recent = signal<Transaction[]>([]);
   readonly planned = signal<Transaction[]>([]);
+  readonly agentCards = signal<{ pairId: string; label: string; inventory: number; sales: number; bonus: number; contactCount: number }[]>([]);
 
   readonly claims = computed(() => {
     return this.contactService.contacts()
@@ -303,6 +348,8 @@ export class DashboardPage implements OnInit {
     readonly relay: RelayService,
     private contactService: ContactService,
     private txService: TransactionService,
+    private deviceService: DeviceService,
+    private sqlite: SqliteService,
   ) {
     addIcons({ checkmarkCircle, arrowDownCircle, arrowUpCircle, documentText, returnDownBack, cube, cashOutline, gift, swapHorizontal });
   }
@@ -323,7 +370,32 @@ export class DashboardPage implements OnInit {
       this.contactService.loadAll(),
       this.txService.loadRecent(50).then((txs) => this.recent.set(txs)),
       this.txService.loadPlanned().then((txs) => this.planned.set(txs)),
+      this.loadAgentCards(),
     ]);
+  }
+
+  private async loadAgentCards(): Promise<void> {
+    const pairs = this.deviceService.pairs().filter(p => p.role === 'courier');
+    const cards = [];
+    for (const pair of pairs) {
+      const remoteContacts = await this.sqlite.query<any>(
+        'SELECT COUNT(*) as cnt FROM remote_contacts WHERE pairId = ?', [pair.id]
+      );
+      const links = await this.sqlite.query<any>(
+        'SELECT inventoryBalance, salesBalance, bonusBalance FROM courier_links WHERE courier = ?',
+        [this.auth.user()!.id]
+      );
+      const link = links[0];
+      cards.push({
+        pairId: pair.id,
+        label: pair.label || 'Manager',
+        inventory: link?.inventoryBalance ?? 0,
+        sales: link?.salesBalance ?? 0,
+        bonus: link?.bonusBalance ?? 0,
+        contactCount: remoteContacts[0]?.cnt ?? 0,
+      });
+    }
+    this.agentCards.set(cards);
   }
 
   onTimeframeChange(tf: Timeframe): void {
