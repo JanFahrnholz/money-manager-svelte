@@ -3,6 +3,7 @@ import { SqliteService } from '../../../core/services/sqlite.service';
 import { UserService } from '../../../core/services/user.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { EncryptedSyncService } from '../../../core/services/encrypted-sync.service';
+import { AgentService } from '../../../core/services/agent.service';
 import { Transaction, TransactionType } from '../../../core/models/transaction.model';
 
 @Injectable({ providedIn: 'root' })
@@ -12,6 +13,7 @@ export class TransactionService {
     private auth: UserService,
     private toast: ToastService,
     private sync: EncryptedSyncService,
+    private agentService: AgentService,
   ) {}
 
   async loadByContact(contactId: string, limit = 50): Promise<Transaction[]> {
@@ -89,18 +91,44 @@ export class TransactionService {
       if (!planned) {
         await this.updateContactBalance(tx);
 
-        if (tx.type === TransactionType.Income) {
-          await this.auth.updateBalance(tx.amount);
-        }
-        if (tx.type === TransactionType.Expense) {
-          await this.auth.updateBalance(-tx.amount);
-        }
-        if (tx.type === TransactionType.Refund) {
-          await this.auth.updateBalance(tx.amount);
-        }
-
-        if (tx.courierLink) {
-          await this.updateCourierBalance(tx);
+        switch (tx.type) {
+          case TransactionType.Income: {
+            await this.auth.updateBalance(tx.amount);
+            if (tx.courierLink) {
+              const batchId = (tx as any).batchId;
+              if (batchId) {
+                await this.agentService.recordSale(batchId, tx.amount);
+              } else {
+                const batch = await this.agentService.getFifoBatch(tx.courierLink);
+                if (batch) await this.agentService.recordSale(batch.id, tx.amount);
+              }
+            }
+            break;
+          }
+          case TransactionType.Expense: {
+            await this.auth.updateBalance(-tx.amount);
+            break;
+          }
+          case TransactionType.Refund: {
+            await this.auth.updateBalance(tx.amount);
+            break;
+          }
+          case TransactionType.Restock: {
+            const batchType = (tx as any).batchType || 'commission';
+            const bonusPct = (tx as any).bonusPercentage ?? 5;
+            await this.agentService.createBatch(tx.courierLink, tx.amount, batchType, bonusPct);
+            break;
+          }
+          case TransactionType.Collect: {
+            const batchId = (tx as any).batchId;
+            if (batchId) await this.agentService.collect(batchId, tx.amount);
+            break;
+          }
+          case TransactionType.Redeem: {
+            const batchId = (tx as any).batchId;
+            if (batchId) await this.agentService.redeem(batchId, tx.amount);
+            break;
+          }
         }
 
         await this.sync.notifyChange('transactions', tx.id, 'upsert', tx);
