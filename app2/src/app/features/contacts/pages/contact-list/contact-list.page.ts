@@ -13,23 +13,21 @@ import {
   IonModal,
   IonButton,
   IonButtons,
-  IonCard,
-  IonCardContent,
-  IonBadge,
+  IonSearchbar,
+  IonList,
   AlertController,
   NavController,
 } from '@ionic/angular/standalone';
-import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
-import { add, chevronForward, qrCode } from 'ionicons/icons';
+import { add, qrCode } from 'ionicons/icons';
 import { ContactService } from '../../services/contact.service';
 import { DeviceService } from '../../../../core/services/device.service';
 import { EncryptedSyncService } from '../../../../core/services/encrypted-sync.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { UserService } from '../../../../core/services/user.service';
 import { QrScannerComponent } from '../../../../shared/components/qr-scanner/qr-scanner.component';
-import { EuroPipe } from '../../../../shared/pipes/euro.pipe';
+import { ContactListItemComponent } from '../../components/contact-list-item/contact-list-item.component';
 
 @Component({
   selector: 'app-contact-list',
@@ -48,23 +46,24 @@ import { EuroPipe } from '../../../../shared/pipes/euro.pipe';
     IonModal,
     IonButton,
     IonButtons,
-    IonCard,
-    IonCardContent,
-    IonBadge,
-    RouterLink,
+    IonSearchbar,
+    IonList,
     TranslateModule,
     QrScannerComponent,
-    EuroPipe,
+    ContactListItemComponent,
   ],
   template: `
     <ion-header>
       <ion-toolbar>
-        <ion-title>{{ 'tabs.network' | translate }}</ion-title>
+        <ion-title>{{ 'tabs.contacts' | translate }}</ion-title>
         <ion-buttons slot="end">
           <ion-button (click)="openScanner()">
             <ion-icon name="qr-code" slot="icon-only" />
           </ion-button>
         </ion-buttons>
+      </ion-toolbar>
+      <ion-toolbar>
+        <ion-searchbar (ionInput)="onSearch($event)" [placeholder]="'contact.search' | translate" />
       </ion-toolbar>
     </ion-header>
 
@@ -75,62 +74,22 @@ import { EuroPipe } from '../../../../shared/pipes/euro.pipe';
 
       @if (loading()) {
         <div style="display:flex;justify-content:center;padding:40px;"><ion-spinner /></div>
+      } @else if (filteredContacts().length === 0 && !searchTerm()) {
+        <div style="display:flex;flex-direction:column;align-items:center;padding:60px 24px;text-align:center;">
+          <div style="font-size:48px;margin-bottom:16px;">📖</div>
+          <div style="font-size:20px;font-weight:700;margin-bottom:8px;">{{ 'contact.welcome' | translate }}</div>
+          <div style="font-size:14px;color:#888;">{{ 'contact.welcomeHint' | translate }}</div>
+        </div>
       } @else {
-        <!-- Own Network Card -->
-        <ion-card [routerLink]="['/tabs/network', 'own']" button style="margin:16px;">
-          <ion-card-content>
-            <div style="display:flex;justify-content:space-between;align-items:center;">
-              <div>
-                <div style="font-size:18px;font-weight:700;color:#fff;">{{ 'network.myNetwork' | translate }}</div>
-                <div style="font-size:13px;color:#888;margin-top:4px;">{{ ownContactCount() }} {{ 'network.contacts' | translate }}</div>
-              </div>
-              <ion-icon name="chevron-forward" style="color:#666;font-size:20px;" />
-            </div>
-            <div style="display:flex;gap:16px;margin-top:12px;">
-              <div>
-                <div style="font-size:11px;color:#888;">{{ 'network.claims' | translate }}</div>
-                <div style="font-size:16px;font-weight:600;color:#4cd964;">{{ claims() | euro }}</div>
-              </div>
-              <div>
-                <div style="font-size:11px;color:#888;">{{ 'network.debts' | translate }}</div>
-                <div style="font-size:16px;font-weight:600;color:#ff3b30;">{{ debts() | euro }}</div>
-              </div>
-            </div>
-          </ion-card-content>
-        </ion-card>
-
-        <!-- Agent Network Cards -->
-        @for (network of agentNetworks(); track network.pairId) {
-          <ion-card [routerLink]="['/tabs/network', network.pairId]" button style="margin:0 16px 12px;">
-            <ion-card-content>
-              <div style="display:flex;justify-content:space-between;align-items:center;">
-                <div>
-                  <div style="font-size:16px;font-weight:700;color:#fff;">{{ network.label }}</div>
-                  <ion-badge color="warning" style="margin-top:4px;">Agent</ion-badge>
-                </div>
-                <ion-icon name="chevron-forward" style="color:#666;font-size:20px;" />
-              </div>
-              <div style="display:flex;gap:16px;margin-top:12px;">
-                <div>
-                  <div style="font-size:11px;color:#888;">{{ 'courier.inventory' | translate }}</div>
-                  <div style="font-size:14px;font-weight:600;color:#ffd600;">{{ network.inventory | euro }}</div>
-                </div>
-                <div>
-                  <div style="font-size:11px;color:#888;">{{ 'courier.sales' | translate }}</div>
-                  <div style="font-size:14px;font-weight:600;color:#4cd964;">{{ network.sales | euro }}</div>
-                </div>
-                <div>
-                  <div style="font-size:11px;color:#888;">{{ 'network.contacts' | translate }}</div>
-                  <div style="font-size:14px;font-weight:600;">{{ network.contactCount }}</div>
-                </div>
-              </div>
-            </ion-card-content>
-          </ion-card>
-        }
+        <ion-list>
+          @for (contact of filteredContacts(); track contact.id) {
+            <app-contact-list-item [contact]="contact" />
+          }
+        </ion-list>
       }
 
       <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-        <ion-fab-button [routerLink]="['/tabs/network', 'own']">
+        <ion-fab-button (click)="createContact()">
           <ion-icon name="add" />
         </ion-fab-button>
       </ion-fab>
@@ -156,33 +115,13 @@ import { EuroPipe } from '../../../../shared/pipes/euro.pipe';
 export class ContactListPage implements OnInit {
   readonly loading = signal(true);
   readonly showScanModal = signal(false);
+  readonly searchTerm = signal('');
 
-  readonly ownContactCount = computed(() =>
-    this.contactService.contacts().filter(c => !c.networkId || c.networkId === 'own').length,
-  );
-
-  readonly claims = computed(() =>
-    this.contactService.contacts()
-      .filter(c => (!c.networkId || c.networkId === 'own') && c.balance < 0)
-      .reduce((sum, c) => sum + Math.abs(c.balance), 0),
-  );
-
-  readonly debts = computed(() =>
-    this.contactService.contacts()
-      .filter(c => (!c.networkId || c.networkId === 'own') && c.balance > 0)
-      .reduce((sum, c) => sum + c.balance, 0),
-  );
-
-  readonly agentNetworks = computed(() => {
-    return this.deviceService.pairs()
-      .filter(p => p.role === 'courier')
-      .map(p => ({
-        pairId: p.id,
-        label: p.label || 'Unbekannt',
-        inventory: 0,
-        sales: 0,
-        contactCount: 0,
-      }));
+  readonly filteredContacts = computed(() => {
+    const term = this.searchTerm().toLowerCase();
+    return this.contactService.contacts()
+      .filter(c => !term || c.name.toLowerCase().includes(term))
+      .sort((a, b) => a.name.localeCompare(b.name));
   });
 
   constructor(
@@ -195,7 +134,7 @@ export class ContactListPage implements OnInit {
     private nav: NavController,
     private translate: TranslateService,
   ) {
-    addIcons({ add, chevronForward, qrCode });
+    addIcons({ add, qrCode });
   }
 
   async ngOnInit(): Promise<void> {
@@ -207,6 +146,32 @@ export class ContactListPage implements OnInit {
   async doRefresh(event: any): Promise<void> {
     await this.contactService.loadAll();
     event.target.complete();
+  }
+
+  onSearch(event: any): void {
+    this.searchTerm.set(event.detail.value ?? '');
+  }
+
+  async createContact(): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: this.translate.instant('contact.create'),
+      inputs: [{ name: 'name', type: 'text' as const, placeholder: this.translate.instant('contact.name') }],
+      buttons: [
+        { text: this.translate.instant('cancel'), role: 'cancel' as const },
+        {
+          text: this.translate.instant('contact.create'),
+          handler: async (d: { name: string }) => {
+            if (!d.name?.trim()) return false;
+            const contact = await this.contactService.create(d.name.trim());
+            if (contact) {
+              await this.nav.navigateForward(['/tabs/contacts', contact.id]);
+            }
+            return true;
+          },
+        },
+      ],
+    });
+    await alert.present();
   }
 
   async openScanner(): Promise<void> {
