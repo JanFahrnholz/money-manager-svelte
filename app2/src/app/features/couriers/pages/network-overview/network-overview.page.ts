@@ -115,7 +115,7 @@ interface FlatNode {
           <p style="color:#888;font-size:14px;line-height:1.5;margin-bottom:24px;">
             {{ 'network.explanation' | translate }}
           </p>
-          <ion-button [routerLink]="['/tabs/network']" fill="outline">
+          <ion-button [routerLink]="['/tabs/contacts']" fill="outline">
             {{ 'network.setupCourier' | translate }}
           </ion-button>
         </div>

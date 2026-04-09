@@ -103,7 +103,7 @@ import { TransactionTypeIconPipe } from '../../../../shared/pipes/transaction-ty
     <ion-header>
       <ion-toolbar>
         <ion-buttons slot="start">
-          <ion-back-button [defaultHref]="'/tabs/network/' + (contact()?.networkId || 'own')" [text]="'back' | translate" />
+          <ion-back-button defaultHref="/tabs/contacts" [text]="'back' | translate" />
         </ion-buttons>
         <ion-title>{{ contact()?.name ?? '' }}</ion-title>
         <ion-buttons slot="end">
@@ -137,9 +137,6 @@ import { TransactionTypeIconPipe } from '../../../../shared/pipes/transaction-ty
           </h1>
           <p class="contact-score" (click)="showScoreInfo()" style="cursor:pointer;text-decoration:underline dotted;" [style.color]="scoreColor()">
             {{ 'score' | translate }}: {{ c.score | number:'1.0-0' }} &#x24D8;
-          </p>
-          <p style="font-size:12px;color:#666;margin-top:4px;">
-            {{ networkLabel() }}
           </p>
         </div>
 
@@ -360,14 +357,14 @@ export class ContactDetailPage implements OnInit {
       const startStr = start.toISOString();
       for (const t of all) {
         if (t.date >= startStr) break;
-        if (t.type === TransactionType.Invoice) balance -= t.amount;
+        if (t.type === TransactionType.Credit) balance -= t.amount;
         if (t.type === TransactionType.Refund) balance += t.amount;
       }
     }
 
     const txs = filtered.slice().reverse(); // filtered txs chronological
     const points = txs.map((t) => {
-      if (t.type === TransactionType.Invoice) balance -= t.amount;
+      if (t.type === TransactionType.Credit) balance -= t.amount;
       if (t.type === TransactionType.Refund) balance += t.amount;
       return { date: t.date, balance };
     });
@@ -404,12 +401,6 @@ export class ContactDetailPage implements OnInit {
     return '#c9a81e';
   });
 
-  readonly networkLabel = computed(() => {
-    const c = this.contact();
-    if (!c || !c.networkId || c.networkId === 'own') return 'Mein Netzwerk';
-    const pair = this.deviceService.pairs().find(p => p.id === c.networkId);
-    return pair?.label ? pair.label + ' Netzwerk' : c.networkId;
-  });
 
   scoreColor(): string {
     const s = this.contact()?.score ?? 0;
@@ -583,7 +574,7 @@ export class ContactDetailPage implements OnInit {
       for (const tx of txs) {
         if (tx.type === TransactionType.Income) totalIncome += tx.amount;
         if (tx.type === TransactionType.Expense) totalExpense += tx.amount;
-        if (tx.type === TransactionType.Invoice) totalInvoice += tx.amount;
+        if (tx.type === TransactionType.Credit) totalInvoice += tx.amount;
         if (tx.type === TransactionType.Refund) totalRefund += tx.amount;
       }
       const normalize = (val: number, min: number, max: number) =>
@@ -641,8 +632,8 @@ export class ContactDetailPage implements OnInit {
         return 'income';
       case TransactionType.Expense:
         return 'expense';
-      case TransactionType.Invoice:
-        return 'invoice';
+      case TransactionType.Credit:
+        return 'credit';
       case TransactionType.Refund:
         return 'refund';
       case TransactionType.Restock:

@@ -85,8 +85,8 @@ import type { CourierLink } from '../../../../core/models/courier-link.model';
             <ion-segment-button [value]="TransactionType.Expense">
               <ion-label>{{ 'transaction.expense' | translate }}</ion-label>
             </ion-segment-button>
-            <ion-segment-button [value]="TransactionType.Invoice">
-              <ion-label>{{ 'transaction.invoice' | translate }}</ion-label>
+            <ion-segment-button [value]="TransactionType.Credit">
+              <ion-label>{{ 'transaction.credit' | translate }}</ion-label>
             </ion-segment-button>
             <ion-segment-button [value]="TransactionType.Refund">
               <ion-label>{{ 'transaction.refund' | translate }}</ion-label>

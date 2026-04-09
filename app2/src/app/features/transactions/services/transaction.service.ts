@@ -179,7 +179,7 @@ export class TransactionService {
   private async updateContactBalance(tx: Transaction, reverse = false): Promise<void> {
     let delta = 0;
 
-    if (tx.type === TransactionType.Invoice) {
+    if (tx.type === TransactionType.Credit) {
       delta = -tx.amount;
     } else if (tx.type === TransactionType.Refund) {
       delta = tx.amount;

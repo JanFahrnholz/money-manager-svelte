@@ -7,9 +7,9 @@ export const routes: Routes = [
     loadComponent: () => import('./features/tabs/tabs.component').then(m => m.TabsComponent),
     children: [
       { path: 'dashboard', loadComponent: () => import('./features/dashboard/pages/dashboard/dashboard.page').then(m => m.DashboardPage) },
-      { path: 'network', loadComponent: () => import('./features/contacts/pages/contact-list/contact-list.page').then(m => m.ContactListPage) },
-      { path: 'network/:networkId', loadComponent: () => import('./features/contacts/pages/network-contacts/network-contacts.page').then(m => m.NetworkContactsPage) },
-      { path: 'network/:networkId/:contactId', loadComponent: () => import('./features/contacts/pages/contact-detail/contact-detail.page').then(m => m.ContactDetailPage) },
+      { path: 'dashboard/agent/:pairId', loadComponent: () => import('./features/dashboard/pages/agent-dashboard/agent-dashboard.page').then(m => m.AgentDashboardPage) },
+      { path: 'contacts', loadComponent: () => import('./features/contacts/pages/contact-list/contact-list.page').then(m => m.ContactListPage) },
+      { path: 'contacts/:contactId', loadComponent: () => import('./features/contacts/pages/contact-detail/contact-detail.page').then(m => m.ContactDetailPage) },
       { path: 'transactions/create', loadComponent: () => import('./features/transactions/pages/transaction-create/transaction-create.page').then(m => m.TransactionCreatePage) },
       { path: 'transactions/planned', loadComponent: () => import('./features/transactions/pages/planned-list/planned-list.page').then(m => m.PlannedListPage) },
       { path: 'profile', loadComponent: () => import('./features/profile/pages/profile/profile.page').then(m => m.ProfilePage) },
