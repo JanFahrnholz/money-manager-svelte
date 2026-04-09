@@ -74,9 +74,9 @@ interface RemoteTransaction {
     <ion-content class="ion-padding">
       @if (pair()) {
         <div style="text-align:center;padding:16px 0;">
-          <div style="font-size:13px;color:#888;">Verlinkt mit</div>
+          <div style="font-size:13px;color:#888;">{{ pair()!.role === 'viewer' || pair()!.role === 'linked' ? 'Nur Lesen' : 'Agent' }} bei</div>
           <div style="font-size:20px;font-weight:700;">{{ pair()!.label }}</div>
-          <div style="font-size:13px;color:#888;margin-top:4px;">{{ pair()!.role === 'courier' ? 'Kurier' : 'Viewer' }}</div>
+          <div style="font-size:13px;color:#888;margin-top:4px;">{{ pair()!.role === 'courier' ? 'Agent' : 'Nur Lesen' }}</div>
         </div>
 
         @if (pair()!.role === 'courier') {
@@ -85,7 +85,7 @@ interface RemoteTransaction {
               expand="block"
               [routerLink]="['/tabs/profile/courier-dashboard']"
             >
-              Kurier-Dashboard
+              Agent-Dashboard
               <ion-icon name="arrow-forward" slot="end" />
             </ion-button>
           </div>
