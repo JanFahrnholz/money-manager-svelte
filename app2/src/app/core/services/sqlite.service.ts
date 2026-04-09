@@ -206,6 +206,51 @@ export class SqliteService {
     // Add missing columns to courier_links for agent model
     try { await this.db.execute("ALTER TABLE courier_links ADD COLUMN contactId TEXT DEFAULT ''"); } catch {}
     try { await this.db.execute("ALTER TABLE courier_links ADD COLUMN pairId TEXT DEFAULT ''"); } catch {}
+
+    // Phase 5: Products & Orders
+    await this.db.execute(`CREATE TABLE IF NOT EXISTS products (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  price REAL NOT NULL DEFAULT 0,
+  unit TEXT DEFAULT '',
+  stock REAL DEFAULT 0,
+  managerId TEXT NOT NULL,
+  created TEXT NOT NULL,
+  updated TEXT NOT NULL
+)`);
+
+    await this.db.execute(`CREATE TABLE IF NOT EXISTS orders (
+  id TEXT PRIMARY KEY,
+  contactId TEXT NOT NULL,
+  agentLinkId TEXT DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'open',
+  items TEXT DEFAULT '[]',
+  total REAL DEFAULT 0,
+  created TEXT NOT NULL,
+  updated TEXT NOT NULL
+)`);
+
+    await this.db.execute(`CREATE TABLE IF NOT EXISTS remote_products (
+  id TEXT PRIMARY KEY,
+  pairId TEXT NOT NULL,
+  name TEXT NOT NULL DEFAULT '',
+  price REAL DEFAULT 0,
+  unit TEXT DEFAULT '',
+  stock REAL DEFAULT 0,
+  created TEXT DEFAULT '',
+  updated TEXT DEFAULT ''
+)`);
+
+    // Phase 6: Chat
+    await this.db.execute(`CREATE TABLE IF NOT EXISTS messages (
+  id TEXT PRIMARY KEY,
+  pairId TEXT NOT NULL,
+  sender TEXT NOT NULL,
+  text TEXT NOT NULL DEFAULT '',
+  orderId TEXT DEFAULT '',
+  read INTEGER DEFAULT 0,
+  created TEXT NOT NULL
+)`);
   }
 
   async query<T>(sql: string, params: any[] = []): Promise<T[]> {
