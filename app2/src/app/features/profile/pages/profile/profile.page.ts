@@ -17,13 +17,14 @@ import {
 } from '@ionic/angular/standalone';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
-import { language, syncCircle, peopleCircle, briefcase, cloudDownload, linkOutline } from 'ionicons/icons';
+import { language, syncCircle, peopleCircle, briefcase, cloudDownload, linkOutline, downloadOutline, pushOutline } from 'ionicons/icons';
 import { HttpClient } from '@angular/common/http';
 import { UserService } from '../../../../core/services/user.service';
 import { RelayService } from '../../../../core/services/relay.service';
 import { DeviceService } from '../../../../core/services/device.service';
 import { SqliteService } from '../../../../core/services/sqlite.service';
 import { ToastService } from '../../../../core/services/toast.service';
+import { BackupService } from '../../../../core/services/backup.service';
 import { ContactService } from '../../../contacts/services/contact.service';
 import { CourierService } from '../../../couriers/services/courier.service';
 
@@ -96,6 +97,18 @@ import { CourierService } from '../../../couriers/services/courier.service';
         </div>
       }
 
+      <!-- Backup -->
+      <div style="padding:16px;">
+        <ion-button expand="block" color="primary" (click)="exportBackup()">
+          <ion-icon name="download-outline" slot="start" />
+          Backup exportieren
+        </ion-button>
+        <ion-button expand="block" color="medium" (click)="importBackup()" style="margin-top:8px;">
+          <ion-icon name="push-outline" slot="start" />
+          Backup importieren
+        </ion-button>
+      </div>
+
       <!-- Device Info -->
       <ion-list [inset]="true">
         <ion-item button (click)="copyDeviceId()">
@@ -163,8 +176,10 @@ export class ProfilePage implements OnInit {
   readonly isCourier = signal(false);
   readonly imported = signal(false);
 
+  private readonly backupService = inject(BackupService);
+
   constructor() {
-    addIcons({ language, syncCircle, peopleCircle, briefcase, cloudDownload, linkOutline });
+    addIcons({ language, syncCircle, peopleCircle, briefcase, cloudDownload, linkOutline, downloadOutline, pushOutline });
   }
 
   async ngOnInit(): Promise<void> {
@@ -262,6 +277,56 @@ export class ProfilePage implements OnInit {
               this.relay.setRelayUrl(data.url.trim());
               this.relay.checkConnection();
               this.toast.success('Relay URL gespeichert');
+            }
+          },
+        },
+      ],
+    });
+    await alert.present();
+  }
+
+  async exportBackup(): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: 'Backup-Passwort',
+      message: 'Wähle ein Passwort zum Verschlüsseln des Backups.',
+      inputs: [{ name: 'password', type: 'password', placeholder: 'Passwort' }],
+      buttons: [
+        { text: 'Abbrechen', role: 'cancel' },
+        {
+          text: 'Exportieren',
+          handler: async (data: { password: string }) => {
+            if (!data.password) return;
+            try {
+              const backup = await this.backupService.exportData(data.password);
+              await navigator.clipboard.writeText(backup);
+              this.toast.success('Backup in Zwischenablage kopiert');
+            } catch (e) {
+              this.toast.error('Export fehlgeschlagen');
+            }
+          },
+        },
+      ],
+    });
+    await alert.present();
+  }
+
+  async importBackup(): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: 'Backup importieren',
+      inputs: [
+        { name: 'data', type: 'textarea', placeholder: 'Backup-Daten einfügen...' },
+        { name: 'password', type: 'password', placeholder: 'Passwort' },
+      ],
+      buttons: [
+        { text: 'Abbrechen', role: 'cancel' },
+        {
+          text: 'Importieren',
+          handler: async (d: { data: string; password: string }) => {
+            if (!d.data || !d.password) return;
+            try {
+              await this.backupService.importData(d.data.trim(), d.password);
+            } catch {
+              this.toast.error('Import fehlgeschlagen — falsches Passwort?');
             }
           },
         },
