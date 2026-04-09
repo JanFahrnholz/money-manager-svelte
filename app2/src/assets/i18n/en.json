@@ -21,6 +21,7 @@
     "income": "Income",
     "expense": "Expense",
     "invoice": "Credit",
+    "credit": "Credit",
     "refund": "Refund",
     "info": "Info",
     "planned": "Planned",

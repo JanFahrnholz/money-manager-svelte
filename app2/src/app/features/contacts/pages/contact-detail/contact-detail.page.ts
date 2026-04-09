@@ -360,14 +360,14 @@ export class ContactDetailPage implements OnInit {
       const startStr = start.toISOString();
       for (const t of all) {
         if (t.date >= startStr) break;
-        if (t.type === TransactionType.Invoice) balance -= t.amount;
+        if (t.type === TransactionType.Credit) balance -= t.amount;
         if (t.type === TransactionType.Refund) balance += t.amount;
       }
     }
 
     const txs = filtered.slice().reverse(); // filtered txs chronological
     const points = txs.map((t) => {
-      if (t.type === TransactionType.Invoice) balance -= t.amount;
+      if (t.type === TransactionType.Credit) balance -= t.amount;
       if (t.type === TransactionType.Refund) balance += t.amount;
       return { date: t.date, balance };
     });
@@ -583,7 +583,7 @@ export class ContactDetailPage implements OnInit {
       for (const tx of txs) {
         if (tx.type === TransactionType.Income) totalIncome += tx.amount;
         if (tx.type === TransactionType.Expense) totalExpense += tx.amount;
-        if (tx.type === TransactionType.Invoice) totalInvoice += tx.amount;
+        if (tx.type === TransactionType.Credit) totalInvoice += tx.amount;
         if (tx.type === TransactionType.Refund) totalRefund += tx.amount;
       }
       const normalize = (val: number, min: number, max: number) =>
@@ -641,8 +641,8 @@ export class ContactDetailPage implements OnInit {
         return 'income';
       case TransactionType.Expense:
         return 'expense';
-      case TransactionType.Invoice:
-        return 'invoice';
+      case TransactionType.Credit:
+        return 'credit';
       case TransactionType.Refund:
         return 'refund';
       case TransactionType.Restock:

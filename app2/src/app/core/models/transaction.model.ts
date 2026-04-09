@@ -1,7 +1,7 @@
 export enum TransactionType {
   Income = 'Income',
   Expense = 'Expense',
-  Invoice = 'Invoice',
+  Credit = 'Credit',
   Refund = 'Refund',
   Restock = 'Restock',
   Collect = 'Collect',

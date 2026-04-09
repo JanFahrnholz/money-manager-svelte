@@ -126,6 +126,9 @@ export class SqliteService {
     // Migration: add new columns to contacts if not exist
     try { await this.db.execute("ALTER TABLE contacts ADD COLUMN networkId TEXT DEFAULT 'own'"); } catch {}
 
+    // Migration: rename Invoice → Credit in existing transaction data
+    try { await this.db.execute("UPDATE transactions SET type = 'Credit' WHERE type = 'Invoice'"); } catch {}
+
     // Migration: add new columns to pairs if not exist
     try { await this.db.execute("ALTER TABLE pairs ADD COLUMN role TEXT DEFAULT ''"); } catch {}
     try { await this.db.execute("ALTER TABLE pairs ADD COLUMN remoteContactId TEXT DEFAULT ''"); } catch {}

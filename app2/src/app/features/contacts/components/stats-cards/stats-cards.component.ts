@@ -28,7 +28,7 @@ import { TransactionType } from '../../../../core/models/transaction.model';
       </ion-card>
       <ion-card style="border-left: 3px solid #ff9500;">
         <ion-card-content>
-          <div class="stat-label" style="color: #ff9500;">{{ 'transaction.invoice' | translate }}</div>
+          <div class="stat-label" style="color: #ff9500;">{{ 'transaction.credit' | translate }}</div>
           <div class="stat-value" style="color: #ff9500;">{{ invoiceSum() | euro }}</div>
           <div class="stat-count">{{ invoiceCount() }}x</div>
         </ion-card-content>
@@ -95,10 +95,10 @@ export class StatsCardsComponent {
 
   readonly invoiceSum = computed(() =>
     this.transactions()
-      .filter((t) => t.type === TransactionType.Invoice)
+      .filter((t) => t.type === TransactionType.Credit)
       .reduce((sum, t) => sum + t.amount, 0),
   );
   readonly invoiceCount = computed(
-    () => this.transactions().filter((t) => t.type === TransactionType.Invoice).length,
+    () => this.transactions().filter((t) => t.type === TransactionType.Credit).length,
   );
 }

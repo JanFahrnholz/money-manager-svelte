@@ -172,8 +172,8 @@ export class PlannedListPage implements OnInit {
         return 'income';
       case TransactionType.Expense:
         return 'expense';
-      case TransactionType.Invoice:
-        return 'invoice';
+      case TransactionType.Credit:
+        return 'credit';
       case TransactionType.Refund:
         return 'refund';
       case TransactionType.Restock:
