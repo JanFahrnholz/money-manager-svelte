@@ -5,31 +5,50 @@ export class CryptoService {
 
   async generateKeyPair(): Promise<{ publicKey: JsonWebKey; privateKey: JsonWebKey }> {
     const keyPair = await crypto.subtle.generateKey(
-      { name: 'ECDH', namedCurve: 'P-256' },
+      { name: 'X25519' },
       true,
-      ['deriveKey'],
-    );
+      ['deriveBits'],
+    ) as CryptoKeyPair;
     const publicKey = await crypto.subtle.exportKey('jwk', keyPair.publicKey);
     const privateKey = await crypto.subtle.exportKey('jwk', keyPair.privateKey);
     return { publicKey, privateKey };
   }
 
-  async deriveSharedKey(myPrivateKeyJwk: JsonWebKey, theirPublicKeyJwk: JsonWebKey): Promise<string> {
+  async deriveSharedBits(myPrivateKeyJwk: JsonWebKey, theirPublicKeyJwk: JsonWebKey): Promise<ArrayBuffer> {
     const privateKey = await crypto.subtle.importKey(
-      'jwk', myPrivateKeyJwk, { name: 'ECDH', namedCurve: 'P-256' }, false, ['deriveKey'],
+      'jwk', myPrivateKeyJwk, { name: 'X25519' }, false, ['deriveBits'],
     );
     const publicKey = await crypto.subtle.importKey(
-      'jwk', theirPublicKeyJwk, { name: 'ECDH', namedCurve: 'P-256' }, false, [],
+      'jwk', theirPublicKeyJwk, { name: 'X25519' }, false, [],
     );
-    const derivedKey = await crypto.subtle.deriveKey(
-      { name: 'ECDH', public: publicKey },
+    return crypto.subtle.deriveBits(
+      { name: 'X25519', public: publicKey },
       privateKey,
+      256,
+    );
+  }
+
+  async deriveSharedKey(myPrivateKeyJwk: JsonWebKey, theirPublicKeyJwk: JsonWebKey): Promise<string> {
+    const sharedBits = await this.deriveSharedBits(myPrivateKeyJwk, theirPublicKeyJwk);
+    const ikm = await crypto.subtle.importKey('raw', sharedBits, 'HKDF', false, ['deriveKey']);
+    const aesKey = await crypto.subtle.deriveKey(
+      { name: 'HKDF', hash: 'SHA-256', salt: new Uint8Array(32), info: new TextEncoder().encode('MoneyManager-v2') },
+      ikm,
       { name: 'AES-GCM', length: 256 },
       true,
       ['encrypt', 'decrypt'],
     );
-    const raw = await crypto.subtle.exportKey('raw', derivedKey);
+    const raw = await crypto.subtle.exportKey('raw', aesKey);
     return this.bufferToBase64(raw);
+  }
+
+  async hkdfExpand(ikm: ArrayBuffer, info: string, length: number): Promise<ArrayBuffer> {
+    const key = await crypto.subtle.importKey('raw', ikm, 'HKDF', false, ['deriveBits']);
+    return crypto.subtle.deriveBits(
+      { name: 'HKDF', hash: 'SHA-256', salt: new Uint8Array(32), info: new TextEncoder().encode(info) },
+      key,
+      length * 8,
+    );
   }
 
   async encrypt(sharedKeyBase64: string, plaintext: string): Promise<string> {
@@ -64,11 +83,11 @@ export class CryptoService {
     return crypto.subtle.importKey('raw', raw.buffer as ArrayBuffer, { name: 'AES-GCM' }, false, ['encrypt', 'decrypt']);
   }
 
-  private bufferToBase64(buffer: ArrayBuffer): string {
+  bufferToBase64(buffer: ArrayBuffer): string {
     return btoa(String.fromCharCode(...new Uint8Array(buffer)));
   }
 
-  private base64ToBuffer(base64: string): Uint8Array {
+  base64ToBuffer(base64: string): Uint8Array {
     const binary = atob(base64);
     const bytes = new Uint8Array(binary.length);
     for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);

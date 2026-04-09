@@ -3,6 +3,7 @@ import { SqliteService } from './sqlite.service';
 import { CryptoService } from './crypto.service';
 import { DeviceService } from './device.service';
 import { RelayService } from './relay.service';
+import { DoubleRatchetService } from './double-ratchet.service';
 import type { SyncEvent } from '../models/sync-event.model';
 import type { Pair } from '../models/pair.model';
 
@@ -16,6 +17,7 @@ export class EncryptedSyncService {
     private crypto: CryptoService,
     private device: DeviceService,
     private relay: RelayService,
+    private ratchet: DoubleRatchetService,
   ) {}
 
   async sendRoleUpgrade(pair: Pair, newRole: string, courierData: Record<string, any> = {}): Promise<void> {
@@ -27,9 +29,17 @@ export class EncryptedSyncService {
         courierData,
         timestamp: new Date().toISOString(),
       });
-      const encrypted = await this.crypto.encrypt(pair.sharedKey, payload);
       const pairId = await this.crypto.hashPairId(this.device.deviceId(), pair.remoteDeviceId);
-      await this.relay.send(pairId, this.device.deviceId(), encrypted);
+      const hasRatchet = await this.ratchet.hasState(pair.id);
+      if (hasRatchet) {
+        const { ciphertext, counter, ephemeralKey } = await this.ratchet.encryptMessage(pair.id, payload);
+        const envelope = JSON.stringify({ ciphertext, counter, ephemeralKey });
+        await this.relay.send(pairId, this.device.deviceId(), envelope);
+      } else {
+        // Fallback to direct encryption for legacy pairs without ratchet state
+        const encrypted = await this.crypto.encrypt(pair.sharedKey, payload);
+        await this.relay.send(pairId, this.device.deviceId(), encrypted);
+      }
       console.log('[Sync] role upgrade sent:', newRole);
 
       // After sending role upgrade, also push all contacts
@@ -58,9 +68,17 @@ export class EncryptedSyncService {
     if (!this.relay.online()) return;
     try {
       const json = JSON.stringify(event);
-      const payload = await this.crypto.encrypt(pair.sharedKey, json);
       const pairId = await this.crypto.hashPairId(this.device.deviceId(), pair.remoteDeviceId);
-      await this.relay.send(pairId, this.device.deviceId(), payload);
+      const hasRatchet = await this.ratchet.hasState(pair.id);
+      if (hasRatchet) {
+        const { ciphertext, counter, ephemeralKey } = await this.ratchet.encryptMessage(pair.id, json);
+        const envelope = JSON.stringify({ ciphertext, counter, ephemeralKey });
+        await this.relay.send(pairId, this.device.deviceId(), envelope);
+      } else {
+        // Fallback to direct encryption for legacy pairs without ratchet state
+        const payload = await this.crypto.encrypt(pair.sharedKey, json);
+        await this.relay.send(pairId, this.device.deviceId(), payload);
+      }
     } catch (e) {
       console.error('[EncryptedSync] send failed:', e);
     }
@@ -130,22 +148,34 @@ export class EncryptedSyncService {
 
         for (const msg of messages) {
           try {
-            const json = await this.crypto.decrypt(pair.sharedKey, msg.payload);
+            let json: string;
+            const hasRatchet = await this.ratchet.hasState(pair.id);
+            if (hasRatchet) {
+              try {
+                const envelope = JSON.parse(msg.payload);
+                json = await this.ratchet.decryptMessage(pair.id, envelope.ciphertext, envelope.counter);
+              } catch {
+                // Might be a legacy non-ratchet message, try direct decrypt
+                json = await this.crypto.decrypt(pair.sharedKey, msg.payload);
+              }
+            } else {
+              json = await this.crypto.decrypt(pair.sharedKey, msg.payload);
+            }
             const parsed = JSON.parse(json);
 
             if (parsed.type === 'role_upgrade') {
               console.log('[Sync] received role upgrade:', parsed.newRole);
               await this.handleRoleUpgrade(pair, parsed);
-              await this.relay.deleteMessage(msg.id);
+              await this.relay.deleteMessage(msg.id, pairId);
               continue;
             }
 
             const event: SyncEvent = parsed;
             await this.applySyncEvent(event, pair);
-            await this.relay.deleteMessage(msg.id);
+            await this.relay.deleteMessage(msg.id, pairId);
           } catch (e) {
             // Might be a pairing request (plaintext) that we already processed — just delete
-            await this.relay.deleteMessage(msg.id);
+            await this.relay.deleteMessage(msg.id, pairId);
           }
         }
       }
@@ -155,47 +185,9 @@ export class EncryptedSyncService {
   }
 
   private async pollPairingRequests(): Promise<void> {
-    try {
-      const allMessages = await this.relay.fetchAll(this.device.deviceId());
-      console.log('[Sync] polling pairing requests, messages:', allMessages.length);
-
-      for (const msg of allMessages) {
-        try {
-          const data = JSON.parse(msg.payload);
-          if (data.type !== 'pairing_request') continue;
-
-          console.log('[Sync] pairing request for contact:', data.forContactId);
-
-          const contact = await this.sqlite.getById<any>('contacts', data.forContactId);
-          if (!contact) {
-            console.log('[Sync] contact not found, deleting message');
-            await this.relay.deleteMessage(msg.id);
-            continue;
-          }
-
-          const existingPair = this.device.getPairForContact(data.forContactId);
-          if (existingPair) {
-            console.log('[Sync] already paired, deleting message');
-            await this.relay.deleteMessage(msg.id);
-            continue;
-          }
-
-          await this.device.createPair(data.forContactId, data.fromDeviceId, data.fromPublicKey, data.mirrorContactName || '');
-
-          await this.sqlite.run(
-            "UPDATE contacts SET user = ?, linkedName = ?, updated = ?, synced = 0 WHERE id = ?",
-            [data.fromDeviceId, data.mirrorContactName || '', new Date().toISOString(), data.forContactId]
-          );
-
-          console.log('[Sync] pair created successfully for:', data.forContactId);
-          await this.relay.deleteMessage(msg.id);
-        } catch {
-          // Not a valid pairing request JSON — skip
-        }
-      }
-    } catch (e) {
-      console.error('[Sync] pollPairingRequests error:', e);
-    }
+    // TODO: New relay requires per-pair fetch. Pairing requests need a discovery mechanism.
+    // For now, pairing works through QR scan which creates pairs directly.
+    // The pairing request back-channel will be implemented when relay supports a "inbox" endpoint.
   }
 
   private async handleRoleUpgrade(pair: Pair, data: { newRole: string; courierData?: Record<string, any> }): Promise<void> {

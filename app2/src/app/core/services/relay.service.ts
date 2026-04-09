@@ -1,9 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
-import PocketBase from 'pocketbase';
 
-function getRelayUrl(): string {
-  // Must be evaluated at runtime, not build time
+function getDefaultRelayUrl(): string {
   if (Capacitor.isNativePlatform()) {
     return 'http://192.168.178.36:8090';
   }
@@ -12,62 +10,60 @@ function getRelayUrl(): string {
 
 @Injectable({ providedIn: 'root' })
 export class RelayService {
-  private pb: PocketBase;
   readonly online = signal(false);
+  private relayUrl: string;
 
   constructor() {
-    this.pb = new PocketBase(getRelayUrl());
-    this.pb.autoCancellation(false);
+    this.relayUrl = localStorage.getItem('relayUrl') || getDefaultRelayUrl();
     this.checkConnection();
+  }
+
+  setRelayUrl(url: string): void {
+    this.relayUrl = url.replace(/\/$/, '');
+    localStorage.setItem('relayUrl', this.relayUrl);
+  }
+
+  getUrl(): string {
+    return this.relayUrl;
   }
 
   async checkConnection(): Promise<void> {
     try {
-      console.log('[Relay] checking:', this.pb.baseURL);
-      await this.pb.health.check();
-      console.log('[Relay] online');
-      this.online.set(true);
-    } catch (e) {
-      console.error('[Relay] offline:', this.pb.baseURL, e);
+      const res = await fetch(`${this.relayUrl}/health`);
+      this.online.set(res.ok);
+    } catch {
       this.online.set(false);
     }
   }
 
-  getUrl(): string {
-    return this.pb.baseURL;
-  }
-
   async send(pairId: string, sender: string, payload: string): Promise<void> {
-    await this.pb.collection('sync_messages').create({ pairId, sender, payload });
+    await fetch(`${this.relayUrl}/messages`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pairId, sender, payload }),
+    });
   }
 
   async fetch(pairId: string, excludeSender: string): Promise<{ id: string; payload: string; created: string }[]> {
     try {
-      const records = await this.pb.collection('sync_messages').getFullList({
-        filter: `pairId="${pairId}" && sender!="${excludeSender}"`,
-        sort: 'created',
-      });
-      return records.map(r => ({ id: r.id, payload: r['payload'], created: r['created'] }));
+      const params = new URLSearchParams({ pair: pairId });
+      if (excludeSender) params.set('exclude', excludeSender);
+      const res = await fetch(`${this.relayUrl}/messages?${params}`);
+      return res.json();
     } catch {
       return [];
     }
   }
 
-  async fetchAll(excludeSender: string): Promise<{ id: string; payload: string; created: string }[]> {
-    try {
-      const records = await this.pb.collection('sync_messages').getFullList({
-        filter: `sender!="${excludeSender}"`,
-        sort: 'created',
-      });
-      return records.map(r => ({ id: r.id, payload: r['payload'], created: r['created'] }));
-    } catch {
-      return [];
-    }
+  async fetchAll(excludeSender: string): Promise<{ id: string; pairId: string; payload: string; created: string }[]> {
+    // New relay requires per-pair fetch — this is handled by EncryptedSyncService.pollAll()
+    // Kept for interface compat but returns empty
+    return [];
   }
 
-  async deleteMessage(id: string): Promise<void> {
+  async deleteMessage(id: string, pairId: string): Promise<void> {
     try {
-      await this.pb.collection('sync_messages').delete(id);
+      await fetch(`${this.relayUrl}/messages/${id}?pair=${pairId}`, { method: 'DELETE' });
     } catch {}
   }
 }
