@@ -74,10 +74,10 @@ import { CourierService } from '../../../couriers/services/courier.service';
             <ion-select-option value="en">English</ion-select-option>
           </ion-select>
         </ion-item>
-        <ion-item (click)="relay.checkConnection()">
+        <ion-item button (click)="editRelayUrl()">
           <ion-icon name="sync-circle" slot="start" />
           <ion-label>
-            {{ 'profile.sync' | translate }}
+            Relay Server
             <p style="font-size:11px;color:#666;">{{ relay.getUrl() }}</p>
           </ion-label>
           <ion-note slot="end" [color]="relay.online() ? 'success' : 'medium'">
@@ -247,5 +247,26 @@ export class ProfilePage implements OnInit {
     );
     this.userService.user.set({ ...user, username: name.trim() });
     this.toast.success('Name gespeichert');
+  }
+
+  async editRelayUrl(): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: 'Relay Server URL',
+      inputs: [{ name: 'url', type: 'url' as const, value: this.relay.getUrl(), placeholder: 'https://relay.example.com' }],
+      buttons: [
+        { text: 'Abbrechen', role: 'cancel' as const },
+        {
+          text: 'Speichern',
+          handler: (data: { url: string }) => {
+            if (data.url?.trim()) {
+              this.relay.setRelayUrl(data.url.trim());
+              this.relay.checkConnection();
+              this.toast.success('Relay URL gespeichert');
+            }
+          },
+        },
+      ],
+    });
+    await alert.present();
   }
 }
