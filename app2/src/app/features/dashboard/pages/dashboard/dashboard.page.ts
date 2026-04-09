@@ -39,6 +39,7 @@ import { UserService } from '../../../../core/services/user.service';
 import { RelayService } from '../../../../core/services/relay.service';
 import { DeviceService } from '../../../../core/services/device.service';
 import { SqliteService } from '../../../../core/services/sqlite.service';
+import { AgentService } from '../../../../core/services/agent.service';
 import { ContactService } from '../../../contacts/services/contact.service';
 import { TransactionService } from '../../../transactions/services/transaction.service';
 import { TransactionType } from '../../../../core/models/transaction.model';
@@ -350,6 +351,7 @@ export class DashboardPage implements OnInit {
     private txService: TransactionService,
     private deviceService: DeviceService,
     private sqlite: SqliteService,
+    private agentService: AgentService,
   ) {
     addIcons({ checkmarkCircle, arrowDownCircle, arrowUpCircle, documentText, returnDownBack, cube, cashOutline, gift, swapHorizontal });
   }
@@ -382,16 +384,20 @@ export class DashboardPage implements OnInit {
         'SELECT COUNT(*) as cnt FROM remote_contacts WHERE pairId = ?', [pair.id]
       );
       const links = await this.sqlite.query<any>(
-        'SELECT inventoryBalance, salesBalance, bonusBalance FROM courier_links WHERE courier = ?',
+        'SELECT id FROM courier_links WHERE courier = ?',
         [this.auth.user()!.id]
       );
-      const link = links[0];
+      let inventory = 0, sales = 0, bonus = 0;
+      if (links[0]) {
+        const agg = await this.agentService.getAggregatedBalances(links[0].id);
+        inventory = agg.inventory;
+        sales = agg.sales;
+        bonus = agg.bonus;
+      }
       cards.push({
         pairId: pair.id,
         label: pair.label || 'Manager',
-        inventory: link?.inventoryBalance ?? 0,
-        sales: link?.salesBalance ?? 0,
-        bonus: link?.bonusBalance ?? 0,
+        inventory, sales, bonus,
         contactCount: remoteContacts[0]?.cnt ?? 0,
       });
     }

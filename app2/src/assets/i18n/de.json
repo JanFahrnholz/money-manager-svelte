@@ -117,5 +117,16 @@
   "balance.youOwe": "Du schuldest",
   "balance.even": "Ausgeglichen",
   "overdue": "Überfällig",
-  "copied": "Kopiert!"
+  "copied": "Kopiert!",
+  "batch": {
+    "commission": "Kommission",
+    "prepaid": "Vorab-Kauf",
+    "type": "Posten-Typ",
+    "remaining": "Restbestand",
+    "open": "Offen",
+    "empty": "Leer",
+    "selectBatch": "Posten wählen",
+    "openSales": "Offener Umsatz",
+    "openBonus": "Offener Bonus"
+  }
 }

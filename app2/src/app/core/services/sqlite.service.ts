@@ -171,6 +171,41 @@ export class SqliteService {
   theirEphemeralPublic TEXT DEFAULT '',
   updated TEXT NOT NULL
 )`);
+
+    await this.db.execute(`CREATE TABLE IF NOT EXISTS batches (
+  id TEXT PRIMARY KEY,
+  agentLinkId TEXT NOT NULL,
+  type TEXT NOT NULL DEFAULT 'commission',
+  amount REAL NOT NULL DEFAULT 0,
+  remaining REAL NOT NULL DEFAULT 0,
+  bonusPercentage REAL DEFAULT 0,
+  salesTotal REAL DEFAULT 0,
+  bonusTotal REAL DEFAULT 0,
+  collected REAL DEFAULT 0,
+  redeemed REAL DEFAULT 0,
+  created TEXT NOT NULL,
+  updated TEXT NOT NULL
+)`);
+
+    await this.db.execute(`CREATE TABLE IF NOT EXISTS remote_batches (
+  id TEXT PRIMARY KEY,
+  pairId TEXT NOT NULL,
+  agentLinkId TEXT NOT NULL,
+  type TEXT NOT NULL DEFAULT 'commission',
+  amount REAL DEFAULT 0,
+  remaining REAL DEFAULT 0,
+  bonusPercentage REAL DEFAULT 0,
+  salesTotal REAL DEFAULT 0,
+  bonusTotal REAL DEFAULT 0,
+  collected REAL DEFAULT 0,
+  redeemed REAL DEFAULT 0,
+  created TEXT DEFAULT '',
+  updated TEXT DEFAULT ''
+)`);
+
+    // Add missing columns to courier_links for agent model
+    try { await this.db.execute("ALTER TABLE courier_links ADD COLUMN contactId TEXT DEFAULT ''"); } catch {}
+    try { await this.db.execute("ALTER TABLE courier_links ADD COLUMN pairId TEXT DEFAULT ''"); } catch {}
   }
 
   async query<T>(sql: string, params: any[] = []): Promise<T[]> {

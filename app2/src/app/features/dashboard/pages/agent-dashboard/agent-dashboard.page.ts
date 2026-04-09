@@ -12,6 +12,7 @@ import { add } from 'ionicons/icons';
 import { DeviceService } from '../../../../core/services/device.service';
 import { SqliteService } from '../../../../core/services/sqlite.service';
 import { UserService } from '../../../../core/services/user.service';
+import { AgentService } from '../../../../core/services/agent.service';
 import { EuroPipe } from '../../../../shared/pipes/euro.pipe';
 import type { Pair } from '../../../../core/models/pair.model';
 
@@ -135,6 +136,7 @@ export class AgentDashboardPage implements OnInit {
     private sqlite: SqliteService,
     private userService: UserService,
     private nav: NavController,
+    private agentService: AgentService,
   ) {
     addIcons({ add });
   }
@@ -163,12 +165,13 @@ export class AgentDashboardPage implements OnInit {
 
     const userId = this.userService.user()!.id;
     const links = await this.sqlite.query<any>(
-      'SELECT inventoryBalance, salesBalance, bonusBalance FROM courier_links WHERE courier = ?', [userId]
+      'SELECT id FROM courier_links WHERE courier = ?', [userId]
     );
     if (links[0]) {
-      this.inventory.set(links[0].inventoryBalance ?? 0);
-      this.sales.set(links[0].salesBalance ?? 0);
-      this.bonus.set(links[0].bonusBalance ?? 0);
+      const agg = await this.agentService.getAggregatedBalances(links[0].id);
+      this.inventory.set(agg.inventory);
+      this.sales.set(agg.sales);
+      this.bonus.set(agg.bonus);
     }
   }
 

@@ -202,14 +202,16 @@ export class EncryptedSyncService {
     if (event.action === 'delete') {
       if (event.table === 'courier_links') {
         await this.sqlite.delete('courier_links', event.recordId);
-        console.log('[Sync] deleted courier_link');
+      } else if (event.table === 'batches') {
+        const table = (isViewer || pair.role === 'courier') ? 'remote_batches' : 'batches';
+        await this.sqlite.delete(table, event.recordId);
       } else if (isViewer) {
         if (event.table === 'contacts') await this.sqlite.delete('remote_contacts', event.recordId);
         if (event.table === 'transactions') await this.sqlite.delete('remote_transactions', event.recordId);
-        console.log(`[Sync] deleted from remote_${event.table} cache`);
       } else {
         await this.sqlite.delete(event.table, event.recordId);
       }
+      console.log(`[Sync] deleted ${event.table}:${event.recordId}`);
       return;
     }
 
@@ -218,6 +220,27 @@ export class EncryptedSyncService {
       const { synced, ...data } = event.data;
       await this.sqlite.upsert('courier_links', { ...data, id: event.recordId, synced: 1 });
       console.log('[Sync] updated local courier_link from manager');
+      return;
+    }
+
+    // batches: viewers/couriers store in remote_batches, owners store in batches
+    if (event.table === 'batches') {
+      const { synced, ...data } = event.data;
+      if (isViewer || pair.role === 'courier') {
+        if (event.action === 'upsert') {
+          await this.sqlite.upsert('remote_batches', { ...data, id: event.recordId, pairId: pair.id });
+        } else {
+          await this.sqlite.delete('remote_batches', event.recordId);
+        }
+        console.log('[Sync] stored batch in remote_batches cache');
+      } else {
+        if (event.action === 'upsert') {
+          await this.sqlite.upsert('batches', { ...data, id: event.recordId });
+        } else {
+          await this.sqlite.delete('batches', event.recordId);
+        }
+        console.log('[Sync] stored batch locally');
+      }
       return;
     }
 

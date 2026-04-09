@@ -22,14 +22,17 @@ import {
   IonCard,
   IonCardContent,
   IonProgressBar,
+  IonBadge,
   AlertController,
 } from '@ionic/angular/standalone';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
 import { settingsOutline } from 'ionicons/icons';
 import { CourierService } from '../../services/courier.service';
+import { AgentService } from '../../../../core/services/agent.service';
 import { SqliteService } from '../../../../core/services/sqlite.service';
 import type { CourierLink } from '../../../../core/models/courier-link.model';
+import type { Batch } from '../../../../core/models/batch.model';
 import type { Contact } from '../../../../core/models/contact.model';
 import type { User } from '../../../../core/models/user.model';
 
@@ -60,6 +63,7 @@ import type { User } from '../../../../core/models/user.model';
     IonCard,
     IonCardContent,
     IonProgressBar,
+    IonBadge,
     TranslateModule,
   ],
   template: `
@@ -94,7 +98,7 @@ import type { User } from '../../../../core/models/user.model';
             <ion-col size="4">
               <ion-card class="balance-card">
                 <ion-card-content class="balance-card-content" style="border-top: 3px solid #ffd600;">
-                  <div class="balance-value">{{ l.inventoryBalance | euro }}</div>
+                  <div class="balance-value">{{ aggBalances().inventory | euro }}</div>
                   <div class="balance-label">{{ 'courier.inventory' | translate }}</div>
                 </ion-card-content>
               </ion-card>
@@ -102,7 +106,7 @@ import type { User } from '../../../../core/models/user.model';
             <ion-col size="4">
               <ion-card class="balance-card">
                 <ion-card-content class="balance-card-content" style="border-top: 3px solid #4cd964;">
-                  <div class="balance-value">{{ l.salesBalance | euro }}</div>
+                  <div class="balance-value">{{ aggBalances().sales | euro }}</div>
                   <div class="balance-label">{{ 'courier.sales' | translate }}</div>
                 </ion-card-content>
               </ion-card>
@@ -110,7 +114,7 @@ import type { User } from '../../../../core/models/user.model';
             <ion-col size="4">
               <ion-card class="balance-card">
                 <ion-card-content class="balance-card-content" style="border-top: 3px solid #ff9500;">
-                  <div class="balance-value">{{ l.bonusBalance | euro }}</div>
+                  <div class="balance-value">{{ aggBalances().bonus | euro }}</div>
                   <div class="balance-label">{{ 'courier.bonus' | translate }}</div>
                 </ion-card-content>
               </ion-card>
@@ -159,6 +163,34 @@ import type { User } from '../../../../core/models/user.model';
             </ion-col>
           </ion-row>
         </ion-grid>
+
+        <!-- Batch List -->
+        <div style="padding:0 16px;margin-top:16px;">
+          <div style="font-size:11px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:1px;">
+            Posten ({{ batches().length }})
+          </div>
+        </div>
+        @if (batches().length > 0) {
+          <ion-list>
+            @for (batch of batches(); track batch.id) {
+              <ion-item>
+                <ion-label>
+                  <h3>{{ batch.type === 'commission' ? 'Kommission' : 'Vorab-Kauf' }} &middot; {{ batch.amount | euro }}</h3>
+                  <p>
+                    Rest: {{ batch.remaining | euro }}
+                    @if (batch.type === 'commission') {
+                      &middot; Bonus: {{ batch.bonusPercentage }}%
+                      &middot; Offen: {{ batch.salesTotal - batch.collected | euro }}
+                    }
+                  </p>
+                </ion-label>
+                <ion-badge slot="end" [color]="batch.remaining > 0 ? 'warning' : 'medium'">
+                  {{ batch.remaining > 0 ? 'Offen' : 'Leer' }}
+                </ion-badge>
+              </ion-item>
+            }
+          </ion-list>
+        }
 
         <!-- Settings list -->
         <div class="section">
@@ -285,19 +317,25 @@ export class CourierDetailPage implements OnInit {
   private readonly alertCtrl = inject(AlertController);
   private readonly translate = inject(TranslateService);
   private readonly courierService = inject(CourierService);
+  private readonly agentService = inject(AgentService);
   private readonly sqlite = inject(SqliteService);
 
   readonly link = signal<CourierLink | null>(null);
   readonly courierName = signal<string>('');
   readonly subCouriers = signal<CourierLink[]>([]);
   readonly subCourierNames = signal<Record<string, string>>({});
+  readonly batches = signal<Batch[]>([]);
+  readonly aggBalances = signal<{ inventory: number; sales: number; bonus: number }>({
+    inventory: 0,
+    sales: 0,
+    bonus: 0,
+  });
 
   readonly progress = computed(() => {
-    const l = this.link();
-    if (!l) return 0;
-    const total = l.inventoryBalance + l.salesBalance;
+    const agg = this.aggBalances();
+    const total = agg.inventory + agg.sales;
     if (total === 0) return 0;
-    const value = (l.salesBalance / total) * 100;
+    const value = (agg.sales / total) * 100;
     return isFinite(value) ? value : 0;
   });
 
@@ -315,6 +353,12 @@ export class CourierDetailPage implements OnInit {
     const linkData = await this.courierService.getById(id);
     if (!linkData) return;
     this.link.set(linkData);
+
+    // Load batches and aggregated balances
+    const batches = await this.agentService.getBatchesForLink(id);
+    this.batches.set(batches);
+    const agg = await this.agentService.getAggregatedBalances(id);
+    this.aggBalances.set(agg);
 
     // Resolve courier name
     const name = await this.resolveCourierName(linkData.courier);
@@ -358,19 +402,40 @@ export class CourierDetailPage implements OnInit {
     return 'Unknown';
   }
 
-  async promptAmount(header: string, action: (amount: number) => Promise<void>): Promise<void> {
-    const alert = await this.alertCtrl.create({
-      header,
-      inputs: [{ name: 'amount', type: 'number', placeholder: '0' }],
+  async onRestockClick(): Promise<void> {
+    const typeAlert = await this.alertCtrl.create({
+      header: 'Posten-Typ',
+      inputs: [
+        { type: 'radio', label: 'Kommission', value: 'commission', checked: true },
+        { type: 'radio', label: 'Vorab-Kauf', value: 'prepaid' },
+      ],
       buttons: [
         { text: this.translate.instant('cancel'), role: 'cancel' },
         {
-          text: 'OK',
+          text: 'Weiter',
+          handler: (batchType: string) => {
+            this.promptRestockAmount(batchType);
+          },
+        },
+      ],
+    });
+    await typeAlert.present();
+  }
+
+  private async promptRestockAmount(batchType: string): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: this.translate.instant('courier.enterAmount'),
+      inputs: [{ name: 'amount', type: 'number', placeholder: '0.00' }],
+      buttons: [
+        { text: this.translate.instant('cancel'), role: 'cancel' },
+        {
+          text: this.translate.instant('save'),
           handler: async (data: { amount: string }) => {
             const amount = parseFloat(data.amount);
             if (!amount || amount <= 0) return;
-            await action(amount);
-            await this.reload();
+            const link = this.link()!;
+            await this.agentService.createBatch(link.id, amount, batchType as 'commission' | 'prepaid', link.bonusPercentage ?? 5);
+            await this.loadData(link.id);
           },
         },
       ],
@@ -378,16 +443,114 @@ export class CourierDetailPage implements OnInit {
     await alert.present();
   }
 
-  onRestockClick(): void {
-    this.promptAmount(this.translate.instant('courier.restock'), (amount) => this.onRestock(amount));
+  async onCollectClick(): Promise<void> {
+    const linkId = this.link()?.id;
+    if (!linkId) return;
+    const eligible = this.batches().filter(b => b.salesTotal - b.collected > 0);
+    if (eligible.length === 0) return;
+    if (eligible.length === 1) {
+      await this.promptCollectAmount(eligible[0]);
+    } else {
+      await this.pickBatchAndCollect(eligible);
+    }
   }
 
-  onCollectClick(): void {
-    this.promptAmount(this.translate.instant('courier.collect'), (amount) => this.onCollect(amount));
+  private async pickBatchAndCollect(eligible: Batch[]): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: 'Posten wählen',
+      inputs: eligible.map((b, i) => ({
+        type: 'radio' as const,
+        label: `${b.type === 'commission' ? 'Kommission' : 'Vorab-Kauf'} – Offen: ${(b.salesTotal - b.collected).toFixed(2)} €`,
+        value: b.id,
+        checked: i === 0,
+      })),
+      buttons: [
+        { text: this.translate.instant('cancel'), role: 'cancel' },
+        {
+          text: 'Weiter',
+          handler: (batchId: string) => {
+            const batch = eligible.find(b => b.id === batchId);
+            if (batch) this.promptCollectAmount(batch);
+          },
+        },
+      ],
+    });
+    await alert.present();
   }
 
-  onRedeemClick(): void {
-    this.promptAmount(this.translate.instant('courier.redeem'), (amount) => this.onRedeem(amount));
+  private async promptCollectAmount(batch: Batch): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: this.translate.instant('courier.collect'),
+      inputs: [{ name: 'amount', type: 'number', placeholder: '0.00' }],
+      buttons: [
+        { text: this.translate.instant('cancel'), role: 'cancel' },
+        {
+          text: this.translate.instant('save'),
+          handler: async (data: { amount: string }) => {
+            const amount = parseFloat(data.amount);
+            if (!amount || amount <= 0) return;
+            await this.agentService.collect(batch.id, amount);
+            await this.loadData(this.link()!.id);
+          },
+        },
+      ],
+    });
+    await alert.present();
+  }
+
+  async onRedeemClick(): Promise<void> {
+    const linkId = this.link()?.id;
+    if (!linkId) return;
+    const eligible = this.batches().filter(b => b.bonusTotal - b.redeemed > 0);
+    if (eligible.length === 0) return;
+    if (eligible.length === 1) {
+      await this.promptRedeemAmount(eligible[0]);
+    } else {
+      await this.pickBatchAndRedeem(eligible);
+    }
+  }
+
+  private async pickBatchAndRedeem(eligible: Batch[]): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: 'Posten wählen',
+      inputs: eligible.map((b, i) => ({
+        type: 'radio' as const,
+        label: `Kommission – Bonus offen: ${(b.bonusTotal - b.redeemed).toFixed(2)} €`,
+        value: b.id,
+        checked: i === 0,
+      })),
+      buttons: [
+        { text: this.translate.instant('cancel'), role: 'cancel' },
+        {
+          text: 'Weiter',
+          handler: (batchId: string) => {
+            const batch = eligible.find(b => b.id === batchId);
+            if (batch) this.promptRedeemAmount(batch);
+          },
+        },
+      ],
+    });
+    await alert.present();
+  }
+
+  private async promptRedeemAmount(batch: Batch): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: this.translate.instant('courier.redeem'),
+      inputs: [{ name: 'amount', type: 'number', placeholder: '0.00' }],
+      buttons: [
+        { text: this.translate.instant('cancel'), role: 'cancel' },
+        {
+          text: this.translate.instant('save'),
+          handler: async (data: { amount: string }) => {
+            const amount = parseFloat(data.amount);
+            if (!amount || amount <= 0) return;
+            await this.agentService.redeem(batch.id, amount);
+            await this.loadData(this.link()!.id);
+          },
+        },
+      ],
+    });
+    await alert.present();
   }
 
   getSubCourierName(id: string): string {
@@ -397,24 +560,6 @@ export class CourierDetailPage implements OnInit {
   getSubCourierInitial(id: string): string {
     const name = this.getSubCourierName(id);
     return name.charAt(0).toUpperCase();
-  }
-
-  async onRestock(amount: number): Promise<void> {
-    const l = this.link();
-    if (!l) return;
-    await this.courierService.restock(l.id, amount);
-  }
-
-  async onCollect(amount: number): Promise<void> {
-    const l = this.link();
-    if (!l) return;
-    await this.courierService.collect(l.id, amount);
-  }
-
-  async onRedeem(amount: number): Promise<void> {
-    const l = this.link();
-    if (!l) return;
-    await this.courierService.redeemBonus(l.id, amount);
   }
 
   async editBonusPercentage(): Promise<void> {
