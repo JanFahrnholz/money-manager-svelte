@@ -145,7 +145,7 @@ import { EuroPipe } from '../../../../shared/pipes/euro.pipe';
           <div class="section">
             <h3 class="section-title">{{ 'courier.dashboard' | translate }}</h3>
             @for (card of agentCards(); track card.pairId) {
-              <ion-card button class="agent-card" style="margin:0 0 12px;">
+              <ion-card button [routerLink]="['/tabs/dashboard/agent', card.pairId]" class="agent-card" style="margin:0 0 12px;">
                 <ion-card-content>
                   <div style="display:flex;justify-content:space-between;align-items:center;">
                     <div>

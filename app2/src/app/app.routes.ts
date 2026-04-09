@@ -7,7 +7,7 @@ export const routes: Routes = [
     loadComponent: () => import('./features/tabs/tabs.component').then(m => m.TabsComponent),
     children: [
       { path: 'dashboard', loadComponent: () => import('./features/dashboard/pages/dashboard/dashboard.page').then(m => m.DashboardPage) },
-      // TODO Task 6: { path: 'dashboard/agent/:pairId', loadComponent: () => import('./features/dashboard/pages/agent-dashboard/agent-dashboard.page').then(m => m.AgentDashboardPage) },
+      { path: 'dashboard/agent/:pairId', loadComponent: () => import('./features/dashboard/pages/agent-dashboard/agent-dashboard.page').then(m => m.AgentDashboardPage) },
       { path: 'contacts', loadComponent: () => import('./features/contacts/pages/contact-list/contact-list.page').then(m => m.ContactListPage) },
       { path: 'contacts/:contactId', loadComponent: () => import('./features/contacts/pages/contact-detail/contact-detail.page').then(m => m.ContactDetailPage) },
       { path: 'transactions/create', loadComponent: () => import('./features/transactions/pages/transaction-create/transaction-create.page').then(m => m.TransactionCreatePage) },
