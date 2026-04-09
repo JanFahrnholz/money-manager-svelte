@@ -1,6 +1,9 @@
 # MoneyManager — Konzept & Architektur
 
-> Single Source of Truth. Ersetzt alle vorherigen Specs.
+> **VERALTET**: Dieses Dokument wird durch das [Konzept-Redesign vom 2026-04-09](superpowers/specs/2026-04-09-concept-redesign.md) ersetzt.
+> Wesentliche Änderungen: Dashboard-Hub statt Netzwerk-Karten, Posten-basiertes Agent-System, self-hosted Relay statt PocketBase, Signal-Level Crypto (X25519 + Double Ratchet).
+>
+> Das untenstehende Dokument bleibt als Referenz erhalten.
 
 ## 1. Vision
 
