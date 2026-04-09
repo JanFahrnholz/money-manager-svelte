@@ -1,8 +1,10 @@
-export interface CourierLink {
+export interface AgentLink {
   id: string;
   manager: string;
-  courier: string;
-  inventoryBalance: number;
+  courier: string;     // agent user ID (kept as 'courier' for DB compat)
+  contactId: string;
+  pairId: string;
+  inventoryBalance: number;  // kept for backward compat, aggregated from batches
   salesBalance: number;
   bonusBalance: number;
   bonusPercentage: number;
@@ -11,3 +13,6 @@ export interface CourierLink {
   updated: string;
   synced: boolean;
 }
+
+// Backward compat alias
+export type CourierLink = AgentLink;
