@@ -8,7 +8,7 @@ export class CryptoService {
       { name: 'X25519' },
       true,
       ['deriveBits'],
-    );
+    ) as CryptoKeyPair;
     const publicKey = await crypto.subtle.exportKey('jwk', keyPair.publicKey);
     const privateKey = await crypto.subtle.exportKey('jwk', keyPair.privateKey);
     return { publicKey, privateKey };
